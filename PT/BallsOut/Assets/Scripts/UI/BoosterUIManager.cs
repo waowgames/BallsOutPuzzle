@@ -102,9 +102,9 @@ public sealed class BoosterUIManager : MonoBehaviour
             ownedCount = LoadOwnedCount();
             bool hasBooster = ownedCount > 0;
 
-            purchaseContainer?.SetActive(!hasBooster);
-            ownedContainer?.SetActive(hasBooster);
-            watchIcon?.SetActive(false);
+            if (purchaseContainer != null) purchaseContainer.SetActive(!hasBooster);
+            if (ownedContainer != null) ownedContainer.SetActive(hasBooster);
+            if (watchIcon != null) watchIcon.SetActive(false);
 
             if (ownedCountLabel != null)
                 ownedCountLabel.SetText("{0}", ownedCount);

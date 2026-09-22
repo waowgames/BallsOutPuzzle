@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55425f6c35c259a499f3b91c4854fbed, type: 3}
+  m_Name: Color_Coral
+  m_EditorClassIdentifier: 
+  id: coral
+  displayColor: {r: 1.885417, g: 0.2626113, b: 0.30152228, a: 1}
+  ballMaterial: {fileID: 2100000, guid: da22bcc416e82e24aa44d48e221ec74e, type: 2}
+  boxMaterial: {fileID: 2100000, guid: da22bcc416e82e24aa44d48e221ec74e, type: 2}
+  ballPrefabOverride: {fileID: 0}

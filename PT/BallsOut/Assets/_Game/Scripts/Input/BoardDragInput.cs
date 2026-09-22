@@ -10,8 +10,14 @@ namespace BallsOut
         [SerializeField] private Camera inputCamera;
         private BoardGrid board;
         private BoxMovementSystem movement;
+#if ENABLE_INPUT_SYSTEM
+        private InputAction pressAction;
+        private InputAction positionAction;
+        private Pointer activePointer;
+#else
         private int touchId = -1;
         private bool mouseDrag;
+#endif
 
         internal void Initialize(BoardGrid board, BoxMovementSystem movement)
         {
@@ -20,35 +26,55 @@ namespace BallsOut
             if (inputCamera == null) inputCamera = Camera.main;
         }
 
+#if ENABLE_INPUT_SYSTEM
+        private void Awake()
+        {
+            pressAction = new InputAction("Board Press", InputActionType.PassThrough);
+            pressAction.AddBinding("<Mouse>/leftButton");
+            pressAction.AddBinding("<Touchscreen>/primaryTouch/press");
+            pressAction.performed += HandlePress;
+            positionAction = new InputAction("Board Position", InputActionType.PassThrough);
+            positionAction.AddBinding("<Mouse>/position");
+            positionAction.AddBinding("<Touchscreen>/primaryTouch/position");
+            positionAction.performed += HandlePosition;
+        }
+
+        private void OnEnable()
+        {
+            pressAction.Enable();
+            positionAction.Enable();
+        }
+
+        private void HandlePress(InputAction.CallbackContext context)
+        {
+            var pointer = context.control.device as Pointer;
+            if (pointer == null || movement == null || inputCamera == null) return;
+            if (context.ReadValue<float>() > 0.5f)
+            {
+                if (activePointer == null && Begin(pointer.position.ReadValue())) activePointer = pointer;
+            }
+            else if (activePointer == pointer)
+            {
+                Move(pointer.position.ReadValue());
+                movement.Release();
+                activePointer = null;
+            }
+        }
+
+        private void HandlePosition(InputAction.CallbackContext context)
+        {
+            if (context.control.device == activePointer) Move(context.ReadValue<Vector2>());
+        }
+
+        private void OnDestroy()
+        {
+            pressAction?.Dispose();
+            positionAction?.Dispose();
+        }
+#elif ENABLE_LEGACY_INPUT_MANAGER
         private void Update()
         {
             if (movement == null || inputCamera == null) return;
-#if ENABLE_INPUT_SYSTEM
-            var screen = Touchscreen.current;
-            if (!mouseDrag && screen != null)
-            {
-                foreach (var touch in screen.touches)
-                {
-                    int id = touch.touchId.ReadValue();
-                    if (touchId < 0 && touch.press.wasPressedThisFrame)
-                    {
-                        if (Begin(touch.position.ReadValue())) touchId = id;
-                    }
-                    if (touchId != id || touchId < 0) continue;
-                    Move(touch.position.ReadValue());
-                    if (!touch.press.isPressed) { movement.Release(); touchId = -1; }
-                    return;
-                }
-                if (touchId >= 0) { movement.Release(); touchId = -1; return; }
-            }
-            var mouse = Mouse.current;
-            if (touchId >= 0 || mouse == null) return;
-            Vector2 point = mouse.position.ReadValue();
-            if (mouse.leftButton.wasPressedThisFrame) mouseDrag = Begin(point);
-            if (!mouseDrag) return;
-            Move(point);
-            if (mouse.leftButton.wasReleasedThisFrame) { movement.Release(); mouseDrag = false; }
-#elif ENABLE_LEGACY_INPUT_MANAGER
             if (!mouseDrag && UnityEngine.Input.touchCount > 0)
             {
                 for (int i = 0; i < UnityEngine.Input.touchCount; i++)
@@ -67,8 +93,8 @@ namespace BallsOut
             if (!mouseDrag) return;
             Move(point);
             if (UnityEngine.Input.GetMouseButtonUp(0)) { movement.Release(); mouseDrag = false; }
-#endif
         }
+#endif
 
         private bool Project(Vector2 screenPoint, out Vector3 worldPoint)
         {
@@ -79,9 +105,30 @@ namespace BallsOut
             return hit;
         }
 
-        private bool Begin(Vector2 point) => Project(point, out var world) && movement.Begin(world);
+        private bool Begin(Vector2 point) =>
+            (UIManager.Instance == null || !UIManager.Instance.HasActivePopup) &&
+            Project(point, out var world) && movement.Begin(world);
         private void Move(Vector2 point) { if (Project(point, out var world)) movement.Drag(world); }
-        private void OnDisable() { movement?.Cancel(); touchId = -1; mouseDrag = false; }
-        private void OnApplicationFocus(bool focus) { if (!focus) OnDisable(); }
+        private void OnDisable()
+        {
+#if ENABLE_INPUT_SYSTEM
+            pressAction?.Disable();
+            positionAction?.Disable();
+#endif
+            CancelDrag();
+        }
+
+        private void CancelDrag()
+        {
+            movement?.Cancel();
+#if ENABLE_INPUT_SYSTEM
+            activePointer = null;
+#else
+            touchId = -1;
+            mouseDrag = false;
+#endif
+        }
+
+        private void OnApplicationFocus(bool focus) { if (!focus) CancelDrag(); }
     }
 }

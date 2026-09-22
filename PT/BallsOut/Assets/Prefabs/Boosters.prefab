@@ -938,7 +938,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 884700000000000005}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: BoosterPurchasePopup, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1
@@ -3836,7 +3836,6 @@ GameObject:
   - component: {fileID: 7774556051810846272}
   - component: {fileID: 770350214286419634}
   - component: {fileID: 4483072207281053856}
-  - component: {fileID: 884700000000000001}
   - component: {fileID: 884700000000000002}
   m_Layer: 5
   m_Name: Add + Park
@@ -3928,19 +3927,6 @@ MonoBehaviour:
   openDuration: 0.2
   closeDuration: 0.14
   stagger: 0.04
---- !u!114 &884700000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5585033098309267760}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0847fd2635f24c12ad372e805100af11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeTime: 0.2
 --- !u!225 &884700000000000002
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -4468,7 +4454,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 884700000000000003}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: BoosterPurchasePopup, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1
@@ -4629,7 +4615,6 @@ GameObject:
   - component: {fileID: 1221159424108434989}
   - component: {fileID: 8781406048141906096}
   - component: {fileID: 4483072207281053857}
-  - component: {fileID: 884700000000000003}
   - component: {fileID: 884700000000000004}
   m_Layer: 5
   m_Name: Swap Lane
@@ -4721,19 +4706,6 @@ MonoBehaviour:
   openDuration: 0.2
   closeDuration: 0.14
   stagger: 0.04
---- !u!114 &884700000000000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6481319753511490685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0847fd2635f24c12ad372e805100af11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeTime: 0.2
 --- !u!225 &884700000000000004
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -7503,7 +7475,6 @@ GameObject:
   - component: {fileID: 5184083568589147961}
   - component: {fileID: 5161556930164575836}
   - component: {fileID: 4483072207281053858}
-  - component: {fileID: 884700000000000005}
   - component: {fileID: 884700000000000006}
   m_Layer: 5
   m_Name: Rapid Passenger
@@ -7595,19 +7566,6 @@ MonoBehaviour:
   openDuration: 0.2
   closeDuration: 0.14
   stagger: 0.04
---- !u!114 &884700000000000005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8993423600450521643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0847fd2635f24c12ad372e805100af11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeTime: 0.2
 --- !u!225 &884700000000000006
 CanvasGroup:
   m_ObjectHideFlags: 0

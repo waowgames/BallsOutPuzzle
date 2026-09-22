@@ -1,5 +1,14 @@
+using UnityEngine;
+
 public sealed class GameFlowController : SingletonMonoBehaviour<GameFlowController>
 {
+    [SerializeField] private bool startOnSceneLoad;
+
+    private void Start()
+    {
+        if (startOnSceneLoad) StartCurrentLevel();
+    }
+
     public bool StartCurrentLevel()
     {
         LevelManager manager = LevelManager.Instance;

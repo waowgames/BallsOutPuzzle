@@ -42,6 +42,9 @@ namespace BallsOut
             if (selected == null || releaseRequested) return;
             Vector3 originPoint = board.Root.InverseTransformPoint(worldPoint) - grabOffset;
             target = new Vector2Int(Mathf.FloorToInt(originPoint.x / board.CellSize), Mathf.FloorToInt(originPoint.z / board.CellSize));
+            // Accept the first neighboring step while the pointer is held, even if
+            // press, motion and release all arrive before the next rendered frame.
+            if (!selected.IsInTransit) Advance(0f);
         }
 
         public void Release()

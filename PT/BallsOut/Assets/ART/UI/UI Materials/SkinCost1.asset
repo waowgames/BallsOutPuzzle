@@ -2643,18 +2643,19 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _FaceDilate: 0.53
-    - _OutlineSoftness: 0.5
-    - _OutlineWidth: 0.481
-    - _ScaleRatioA: 0.49062902
-    - _ScaleRatioB: 0.2354167
-    - _ScaleRatioC: 0.107840896
+    - _FaceDilate: 1
+    - _OutlineSoftness: 1
+    - _OutlineWidth: 0.249
+    - _ScaleRatioA: 0.34202066
+    - _ScaleRatioB: 0
+    - _ScaleRatioC: 0
     - _UnderlayDilate: 1
     - _UnderlayOffsetX: 0.73
     - _UnderlayOffsetY: -0.85
     - _UnderlaySoftness: 0.333
     m_Colors:
-    - _OutlineColor: {r: 0.27974403, g: 0.13679248, b: 1, a: 1}
+    - _FaceColor: {r: 2, g: 2, b: 2, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!28 &8214437415804665855
