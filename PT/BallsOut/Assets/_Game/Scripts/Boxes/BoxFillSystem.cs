@@ -11,6 +11,8 @@ namespace BallsOut
             public BoxController box;
             public Vector3 start;
             public Vector3 end;
+            public Vector3 startScale;
+            public Vector3 endScale;
             public float elapsed;
         }
 
@@ -42,16 +44,22 @@ namespace BallsOut
         {
             Vector3 end = GetSlotPosition(box, box.CurrentFill - 1);
             Vector3 start = end;
+            Vector3 startScale = Vector3.one;
+            Vector3 endScale = Vector3.one;
             if (ball.Visual != null)
             {
                 // Parent once, then animate in the box's local space. Both settled
                 // and arriving balls travel with a partially filled dragged box.
                 ball.Visual.SetParent(box.FillRoot, true);
                 start = ball.Visual.localPosition;
+                startScale = ball.Visual.localScale;
+                float diameter = Mathf.Max(startScale.x, Mathf.Max(startScale.y, startScale.z));
+                float spacing = Mathf.Min(box.FillSpacing.x, Mathf.Min(box.FillSpacing.y, box.FillSpacing.z));
+                endScale = startScale * Mathf.Min(1f, spacing * 0.96f / Mathf.Max(diameter, 0.001f));
             }
             box.CollectedBalls.Add(ball);
             box.PendingFillAnimations++;
-            moving.Add(new FillMotion { ball = ball, box = box, start = start, end = end });
+            moving.Add(new FillMotion { ball = ball, box = box, start = start, end = end, startScale = startScale, endScale = endScale });
         }
 
         public void Advance(float deltaTime)
@@ -61,7 +69,11 @@ namespace BallsOut
                 FillMotion motion = moving[i];
                 motion.elapsed += deltaTime;
                 if (motion.elapsed < duration) { moving[i] = motion; continue; }
-                if (motion.ball.Visual != null) motion.ball.Visual.localPosition = motion.end;
+                if (motion.ball.Visual != null)
+                {
+                    motion.ball.Visual.localPosition = motion.end;
+                    motion.ball.Visual.localScale = motion.endScale;
+                }
                 motion.box.PendingFillAnimations--;
                 int last = moving.Count - 1;
                 moving[i] = moving[last];
@@ -78,6 +90,7 @@ namespace BallsOut
                 Vector3 position = Vector3.Lerp(motion.start, motion.end, t);
                 position.y += Mathf.Sin(t * Mathf.PI) * motion.box.runtimeCellSize * 0.2f;
                 motion.ball.Visual.localPosition = position;
+                motion.ball.Visual.localScale = Vector3.Lerp(motion.startScale, motion.endScale, t);
             }
         }
 

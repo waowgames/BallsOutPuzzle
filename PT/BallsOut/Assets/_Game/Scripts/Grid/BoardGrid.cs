@@ -44,7 +44,7 @@ namespace BallsOut
             foreach (Vector2Int offset in box.Shape.Cells)
             {
                 Vector2Int cell = origin + offset;
-                if (GetCell(cell) != CellKind.Usable) return false;
+                if (cell.y >= Definition.lowerGridHeight || GetCell(cell) != CellKind.Usable) return false;
                 BoxController occupant = GetBox(cell);
                 if (occupant != null && occupant != box) return false;
                 if (balls != null && balls.HasBalls(cell)) return false;

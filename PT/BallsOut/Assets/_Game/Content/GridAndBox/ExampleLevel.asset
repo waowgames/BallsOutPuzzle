@@ -22,13 +22,7 @@ MonoBehaviour:
     overrides: []
   ballAreaMask:
     defaultKind: 1
-    overrides:
-    - cell: {x: 3, y: 8}
-      kind: 0
-    - cell: {x: 4, y: 8}
-      kind: 0
-    - cell: {x: 5, y: 8}
-      kind: 0
+    overrides: []
   boxes:
   - id: Coral 1x1
     shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
@@ -1592,39 +1586,11 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 0, y: 40}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 1, y: 40}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 2, y: 40}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 0, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 1, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 2, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 3, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 4, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 5, y: 39}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1640,31 +1606,19 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 3, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 4, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 5, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 6, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 7, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 8, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 6, y: 40}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 3, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 4, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 5, y: 39}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1673,30 +1627,6 @@ MonoBehaviour:
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 8, y: 40}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 6, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 7, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 8, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 9, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 10, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 11, y: 39}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1712,31 +1642,19 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 9, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 10, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 11, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 12, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 13, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 14, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 12, y: 40}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 6, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 7, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 8, y: 39}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1745,30 +1663,6 @@ MonoBehaviour:
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 14, y: 40}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 12, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 13, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 14, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 15, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 16, y: 39}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 17, y: 39}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1784,6 +1678,98 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 1, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 9, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 10, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 11, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 2, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 3, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 4, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 5, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 6, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 7, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 12, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 13, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 14, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 8, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 9, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 10, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 11, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 12, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 13, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 15, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 16, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 17, y: 39}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 14, y: 41}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 15, y: 41}
     specialType: 0
     keyId: 
@@ -1792,43 +1778,7 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 17, y: 41}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 0, y: 42}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 1, y: 42}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 2, y: 42}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 0, y: 43}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 1, y: 43}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 2, y: 43}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 0, y: 44}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 1, y: 44}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 2, y: 44}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1844,30 +1794,6 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 3, y: 43}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 4, y: 43}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 5, y: 43}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 3, y: 44}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 4, y: 44}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
-    cell: {x: 5, y: 44}
-    specialType: 0
-    keyId: 
-  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 6, y: 42}
     specialType: 0
     keyId: 
@@ -1877,6 +1803,42 @@ MonoBehaviour:
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 8, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 9, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 10, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 11, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 12, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 13, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 14, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 15, y: 42}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 4, y: 43}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 5, y: 43}
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
@@ -1892,6 +1854,26 @@ MonoBehaviour:
     specialType: 0
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 9, y: 43}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 10, y: 43}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 11, y: 43}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 12, y: 43}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 13, y: 43}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 6, y: 44}
     specialType: 0
     keyId: 
@@ -1901,6 +1883,18 @@ MonoBehaviour:
     keyId: 
   - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
     cell: {x: 8, y: 44}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 9, y: 44}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 10, y: 44}
+    specialType: 0
+    keyId: 
+  - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    cell: {x: 11, y: 44}
     specialType: 0
     keyId: 
   palette:

@@ -41,11 +41,17 @@ namespace BallsOut
 
         public Vector3 CellToLocal(Vector2Int cell)
         {
-            float pitch = Board.CellSize / 3f;
-            // Odd-r: odd global rows shift right by half a pitch. Center the stagger
-            // around each column so every site's center stays in its owning macro cell.
-            float offset = (cell.y & 1) == 0 ? -0.25f : 0.25f;
-            return new Vector3((cell.x + 0.5f + offset) * pitch, 0f, (cell.y + 0.5f) * pitch);
+            // Logical sites only drive flow. The depot has no visible macro tiles.
+            // Touching staggered rows, with small stable offsets, form a loose pile.
+            float pitch = Board.CellSize * 0.32f;
+            int row = cell.y - Board.Definition.lowerGridHeight * 3;
+            float margin = (Board.Width * Board.CellSize - (Width + 0.5f) * pitch) * 0.5f;
+            float noise = Mathf.Sin(cell.x * 12.9898f + row * 78.233f);
+            return new Vector3(
+                margin + (cell.x + 0.5f + (cell.y & 1) * 0.5f + noise * 0.035f) * pitch,
+                Mathf.Abs(noise) * Board.CellSize * 0.025f,
+                Board.Definition.lowerGridHeight * Board.CellSize + Board.CellSize * 0.28f
+                    + (0.5f + row * 0.8660254f + noise * 0.035f) * pitch);
         }
 
         public static void DownNeighbors(Vector2Int cell, out Vector2Int down, out Vector2Int left, out Vector2Int right)

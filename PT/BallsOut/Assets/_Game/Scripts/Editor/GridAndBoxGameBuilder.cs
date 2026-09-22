@@ -138,6 +138,35 @@ namespace BallsOut.Editor
             Debug.Log("[Balls Out] Game scene repaired: Game owns gameplay, automatic start and sphere balls.");
         }
 
+        [MenuItem("Tools/Balls Out/Update Board Layout")]
+        public static void UpdateBoardLayout()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            PrefabRegistry registry = Load<PrefabRegistry>(Content + "/PrefabRegistry.asset");
+            CreateRegistry(registry.ballPrefab, registry.boxes);
+            for (int i = 0; i < registry.boxes.Length; i++)
+            {
+                registry.boxes[i].localOffset.y = 0.22f;
+                registry.boxes[i].fillOffset.y = 0.22f;
+            }
+            LevelDefinition level = Load<LevelDefinition>(LevelPath);
+            ShapePileCrown(level);
+            GameObject root = PrefabUtility.LoadPrefabContents(RuntimePath);
+            try
+            {
+                Transform art = root.transform.Find("Board Art");
+                Transform oldGrid = art.Find("Ball Grid");
+                if (oldGrid != null) UnityEngine.Object.DestroyImmediate(oldGrid.gameObject);
+                Transform oldDepot = art.Find("Ball Depot");
+                if (oldDepot != null) UnityEngine.Object.DestroyImmediate(oldDepot.gameObject);
+                CreateBallDepot(art, level);
+                PrefabUtility.SaveAsPrefabAsset(root, RuntimePath);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Balls Out] Board layout updated: lower grid cells, raised boxes and a separate ball depot.");
+        }
+
         private static GameObject CreateBallPrefab(Material material)
         {
             string path = Art + "/Prefabs/PF_Ball.prefab";
@@ -206,16 +235,16 @@ namespace BallsOut.Editor
                 AssetDatabase.CreateAsset(registry, path);
             }
             registry.ballPrefab = ballPrefab;
-            registry.ballScale = Vector3.one * 0.24f;
-            registry.ballHeight = 0.18f;
+            registry.ballScale = Vector3.one * 0.32f;
+            registry.ballHeight = 0.29f;
             registry.fillSpacing = Vector3.one * 0.25f;
             registry.fillOffset = new Vector3(0f, 0.2f, 0f);
             registry.fillDuration = 0.16f;
             registry.completionDuration = 0.22f;
-            registry.floorPrefab = null;
+            registry.floorPrefab = Load<GameObject>(Art + "/Prefabs/PF_GridCell.prefab");
             registry.blockedCellPrefab = null;
             registry.tileScale = Vector3.one;
-            registry.tileOffset = Vector3.zero;
+            registry.tileOffset = new Vector3(0f, 0.1f, 0f);
             registry.boxes = entries;
             EditorUtility.SetDirty(registry);
             return registry;
@@ -275,11 +304,27 @@ namespace BallsOut.Editor
                     remaining--;
                 }
 
+            ShapePileCrown(level);
             var errors = new List<string>();
             LevelValidator.Validate(level, errors);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join("\n", errors));
             EditorUtility.SetDirty(level);
             return level;
+        }
+
+        private static void ShapePileCrown(LevelDefinition level)
+        {
+            // Redistribute only the sample's top 63 balls; preserve colors and capacity.
+            int firstRow = level.TotalHeight * 3 - 5;
+            var crown = level.balls.FindAll(ball => ball.cell.y >= firstRow);
+            if (level.macroGridWidth != 6 || crown.Count != 63) return;
+            level.ballAreaMask.overrides.Clear();
+            int[] widths = { 17, 16, 14, 10, 6 };
+            int index = 0;
+            for (int row = 0; row < widths.Length; row++)
+                for (int x = 0; x < widths[row]; x++)
+                    crown[index++].cell = V((19 - widths[row]) / 2 + x, firstRow + row);
+            EditorUtility.SetDirty(level);
         }
 
         private static GameObject CreateRuntimePrefab(LevelDefinition level, PrefabRegistry registry)
@@ -297,17 +342,40 @@ namespace BallsOut.Editor
             artRoot.SetParent(root.transform, false);
             AddArt(Load<GameObject>(Art + "/Prefabs/PF_Desk.prefab"), artRoot, new Vector3(3f, -0.65f, level.TotalHeight * 0.5f));
             AddArt(Load<GameObject>(Art + "/Prefabs/PF_Grid_6x6.prefab"), artRoot, new Vector3(3f, 0f, 3f));
-            GameObject cell = Load<GameObject>(Art + "/Prefabs/PF_GridCell.prefab");
-            var ballGrid = new GameObject("Ball Grid").transform;
-            ballGrid.SetParent(artRoot, false);
-            for (int y = level.lowerGridHeight; y < level.TotalHeight; y++)
-                for (int x = 0; x < 6; x++)
-                    if (level.GetCell(V(x, y)) == CellKind.Usable)
-                        AddArt(cell, ballGrid, new Vector3(x + 0.5f, 0f, y + 0.5f), $"Cell {x},{y - level.lowerGridHeight}");
+            CreateBallDepot(artRoot, level);
 
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, RuntimePath);
             UnityEngine.Object.DestroyImmediate(root);
             return prefab;
+        }
+
+        private static void CreateBallDepot(Transform parent, LevelDefinition level)
+        {
+            var depot = new GameObject("Ball Depot").transform;
+            depot.SetParent(parent, false);
+            float width = level.macroGridWidth * level.macroCellSize;
+            float bottom = (level.lowerGridHeight + 0.28f) * level.macroCellSize;
+            float depth = (level.ballAreaMacroHeight * 3 * 0.32f * 0.8660254f + 0.2f) * level.macroCellSize;
+            Material floor = Load<Material>(Art + "/Materials/Recess.mat");
+            Material rim = Load<Material>(Art + "/Materials/ReferenceIvory.mat");
+            AddDepotPart("Floor", depot, new Vector3(width * 0.5f, 0.06f, bottom + depth * 0.5f), new Vector3(width, 0.12f, depth), floor);
+            AddDepotPart("Left Rim", depot, new Vector3(-0.08f, 0.14f, bottom + depth * 0.5f), new Vector3(0.16f, 0.4f, depth), rim);
+            AddDepotPart("Right Rim", depot, new Vector3(width + 0.08f, 0.14f, bottom + depth * 0.5f), new Vector3(0.16f, 0.4f, depth), rim);
+            AddDepotPart("Back Rim", depot, new Vector3(width * 0.5f, 0.14f, bottom + depth + 0.08f), new Vector3(width + 0.32f, 0.4f, 0.16f), rim);
+        }
+
+        private static void AddDepotPart(string name, Transform parent, Vector3 position, Vector3 scale, Material material)
+        {
+            var part = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            part.name = name;
+            UnityEngine.Object.DestroyImmediate(part.GetComponent<Collider>());
+            part.transform.SetParent(parent, false);
+            part.transform.localPosition = position;
+            part.transform.localScale = scale;
+            var renderer = part.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
         }
 
         private static void ConfigureLevelList(LevelDefinition level)
@@ -394,7 +462,8 @@ namespace BallsOut.Editor
             {
                 shape = shape,
                 prefab = Load<GameObject>(Art + "/Prefabs/" + prefab + ".prefab"),
-                localOffset = offset,
+                localOffset = offset + Vector3.up * 0.22f,
+                fillOffset = Vector3.up * 0.22f,
                 localScale = Vector3.one
             };
 
