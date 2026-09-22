@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b1ead807d833b48a061ccb6c8e481c, type: 3}
+  m_Name: Prefabs
+  m_EditorClassIdentifier: 
+  ballPrefab: {fileID: 0}
+  ballScale: {x: 0.16, y: 0.16, z: 0.16}
+  ballHeight: 0.1
+  floorPrefab: {fileID: 0}
+  blockedCellPrefab: {fileID: 0}
+  tileScale: {x: 1, y: 1, z: 1}
+  tileOffset: {x: 0, y: -0.08, z: 0}
+  boxes:
+  - shape: {fileID: 11400000, guid: f4398206c1656224f957e67f9220301e, type: 2}
+    prefab: {fileID: 0}
+    localOffset: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+  - shape: {fileID: 11400000, guid: e8291acafc1938c49b30abff5fbe6818, type: 2}
+    prefab: {fileID: 0}
+    localOffset: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+  - shape: {fileID: 11400000, guid: 7f1c27efb38e37f4b90c4bb96ad06e95, type: 2}
+    prefab: {fileID: 0}
+    localOffset: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+  - shape: {fileID: 11400000, guid: f1cbf615f298eaa468374b470b252e31, type: 2}
+    prefab: {fileID: 0}
+    localOffset: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+  - shape: {fileID: 11400000, guid: 367897190130c1f42ab1bcaf482a1824, type: 2}
+    prefab: {fileID: 0}
+    localOffset: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}

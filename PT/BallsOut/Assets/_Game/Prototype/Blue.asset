@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55425f6c35c259a499f3b91c4854fbed, type: 3}
+  m_Name: Blue
+  m_EditorClassIdentifier: 
+  id: blue
+  displayColor: {r: 0.12, g: 0.45, b: 0.95, a: 1}
+  ballMaterial: {fileID: 2100000, guid: fea1157b11c11d94780f68be0ca53caa, type: 2}
+  boxMaterial: {fileID: 2100000, guid: fea1157b11c11d94780f68be0ca53caa, type: 2}
+  ballPrefabOverride: {fileID: 0}
