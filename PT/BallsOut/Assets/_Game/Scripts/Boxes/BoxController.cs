@@ -34,19 +34,29 @@ namespace BallsOut
             FillRoot = new GameObject("Fill").transform;
             FillRoot.SetParent(transform, false);
             FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.22f, 0f)) * cellSize;
-            float layerSpacing = registry != null ? registry.fillSpacing.y : 0.25f;
-            float ballDiameter = registry != null ? Mathf.Max(registry.ballScale.x, registry.ballScale.z) * 0.65f : cellSize * 0.2f;
-            float slotSpacing = (cellSize * 0.85f - ballDiameter) * 0.5f;
-            FillSpacing = new Vector3(slotSpacing, layerSpacing * cellSize, slotSpacing);
-            FillSlots = new Vector3[Shape.CellCount * 9];
+            const float fillScale = 0.9f;
+            float slotSpacing = cellSize / LevelDefinition.MicroResolution * fillScale;
+            FillSpacing = Vector3.one * slotSpacing;
+            FillSlots = new Vector3[Shape.CellCount * LevelDefinition.MicroResolution * LevelDefinition.MicroResolution];
+            int minX = int.MaxValue, maxX = int.MinValue, minZ = int.MaxValue, maxZ = int.MinValue;
+            foreach (Vector2Int cell in Shape.Cells)
+            {
+                minX = Mathf.Min(minX, cell.x);
+                maxX = Mathf.Max(maxX, cell.x);
+                minZ = Mathf.Min(minZ, cell.y);
+                maxZ = Mathf.Max(maxZ, cell.y);
+            }
+            float inset = cellSize * (1f - fillScale) * 0.5f;
+            float centerX = (minX + maxX) * inset;
+            float centerZ = (minZ + maxZ) * inset;
             int slot = 0;
             foreach (Vector2Int cell in Shape.Cells)
-                for (int row = 0; row < 3; row++)
-                    for (int column = 0; column < 3; column++)
+                for (int row = 0; row < LevelDefinition.MicroResolution; row++)
+                    for (int column = 0; column < LevelDefinition.MicroResolution; column++)
                         FillSlots[slot++] = new Vector3(
-                            cell.x * cellSize + (column - 1) * FillSpacing.x,
+                            cell.x * cellSize * fillScale + centerX + (column - 1.5f) * FillSpacing.x,
                             0f,
-                            cell.y * cellSize + (row - 1) * FillSpacing.z);
+                            cell.y * cellSize * fillScale + centerZ + (row - 1.5f) * FillSpacing.z);
             // The game camera looks down with screen up along local +Z.
             Array.Sort(FillSlots, (a, b) =>
             {

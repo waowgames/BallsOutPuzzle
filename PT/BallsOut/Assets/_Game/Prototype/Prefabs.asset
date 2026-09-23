@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Prefabs
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 0}
-  ballScale: {x: 0.16, y: 0.16, z: 0.16}
+  ballScale: {x: 0.225, y: 0.225, z: 0.225}
   ballHeight: 0.1
   floorPrefab: {fileID: 0}
   blockedCellPrefab: {fileID: 0}

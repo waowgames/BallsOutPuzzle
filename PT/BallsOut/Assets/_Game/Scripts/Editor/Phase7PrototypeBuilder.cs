@@ -45,7 +45,7 @@ namespace BallsOut.Editor
             string[] names = { "Single", "Domino", "L", "T", "Square" };
             var registry = ScriptableObject.CreateInstance<PrefabRegistry>();
             registry.ballPrefab = PrimitivePrefab("DevelopmentBall", PrimitiveType.Sphere, Vector3.one, null);
-            registry.ballScale = Vector3.one * 0.16f;
+            registry.ballScale = Vector3.one * 0.225f;
             registry.floorPrefab = PrimitivePrefab("DevelopmentFloor", PrimitiveType.Cube, new Vector3(0.98f, 0.06f, 0.98f), floorMaterial);
             registry.tileOffset = Vector3.down * 0.08f;
             registry.blockedCellPrefab = PrimitivePrefab("DevelopmentBlock", PrimitiveType.Cube, new Vector3(0.98f, 0.5f, 0.98f), floorMaterial);

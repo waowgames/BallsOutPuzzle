@@ -6,8 +6,8 @@ namespace BallsOut
     [CreateAssetMenu(menuName = "Balls Out/Level")]
     public sealed class LevelDefinition : LevelData
     {
-        public const int MicroResolution = 3;
-        public const int CapacityPerMacroCell = 27;
+        public const int MicroResolution = 4;
+        public const int CapacityPerMacroCell = 48;
         [Min(1)] public int macroGridWidth = 7;
         [Min(1)] public int lowerGridHeight = 4;
         [Min(1)] public int ballAreaMacroHeight = 6;

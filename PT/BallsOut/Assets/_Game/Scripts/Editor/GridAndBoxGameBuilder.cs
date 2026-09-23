@@ -231,11 +231,10 @@ namespace BallsOut.Editor
                 AssetDatabase.CreateAsset(registry, path);
             }
             registry.ballPrefab = ballPrefab;
-            registry.ballScale = Vector3.one * 0.32f;
+            registry.ballScale = Vector3.one * 0.225f;
             registry.ballHeight = 0.29f;
-            registry.fillSpacing = Vector3.one * 0.25f;
             registry.fillOffset = new Vector3(0f, 0.2f, 0f);
-            registry.fillDuration = 0.16f;
+            registry.fillDuration = 0.26f;
             registry.completionDuration = 0.22f;
             registry.floorPrefab = Load<GameObject>(Art + "/Prefabs/PF_GridCell.prefab");
             registry.blockedCellPrefab = null;
@@ -285,12 +284,12 @@ namespace BallsOut.Editor
                     if (level.ballAreaMask.Get(V(macroX, macroY), 6, level.ballAreaMacroHeight) != CellKind.Usable)
                         continue;
                     while (remaining == 0) remaining = macroCounts[++colorIndex];
-                    for (int microY = 0; microY < 3; microY++)
-                        for (int microX = 0; microX < 3; microX++)
+                    for (int microY = 0; microY < LevelDefinition.MicroResolution; microY++)
+                        for (int microX = 0; microX < LevelDefinition.MicroResolution; microX++)
                             level.balls.Add(new BallSpawnData
                             {
                                 color = colors[colorIndex],
-                                cell = new Vector2Int(macroX * 3 + microX, (level.lowerGridHeight + macroY) * 3 + microY)
+                                cell = new Vector2Int(macroX * LevelDefinition.MicroResolution + microX, (level.lowerGridHeight + macroY) * LevelDefinition.MicroResolution + microY)
                             });
                     remaining--;
                 }
@@ -330,7 +329,7 @@ namespace BallsOut.Editor
             depot.SetParent(parent, false);
             float width = level.macroGridWidth * level.macroCellSize;
             float bottom = (level.lowerGridHeight + 0.28f) * level.macroCellSize;
-            float depth = (level.ballAreaMacroHeight * 3 * 0.32f * 0.8660254f + 0.2f) * level.macroCellSize;
+            float depth = (level.ballAreaMacroHeight * LevelDefinition.MicroResolution * 0.24f * 0.8660254f + 0.2f) * level.macroCellSize;
             Material floor = Load<Material>(Art + "/Materials/Recess.mat");
             Material rim = Load<Material>(Art + "/Materials/ReferenceIvory.mat");
             AddDepotPart("Floor", depot, new Vector3(width * 0.5f, 0.06f, bottom + depth * 0.5f), new Vector3(width, 0.12f, depth), floor);

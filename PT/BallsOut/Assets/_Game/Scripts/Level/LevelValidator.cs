@@ -11,7 +11,7 @@ namespace BallsOut
         {
             if (level == null) { errors.Add("Assign a LevelDefinition."); return; }
             if (level.macroGridWidth <= 0 || level.lowerGridHeight <= 0 || level.ballAreaMacroHeight <= 0 ||
-                (long)level.macroGridWidth * ((long)level.lowerGridHeight + level.ballAreaMacroHeight) * 9 > int.MaxValue ||
+                (long)level.macroGridWidth * ((long)level.lowerGridHeight + level.ballAreaMacroHeight) * LevelDefinition.MicroResolution * LevelDefinition.MicroResolution > int.MaxValue ||
                 level.macroCellSize <= 0f || float.IsNaN(level.macroCellSize) || float.IsInfinity(level.macroCellSize))
             { errors.Add("Grid dimensions and finite cell size must be positive and fit the micro-grid index range."); return; }
             if (level.lowerGridMask == null || level.ballAreaMask == null || level.boxes == null || level.balls == null)

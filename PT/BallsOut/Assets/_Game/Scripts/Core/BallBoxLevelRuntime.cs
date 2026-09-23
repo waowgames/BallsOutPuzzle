@@ -90,7 +90,7 @@ namespace BallsOut
                 ball.Visual = pool.Rent(ball.Color);
                 if (ball.Visual != null) ball.Visual.localPosition = Balls.CellToLocal(ball.Cell) + Vector3.up * height;
             }
-            Fill = new BoxFillSystem(pool, prefabs != null ? prefabs.fillDuration : 0.2f, Balls.Count);
+            Fill = new BoxFillSystem(pool, prefabs != null ? prefabs.fillDuration : 0.26f, Balls.Count);
             Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 0.25f);
             Completion.OnBoxCompleted += ForwardBoxCompleted;
             Completion.OnBoxRemoved += ForwardBoxRemoved;

@@ -18,12 +18,12 @@ namespace BallsOut
             occupants = new BallState[Width * Height];
             mask = new bool[occupants.Length];
             visualReservations = new int[board.Width * board.Height];
-            for (int y = board.Definition.lowerGridHeight * 3; y < Height; y++)
+            for (int y = board.Definition.lowerGridHeight * LevelDefinition.MicroResolution; y < Height; y++)
                 for (int x = 0; x < Width; x++)
                     mask[y * Width + x] = board.GetCell(ToMacro(new Vector2Int(x, y))) == CellKind.Usable;
         }
 
-        public static Vector2Int ToMacro(Vector2Int cell) => new Vector2Int(Mathf.FloorToInt(cell.x / 3f), Mathf.FloorToInt(cell.y / 3f));
+        public static Vector2Int ToMacro(Vector2Int cell) => new Vector2Int(Mathf.FloorToInt((float)cell.x / LevelDefinition.MicroResolution), Mathf.FloorToInt((float)cell.y / LevelDefinition.MicroResolution));
         public bool Contains(Vector2Int cell) => cell.x >= 0 && cell.y >= 0 && cell.x < Width && cell.y < Height;
         public bool IsBallCell(Vector2Int cell) => Contains(cell) && mask[cell.y * Width + cell.x];
         public BallState Get(Vector2Int cell) => Contains(cell) ? occupants[cell.y * Width + cell.x] : null;
@@ -31,9 +31,9 @@ namespace BallsOut
         public bool HasBalls(Vector2Int macro)
         {
             if (Board.Contains(macro) && visualReservations[macro.y * Board.Width + macro.x] > 0) return true;
-            for (int y = 0; y < 3; y++)
-                for (int x = 0; x < 3; x++)
-                    if (Get(macro * 3 + new Vector2Int(x, y)) != null) return true;
+            for (int y = 0; y < LevelDefinition.MicroResolution; y++)
+                for (int x = 0; x < LevelDefinition.MicroResolution; x++)
+                    if (Get(macro * LevelDefinition.MicroResolution + new Vector2Int(x, y)) != null) return true;
             return false;
         }
 
@@ -43,8 +43,8 @@ namespace BallsOut
         {
             // Logical sites only drive flow. The depot has no visible macro tiles.
             // Touching staggered rows, with small stable offsets, form a loose pile.
-            float pitch = Board.CellSize * 0.32f;
-            int row = cell.y - Board.Definition.lowerGridHeight * 3;
+            float pitch = Board.CellSize * 0.24f;
+            int row = cell.y - Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution;
             float margin = (Board.Width * Board.CellSize - (Width + 0.5f) * pitch) * 0.5f;
             float noise = Mathf.Sin(cell.x * 12.9898f + row * 78.233f);
             return new Vector3(

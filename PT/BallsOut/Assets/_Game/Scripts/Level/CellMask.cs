@@ -34,7 +34,7 @@ namespace BallsOut
     public sealed class BallSpawnData
     {
         public BallColorDefinition color;
-        [Tooltip("Global micro coordinate: lower-grid height * 3 is the first ball-area row.")]
+        [Tooltip("Global micro coordinate: lower-grid height * micro resolution is the first ball-area row.")]
         public Vector2Int cell;
         public BallSpecialType specialType;
         public string keyId;

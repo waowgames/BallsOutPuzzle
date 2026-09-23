@@ -34,7 +34,7 @@ namespace BallsOut
                     Gizmos.DrawWireCube(board.CellToLocal(cell), new Vector3(board.CellSize, 0.02f, board.CellSize));
                 }
             if (balls == null) return;
-            for (int y = board.Definition.lowerGridHeight * 3; y < balls.Height; y++)
+            for (int y = board.Definition.lowerGridHeight * LevelDefinition.MicroResolution; y < balls.Height; y++)
                 for (int x = 0; x < balls.Width; x++)
                 {
                     BallState ball = balls.Get(new Vector2Int(x, y));

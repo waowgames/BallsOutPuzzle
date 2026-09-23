@@ -50,9 +50,9 @@ namespace BallsOut.Editor
             b.boxes.Add(Spawn("Coral-L", elbow, red, 0, 3));
             b.boxes.Add(Spawn("Blue-Domino", domino, blue, 3, 3));
             b.boxes.Add(Spawn("Green-Single", single, green, 5, 4));
-            // Contiguous mixed-color clusters with exact 81/54/27 quotas.
-            for (int i = 0; i < 162; i++)
-                b.balls.Add(new BallSpawnData { cell = new Vector2Int(i % 18, b.lowerGridHeight * 3 + i / 18), color = i < 81 ? red : i < 135 ? blue : green });
+            // Contiguous mixed-color clusters with exact 144/96/48 quotas.
+            for (int i = 0; i < 288; i++)
+                b.balls.Add(new BallSpawnData { cell = new Vector2Int(i % 24, b.lowerGridHeight * LevelDefinition.MicroResolution + i / 24), color = i < 144 ? red : i < 240 ? blue : green });
             Save("B_ThreeColorsShapes", b);
 
             var c = NewLevel(7, 3, red, blue);

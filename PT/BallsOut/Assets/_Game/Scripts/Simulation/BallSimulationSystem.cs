@@ -63,7 +63,7 @@ namespace BallsOut
             TickCount++;
             // Bottom-up in-place traversal: destinations are in rows already visited,
             // so each ball is processed once without a second buffer or allocations.
-            for (int y = grid.Board.Definition.lowerGridHeight * 3; y < grid.Height; y++)
+            for (int y = grid.Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution; y < grid.Height; y++)
                 for (int x = 0; x < grid.Width; x++)
                 {
                     BallState ball = grid.Get(new Vector2Int(x, y));

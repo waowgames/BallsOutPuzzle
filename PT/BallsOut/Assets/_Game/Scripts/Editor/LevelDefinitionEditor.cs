@@ -23,7 +23,7 @@ namespace BallsOut.Editor
             {
                 if (level.palette == null || level.palette.Count == 0 || level.palette.Contains(null) ||
                     level.macroGridWidth < 1 || level.lowerGridHeight < 1 || level.ballAreaMacroHeight < 1 || level.ballAreaMask == null ||
-                    level.ballAreaMask.overrides == null || (long)level.macroGridWidth * ((long)level.lowerGridHeight + level.ballAreaMacroHeight) * 9 > int.MaxValue)
+                    level.ballAreaMask.overrides == null || (long)level.macroGridWidth * ((long)level.lowerGridHeight + level.ballAreaMacroHeight) * LevelDefinition.MicroResolution * LevelDefinition.MicroResolution > int.MaxValue)
                 {
                     Debug.LogError("Set positive dimensions, a ball mask, and a palette containing assigned colors.", level);
                     return;
@@ -37,12 +37,12 @@ namespace BallsOut.Editor
         internal static void GenerateDenseField(LevelDefinition level)
         {
             level.balls.Clear();
-            for (int y = level.lowerGridHeight * 3; y < level.TotalHeight * 3; y++)
-                for (int x = 0; x < level.macroGridWidth * 3; x++)
+            for (int y = level.lowerGridHeight * LevelDefinition.MicroResolution; y < level.TotalHeight * LevelDefinition.MicroResolution; y++)
+                for (int x = 0; x < level.macroGridWidth * LevelDefinition.MicroResolution; x++)
                 {
                     Vector2Int cell = new Vector2Int(x, y);
                     if (level.GetCell(BallMicroGrid.ToMacro(cell)) != CellKind.Usable) continue;
-                    level.balls.Add(new BallSpawnData { cell = cell, color = level.palette[(x / 3) % level.palette.Count] });
+                    level.balls.Add(new BallSpawnData { cell = cell, color = level.palette[(x / LevelDefinition.MicroResolution) % level.palette.Count] });
                 }
         }
 

@@ -49,7 +49,8 @@ namespace BallsOut
                 ball.Visual.SetParent(box.FillRoot, true);
                 start = ball.Visual.localPosition;
                 startScale = ball.Visual.localScale;
-                endScale = startScale * 0.65f;
+                float diameter = box.FillSpacing.x;
+                endScale = Vector3.one * diameter;
             }
             box.CollectedBalls.Add(ball);
             box.PendingFillAnimations++;
@@ -81,9 +82,12 @@ namespace BallsOut
             {
                 if (motion.ball.Visual == null) continue;
                 float t = Mathf.Clamp01((motion.elapsed + interpolationTime) / duration);
-                t = 1f - (1f - t) * (1f - t) * (1f - t);
-                motion.ball.Visual.localPosition = Vector3.Lerp(motion.start, motion.end, t);
-                motion.ball.Visual.localScale = Vector3.Lerp(motion.startScale, motion.endScale, t);
+                float eased = 1f - (1f - t) * (1f - t) * (1f - t);
+                float hop = t < 0.75f
+                    ? Mathf.Sin(t / 0.75f * Mathf.PI) * motion.box.FillSpacing.y * 1.8f
+                    : Mathf.Sin((t - 0.75f) * 4f * Mathf.PI) * motion.box.FillSpacing.y * 0.2f;
+                motion.ball.Visual.localPosition = Vector3.Lerp(motion.start, motion.end, eased) + Vector3.up * hop;
+                motion.ball.Visual.localScale = Vector3.Lerp(motion.startScale, motion.endScale, eased);
             }
         }
 
