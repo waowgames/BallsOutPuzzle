@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Color_Saffron
   m_EditorClassIdentifier: 
   id: saffron
-  displayColor: {r: 1.885417, g: 0.9041413, b: 0.059741937, a: 1}
+  displayColor: {r: 1, g: 0.67, b: 0.18, a: 1}
   ballMaterial: {fileID: 2100000, guid: 456fc52ba75fcfb4c9cfd96917a0a0a6, type: 2}
-  boxMaterial: {fileID: 2100000, guid: 456fc52ba75fcfb4c9cfd96917a0a0a6, type: 2}
+  boxMaterial: {fileID: 2100000, guid: 5bfc566e015843418f9c3c1bb04700a0, type: 2}
   ballPrefabOverride: {fileID: 0}

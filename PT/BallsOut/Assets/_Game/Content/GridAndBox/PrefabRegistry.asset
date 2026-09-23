@@ -15,10 +15,11 @@ MonoBehaviour:
   ballPrefab: {fileID: 5847570836986305873, guid: 6172acf395608d644bc26efaf9983281, type: 3}
   ballScale: {x: 0.225, y: 0.225, z: 0.225}
   ballHeight: 0.29
-  fillOffset: {x: 0, y: 0.2, z: 0}
+  fillOffset: {x: 0, y: 0.1, z: 0}
   fillDuration: 0.26
   completionDuration: 0.22
   floorPrefab: {fileID: 744571577134862828, guid: cf92cba8082076748b882e4a088cc3f0, type: 3}
+  alternateTileMaterial: {fileID: 2100000, guid: 9f2daae431d847539a4f9418e9d65422, type: 2}
   blockedCellPrefab: {fileID: 0}
   tileScale: {x: 1, y: 1, z: 1}
   tileOffset: {x: 0, y: 0.1, z: 0}
@@ -26,25 +27,25 @@ MonoBehaviour:
   - shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
     prefab: {fileID: 3960059134306304552, guid: f6c698463a897af47bdc8ad6f23bcd3a, type: 3}
     localOffset: {x: 0, y: 0.22, z: 0}
-    localScale: {x: 1, y: 1.65, z: 1}
+    localScale: {x: 1, y: 2.2275, z: 1}
     fillOffset: {x: 0, y: 0.22, z: 0}
   - shape: {fileID: 11400000, guid: c74de5f3403528c46a70d3a2fb982c9b, type: 2}
     prefab: {fileID: 1989013269834734334, guid: 89ee5bf9f9e194f47864c38aeb905b68, type: 3}
     localOffset: {x: 0, y: 0.22, z: 0}
-    localScale: {x: 1, y: 1.65, z: 1}
+    localScale: {x: 1, y: 2.2275, z: 1}
     fillOffset: {x: 0, y: 0.22, z: 0}
   - shape: {fileID: 11400000, guid: bccb1278f39bfaf458658789d72ca0d1, type: 2}
     prefab: {fileID: 4023235448159815277, guid: 3c1b1d9a956b4fd4a987015ae840d14e, type: 3}
     localOffset: {x: 0, y: 0.22, z: 1}
-    localScale: {x: 1, y: 1.65, z: 1}
+    localScale: {x: 1, y: 2.2275, z: 1}
     fillOffset: {x: 0, y: 0.22, z: 0}
   - shape: {fileID: 11400000, guid: c0de1d4ebc69b244c90bf7a1a5b421d4, type: 2}
     prefab: {fileID: 336837821316901606, guid: 354ef115d50fb684598345a0a4b70059, type: 3}
     localOffset: {x: 0, y: 0.22, z: 0}
-    localScale: {x: 1, y: 1.65, z: 1}
+    localScale: {x: 1, y: 2.2275, z: 1}
     fillOffset: {x: 0, y: 0.22, z: 0}
   - shape: {fileID: 11400000, guid: 8f6b9ed81c6b1084fa1cbf76abe59dff, type: 2}
     prefab: {fileID: 5494563122845631209, guid: 8fa67a47c3b65cd409fd6c772e1ca5dc, type: 3}
     localOffset: {x: 1, y: 0.22, z: 1}
-    localScale: {x: -1, y: 1.65, z: -1}
+    localScale: {x: -1, y: 2.2275, z: -1}
     fillOffset: {x: 0, y: 0.22, z: 0}

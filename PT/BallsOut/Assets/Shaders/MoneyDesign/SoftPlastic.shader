@@ -6,6 +6,7 @@ Shader "Money Design/Soft Plastic"
         _Gloss ("Soft highlight", Range(0,1)) = 0.35
         _Shade ("Side shading", Range(0,1)) = 0.35
         _Gradient ("Background gradient", Range(0,1)) = 0
+        [Toggle(_BOX_GLASS)] _BoxGlass ("Glass lower box wall", Float) = 0
         [Toggle(_MYSTERY_PATTERN)] _MysteryPattern ("Hidden box question marks", Float) = 0
         _MysteryScrollSpeed ("Question mark scroll speed", Range(0,1)) = 0.12
         _MysteryDensity ("Question marks per cell axis", Range(1,5)) = 3
@@ -23,11 +24,13 @@ Shader "Money Design/Soft Plastic"
             #pragma fragment Frag
             #pragma multi_compile_instancing
             #pragma shader_feature_local _MYSTERY_PATTERN
+            #pragma shader_feature_local _BOX_GLASS
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 half _Gloss, _Shade, _Gradient;
                 half _MysteryPattern;
+                half _BoxGlass;
                 half _MysteryDensity;
                 half _MysteryScrollSpeed, _MysteryShineSpeed, _MysteryShineStrength;
             CBUFFER_END
@@ -42,7 +45,7 @@ Shader "Money Design/Soft Plastic"
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 half3 normalWS : TEXCOORD1;
-                #if defined(_MYSTERY_PATTERN)
+                #if defined(_MYSTERY_PATTERN) || defined(_BOX_GLASS)
                 float3 positionOS : TEXCOORD2;
                 #endif
                 UNITY_VERTEX_OUTPUT_STEREO
@@ -55,7 +58,7 @@ Shader "Money Design/Soft Plastic"
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.positionCS = TransformWorldToHClip(output.positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-                #if defined(_MYSTERY_PATTERN)
+                #if defined(_MYSTERY_PATTERN) || defined(_BOX_GLASS)
                 output.positionOS = input.positionOS.xyz;
                 #endif
                 return output;
@@ -75,6 +78,16 @@ Shader "Money Design/Soft Plastic"
                 half specular = pow(saturate(dot(normal, normalize(light + view))), 48) * lerp(1, 0.08, flatTop);
                 half rim = pow(1 - saturate(dot(normal, view)), 4);
                 half3 color = _BaseColor.rgb * shade + _Gloss * (specular + rim * 0.16);
+                #if defined(_BOX_GLASS)
+                // Box meshes are 0.29 units tall before their visual Y scale.
+                // Dithered coverage keeps this in the opaque pass with depth writes.
+                half glass = 1 - smoothstep(0.045, 0.087, input.positionOS.y);
+                half coverage = 1 - glass * 0.38;
+                float2 pixel = floor(input.positionCS.xy);
+                float threshold = frac(52.9829189 * frac(dot(pixel, float2(0.06711056, 0.00583715))));
+                clip(coverage - threshold);
+                color += glass * rim * half3(0.1, 0.13, 0.2);
+                #endif
                 float2 screenUV = GetNormalizedScreenSpaceUV(input.positionCS);
                 half gradient = saturate(1 - length((screenUV - float2(0.53, 0.60)) * float2(1.1, 0.75)));
                 color *= lerp(1, 0.82 + gradient * 0.27, _Gradient);

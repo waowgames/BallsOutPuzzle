@@ -215,7 +215,7 @@ namespace BallsOut.Editor
                 ? material.GetColor("_Color")
                 : material.HasProperty("_BaseColor") ? material.GetColor("_BaseColor") : Color.white;
             color.ballMaterial = material;
-            color.boxMaterial = material;
+            color.boxMaterial = Load<Material>(Art + "/Materials/Box_" + material.name + ".mat");
             color.ballPrefabOverride = null;
             EditorUtility.SetDirty(color);
             return color;
@@ -233,10 +233,11 @@ namespace BallsOut.Editor
             registry.ballPrefab = ballPrefab;
             registry.ballScale = Vector3.one * 0.225f;
             registry.ballHeight = 0.29f;
-            registry.fillOffset = new Vector3(0f, 0.2f, 0f);
+            registry.fillOffset = new Vector3(0f, 0.1f, 0f);
             registry.fillDuration = 0.26f;
             registry.completionDuration = 0.22f;
             registry.floorPrefab = Load<GameObject>(Art + "/Prefabs/PF_GridCell.prefab");
+            registry.alternateTileMaterial = Load<Material>(Art + "/Materials/GridLight.mat");
             registry.blockedCellPrefab = null;
             registry.tileScale = Vector3.one;
             registry.tileOffset = new Vector3(0f, 0.1f, 0f);
@@ -404,7 +405,7 @@ namespace BallsOut.Editor
                     camera.orthographic = true;
                     camera.orthographicSize = 10.2f;
                     camera.clearFlags = CameraClearFlags.SolidColor;
-                    camera.backgroundColor = new Color(0.93f, 0.89f, 0.8f);
+                    camera.backgroundColor = new Color(0.055f, 0.035f, 0.12f);
                     camera.transform.SetPositionAndRotation(
                         new Vector3(level.macroGridWidth * 0.5f, 18f, level.TotalHeight * 0.5f),
                         Quaternion.Euler(90f, 0f, 0f));
@@ -438,7 +439,7 @@ namespace BallsOut.Editor
                 prefab = Load<GameObject>(Art + "/Prefabs/" + prefab + ".prefab"),
                 localOffset = offset + Vector3.up * 0.22f,
                 fillOffset = Vector3.up * 0.22f,
-                localScale = scale == Vector3.zero ? new Vector3(1f, 1.65f, 1f) : scale
+                localScale = scale == Vector3.zero ? new Vector3(1f, 2.2275f, 1f) : new Vector3(scale.x, scale.y * 1.35f, scale.z)
             };
 
         private static BoxSpawnData Spawn(string id, BoxShapeDefinition shape, BallColorDefinition color, int x, int y)

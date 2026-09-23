@@ -23,6 +23,7 @@ namespace BallsOut
         [Min(0.02f)] public float fillDuration = 0.26f;
         [Min(0f)] public float completionDuration = 0.25f;
         public GameObject floorPrefab;
+        public Material alternateTileMaterial;
         public GameObject blockedCellPrefab;
         public Vector3 tileScale = Vector3.one;
         public Vector3 tileOffset;

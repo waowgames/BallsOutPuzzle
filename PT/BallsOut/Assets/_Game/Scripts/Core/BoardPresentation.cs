@@ -18,6 +18,8 @@ namespace BallsOut
                     visual.localPosition = board.CellToLocal(cell) + registry.tileOffset;
                     visual.localRotation = Quaternion.identity;
                     visual.localScale = registry.tileScale * board.CellSize;
+                    if (kind == CellKind.Usable && ((x + y) & 1) != 0 && registry.alternateTileMaterial != null)
+                        visual.GetComponentInChildren<Renderer>().sharedMaterial = registry.alternateTileMaterial;
                 }
         }
 

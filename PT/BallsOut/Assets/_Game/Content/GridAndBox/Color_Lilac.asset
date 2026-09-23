@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Color_Lilac
   m_EditorClassIdentifier: 
   id: lilac
-  displayColor: {r: 0.66245025, g: 0.5229586, b: 1.4285018, a: 1}
+  displayColor: {r: 0.67, g: 0.42, b: 0.96, a: 1}
   ballMaterial: {fileID: 2100000, guid: f6b2d4e035ac1994893092f4324c3ff9, type: 2}
-  boxMaterial: {fileID: 2100000, guid: f6b2d4e035ac1994893092f4324c3ff9, type: 2}
+  boxMaterial: {fileID: 2100000, guid: 8b136129127b4cfd92c8563edb10b283, type: 2}
   ballPrefabOverride: {fileID: 0}

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ReferenceIvory
+  m_Name: GridLight
   m_Shader: {fileID: 4800000, guid: 03971e834234ee84f86ee1da5871fa77, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -29,6 +29,6 @@ Material:
     - _Gradient: 0
     - _Shade: 0.65
     m_Colors:
-    - _BaseColor: {r: 0.215, g: 0.16, b: 0.355, a: 1}
+    - _BaseColor: {r: 0.235, g: 0.178, b: 0.385, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Color_Emerald
   m_EditorClassIdentifier: 
   id: emerald
-  displayColor: {r: 0.13228083, g: 0.9901573, b: 0.3934522, a: 1}
+  displayColor: {r: 0.19, g: 0.86, b: 0.55, a: 1}
   ballMaterial: {fileID: 2100000, guid: 3a0cceb0ad2076043a84f10bf2b5dd8e, type: 2}
-  boxMaterial: {fileID: 2100000, guid: 3a0cceb0ad2076043a84f10bf2b5dd8e, type: 2}
+  boxMaterial: {fileID: 2100000, guid: 2f5148d77d884e10987feea1c95644cb, type: 2}
   ballPrefabOverride: {fileID: 0}
