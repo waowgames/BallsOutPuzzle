@@ -46,7 +46,7 @@ namespace BallsOut
             {
                 Completion entry = pending[i];
                 BoxController box = entry.box;
-                if (box.PendingFillAnimations != 0) continue;
+                if (box.PendingFillAnimations != 0 || box.IsInTransit) continue;
                 if (!entry.started)
                 {
                     entry.started = true;

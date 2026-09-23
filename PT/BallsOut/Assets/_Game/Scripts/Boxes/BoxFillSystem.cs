@@ -49,8 +49,7 @@ namespace BallsOut
                 ball.Visual.SetParent(box.FillRoot, true);
                 start = ball.Visual.localPosition;
                 startScale = ball.Visual.localScale;
-                float diameter = Mathf.Max(startScale.x, Mathf.Max(startScale.y, startScale.z));
-                endScale = startScale * (box.FillSpacing.x / Mathf.Max(diameter, 0.001f));
+                endScale = startScale * 0.65f;
             }
             box.CollectedBalls.Add(ball);
             box.PendingFillAnimations++;

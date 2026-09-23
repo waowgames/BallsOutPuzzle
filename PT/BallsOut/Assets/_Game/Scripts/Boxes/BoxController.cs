@@ -35,7 +35,9 @@ namespace BallsOut
             FillRoot.SetParent(transform, false);
             FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.22f, 0f)) * cellSize;
             float layerSpacing = registry != null ? registry.fillSpacing.y : 0.25f;
-            FillSpacing = new Vector3(cellSize / 3f, layerSpacing * cellSize, cellSize / 3f);
+            float ballDiameter = registry != null ? Mathf.Max(registry.ballScale.x, registry.ballScale.z) * 0.65f : cellSize * 0.2f;
+            float slotSpacing = (cellSize * 0.85f - ballDiameter) * 0.5f;
+            FillSpacing = new Vector3(slotSpacing, layerSpacing * cellSize, slotSpacing);
             FillSlots = new Vector3[Shape.CellCount * 9];
             int slot = 0;
             foreach (Vector2Int cell in Shape.Cells)
@@ -72,7 +74,7 @@ namespace BallsOut
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
-        public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsCompleting && !IsRemoved && !IsInTransit && Color == color && CurrentFill < Capacity;
+        public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
         internal void RecordCollection() => CurrentFill++;
         internal void NotifyCollection() => OnBoxFillChanged?.Invoke(this);
 
