@@ -27,8 +27,7 @@ namespace BallsOut.Editor
             Art + "/Prefabs/PF_Box_1x2.prefab",
             Art + "/Prefabs/PF_Box_1x3.prefab",
             Art + "/Prefabs/PF_Box_2x1.prefab",
-            Art + "/Prefabs/PF_Box_L.prefab",
-            Art + "/Prefabs/PF_Box_Plus.prefab"
+            Art + "/Prefabs/PF_Box_L.prefab"
         };
 
         static GridAndBoxGameBuilder()
@@ -61,8 +60,7 @@ namespace BallsOut.Editor
             BoxShapeDefinition verticalTwo = CreateShape("Shape_1x2", V(0, 0), V(0, 1));
             BoxShapeDefinition verticalThree = CreateShape("Shape_1x3", V(0, 0), V(0, 1), V(0, 2));
             BoxShapeDefinition horizontalTwo = CreateShape("Shape_2x1", V(0, 0), V(1, 0));
-            BoxShapeDefinition elbow = CreateShape("Shape_L", V(0, 0), V(0, 1), V(0, 2), V(1, 0));
-            BoxShapeDefinition plus = CreateShape("Shape_Plus", V(1, 0), V(0, 1), V(1, 1), V(2, 1), V(1, 2));
+            BoxShapeDefinition elbow = CreateShape("Shape_L", V(1, 0), V(1, 1), V(1, 2), V(0, 2));
 
             BallColorDefinition[] colors =
             {
@@ -79,11 +77,10 @@ namespace BallsOut.Editor
                 Entry(verticalTwo, "PF_Box_1x2"),
                 Entry(verticalThree, "PF_Box_1x3", new Vector3(0f, 0f, 1f)),
                 Entry(horizontalTwo, "PF_Box_2x1"),
-                Entry(elbow, "PF_Box_L", new Vector3(0f, 0f, 1f)),
-                Entry(plus, "PF_Box_Plus", new Vector3(1f, 0f, 1f))
+                Entry(elbow, "PF_Box_L", new Vector3(1f, 0f, 1f), new Vector3(-1f, 1.65f, -1f))
             };
             PrefabRegistry registry = CreateRegistry(ballPrefab, entries);
-            LevelDefinition level = CreateLevel(one, verticalTwo, horizontalTwo, verticalThree, elbow, plus, colors);
+            LevelDefinition level = CreateLevel(one, verticalTwo, horizontalTwo, verticalThree, elbow, colors);
             GameObject runtimePrefab = CreateRuntimePrefab(level, registry);
             SetObjectReference(level, "levelPrefab", runtimePrefab);
             ConfigureLevelList(level);
@@ -150,7 +147,6 @@ namespace BallsOut.Editor
                 registry.boxes[i].fillOffset.y = 0.22f;
             }
             LevelDefinition level = Load<LevelDefinition>(LevelPath);
-            ShapePileCrown(level);
             GameObject root = PrefabUtility.LoadPrefabContents(RuntimePath);
             try
             {
@@ -256,7 +252,6 @@ namespace BallsOut.Editor
             BoxShapeDefinition horizontalTwo,
             BoxShapeDefinition verticalThree,
             BoxShapeDefinition elbow,
-            BoxShapeDefinition plus,
             BallColorDefinition[] colors)
         {
             LevelDefinition level = AssetDatabase.LoadAssetAtPath<LevelDefinition>(LevelPath);
@@ -267,25 +262,21 @@ namespace BallsOut.Editor
             }
             level.macroGridWidth = 6;
             level.lowerGridHeight = 6;
-            level.ballAreaMacroHeight = 9;
+            level.ballAreaMacroHeight = 6;
             level.macroCellSize = 1f;
             level.lowerGridMask = new CellMask();
             level.ballAreaMask = new CellMask();
-            level.ballAreaMask.overrides.Add(new CellOverride { cell = V(3, 8), kind = CellKind.Outside });
-            level.ballAreaMask.overrides.Add(new CellOverride { cell = V(4, 8), kind = CellKind.Outside });
-            level.ballAreaMask.overrides.Add(new CellOverride { cell = V(5, 8), kind = CellKind.Outside });
             level.boxes.Clear();
-            level.boxes.Add(Spawn("Coral 1x1", one, colors[0], 5, 4));
-            level.boxes.Add(Spawn("Aqua 1x2", verticalTwo, colors[1], 2, 3));
-            level.boxes.Add(Spawn("Saffron 2x1", horizontalTwo, colors[2], 3, 5));
-            level.boxes.Add(Spawn("Lilac 1x3", verticalThree, colors[3], 0, 3));
+            level.boxes.Add(Spawn("Coral 1x1", one, colors[0], 0, 3));
+            level.boxes.Add(Spawn("Aqua 1x2", verticalTwo, colors[1], 1, 2));
+            level.boxes.Add(Spawn("Saffron 2x1", horizontalTwo, colors[2], 2, 3));
+            level.boxes.Add(Spawn("Lilac 1x3", verticalThree, colors[3], 3, 0));
             level.boxes.Add(Spawn("Emerald L", elbow, colors[4], 4, 0));
-            level.boxes.Add(Spawn("Emerald Plus", plus, colors[4], 0, 0));
             level.palette.Clear();
             level.palette.AddRange(colors);
             level.balls.Clear();
 
-            int[] macroCounts = { 3, 6, 6, 9, 27 };
+            int[] macroCounts = { 3, 6, 6, 9, 12 };
             int colorIndex = 0;
             int remaining = macroCounts[0];
             for (int macroY = 0; macroY < level.ballAreaMacroHeight; macroY++)
@@ -304,27 +295,11 @@ namespace BallsOut.Editor
                     remaining--;
                 }
 
-            ShapePileCrown(level);
             var errors = new List<string>();
             LevelValidator.Validate(level, errors);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join("\n", errors));
             EditorUtility.SetDirty(level);
             return level;
-        }
-
-        private static void ShapePileCrown(LevelDefinition level)
-        {
-            // Redistribute only the sample's top 63 balls; preserve colors and capacity.
-            int firstRow = level.TotalHeight * 3 - 5;
-            var crown = level.balls.FindAll(ball => ball.cell.y >= firstRow);
-            if (level.macroGridWidth != 6 || crown.Count != 63) return;
-            level.ballAreaMask.overrides.Clear();
-            int[] widths = { 17, 16, 14, 10, 6 };
-            int index = 0;
-            for (int row = 0; row < widths.Length; row++)
-                for (int x = 0; x < widths[row]; x++)
-                    crown[index++].cell = V((19 - widths[row]) / 2 + x, firstRow + row);
-            EditorUtility.SetDirty(level);
         }
 
         private static GameObject CreateRuntimePrefab(LevelDefinition level, PrefabRegistry registry)
@@ -457,14 +432,14 @@ namespace BallsOut.Editor
             if (opened) EditorSceneManager.CloseScene(scene, true);
         }
 
-        private static BoxVisualEntry Entry(BoxShapeDefinition shape, string prefab, Vector3 offset = default)
+        private static BoxVisualEntry Entry(BoxShapeDefinition shape, string prefab, Vector3 offset = default, Vector3 scale = default)
             => new BoxVisualEntry
             {
                 shape = shape,
                 prefab = Load<GameObject>(Art + "/Prefabs/" + prefab + ".prefab"),
                 localOffset = offset + Vector3.up * 0.22f,
                 fillOffset = Vector3.up * 0.22f,
-                localScale = Vector3.one
+                localScale = scale == Vector3.zero ? new Vector3(1f, 1.65f, 1f) : scale
             };
 
         private static BoxSpawnData Spawn(string id, BoxShapeDefinition shape, BallColorDefinition color, int x, int y)
