@@ -26,10 +26,10 @@ Material:
     m_Ints: []
     m_Floats:
     - _FakeInset: 1
-    - _Gloss: 0.08
+    - _Gloss: 0.045
     - _Gradient: 0
-    - _Shade: 0.35
+    - _Shade: 0.42
     m_Colors:
-    - _BaseColor: {r: 0.048, g: 0.043, b: 0.205, a: 1}
+    - _BaseColor: {r: 0.188235, g: 0.152941, b: 0.411765, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

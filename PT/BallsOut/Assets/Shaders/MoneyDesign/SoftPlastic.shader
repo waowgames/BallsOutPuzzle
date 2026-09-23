@@ -79,21 +79,22 @@ Shader "Money Design/Soft Plastic"
                 half flatTop = step(0.999, abs(faceNormal.y));
                 // Flat tray floors must not inherit triangular highlights from the rim normals.
                 normal = normalize(lerp(normal, half3(0, 1, 0), flatTop));
-                // Broad upper-right studio light, independent of the garage's lighting.
-                half3 light = normalize(half3(0.42, 0.82, 0.38));
+                // A broad studio reflection plus a small hot spot keeps the plastic saturated.
+                half3 light = normalize(half3(-0.38, 0.82, 0.44));
                 half diffuse = saturate(dot(normal, light));
                 half shade = 1 - _Shade + _Shade * diffuse / light.y;
                 half3 view = GetWorldSpaceNormalizeViewDir(input.positionWS);
-                half specular = pow(saturate(dot(normal, normalize(light + view))), 48) * lerp(1, 0.08, flatTop);
+                half reflection = saturate(dot(normal, normalize(light + view)));
+                half specular = pow(reflection, 80);
+                half softReflection = pow(reflection, 12);
                 half rim = pow(1 - saturate(dot(normal, view)), 4);
-                half3 color = _BaseColor.rgb * shade + _Gloss * (specular + rim * 0.16);
+                half3 highlightTint = lerp(_BaseColor.rgb, half3(1, 1, 1), 0.32);
+                half3 color = _BaseColor.rgb * shade + _Gloss *
+                    (highlightTint * softReflection * 0.24 + specular * 0.65 + rim * 0.12);
                 if (_BallStyle > 0)
                 {
                     half upper = saturate(normal.y * 0.5 + 0.5);
-                    half broad = smoothstep(0.62, 0.95,
-                        dot(normal, normalize(half3(-0.36, 0.86, 0.32))));
-                    color = color * lerp(1, 0.84 + upper * 0.16, _BallStyle) +
-                        _BallStyle * broad * 0.07;
+                    color *= lerp(1, 0.66 + upper * 0.34, _BallStyle);
                 }
                 // Recessed grid cells get painted edge light/shadow without extra geometry.
                 if (_FakeInset > 0)
@@ -102,12 +103,12 @@ Shader "Money Design/Soft Plastic"
                     half leftShadow = 1 - smoothstep(-0.46, -0.25, input.positionOS.x);
                     half bottomLight = 1 - smoothstep(-0.47, -0.33, input.positionOS.z);
                     half rightLight = smoothstep(0.33, 0.47, input.positionOS.x);
-                    color *= lerp(1, 1 - 0.32 * max(topShadow, leftShadow) +
-                        0.10 * max(bottomLight, rightLight), _FakeInset * flatTop);
+                    color *= lerp(1, 1 - 0.42 * max(topShadow, leftShadow) +
+                        0.16 * max(bottomLight, rightLight), _FakeInset * flatTop);
                 }
                 float2 screenUV = GetNormalizedScreenSpaceUV(input.positionCS);
-                half gradient = saturate(1 - length((screenUV - float2(0.53, 0.60)) * float2(1.1, 0.75)));
-                color *= lerp(1, 0.82 + gradient * 0.27, _Gradient);
+                half gradient = saturate(1 - length((screenUV - float2(0.50, 0.52)) * float2(1.35, 1.2)));
+                color *= lerp(1, 0.52 + gradient * 0.65, _Gradient);
                 #if defined(_MYSTERY_PATTERN)
                 // Animate on the GPU, sharing one material across all hidden boxes.
                 float2 p = frac(input.positionOS.xz * _MysteryDensity + 0.5 +
@@ -135,15 +136,19 @@ Shader "Money Design/Soft Plastic"
                 half topGlow = 1 - smoothstep(0.10, 0.40, abs(box.w - input.positionOS.z));
                 half leftShade = 1 - smoothstep(0.10, 0.27, abs(input.positionOS.x - box.x));
                 half bottomGlow = 1 - smoothstep(0.10, 0.30, abs(input.positionOS.z - box.z));
-                half3 inner = lerp(_InnerColor.rgb, _BaseColor.rgb, topGlow * _InnerHighlight);
-                inner *= 1 - 0.12 * leftShade + 0.04 * bottomGlow;
+                half wellDepth = saturate(abs(input.positionOS.z - box.z) / max(abs(box.w - box.z), 0.01));
+                half3 inner = _InnerColor.rgb * lerp(1.12, 0.72, wellDepth);
+                inner = lerp(inner, _BaseColor.rgb, topGlow * _InnerHighlight);
+                inner *= 1 - 0.18 * leftShade + 0.08 * bottomGlow;
                 half floorFace = (1 - smoothstep(0.061, 0.075, input.positionOS.y)) * flatTop;
                 half outerEdge = min(min(abs(input.positionOS.x - box.x), abs(box.y - input.positionOS.x)),
                     min(abs(input.positionOS.z - box.z), abs(box.w - input.positionOS.z)));
                 half innerWall = step(0.05, outerEdge) * (1 - flatTop) *
                     smoothstep(0.075, 0.10, input.positionOS.y) *
                     (1 - smoothstep(0.25, 0.28, input.positionOS.y));
-                color = lerp(color, _InnerColor.rgb * 0.95, innerWall * 0.75);
+                half wallHeight = smoothstep(0.084, 0.266, input.positionOS.y);
+                half3 wallColor = lerp(_InnerColor.rgb * 0.65, _BaseColor.rgb, wallHeight * wallHeight);
+                color = lerp(color, wallColor, innerWall * 0.85);
                 color = lerp(color, inner, floorFace);
                 // Mesh rings: base to 0.084, wall to 0.266, bright lip to 0.29.
                 half wall = smoothstep(0.084, 0.105, input.positionOS.y) *

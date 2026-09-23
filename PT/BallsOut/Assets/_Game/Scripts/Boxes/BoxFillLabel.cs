@@ -84,18 +84,21 @@ namespace BallsOut
             textRenderer.receiveShadows = false;
             text.font = TMP_Settings.defaultFontAsset;
             text.fontSize = 36f;
+            text.fontStyle = FontStyles.Bold;
+            text.isOrthographic = true;
             text.textWrappingMode = TextWrappingModes.NoWrap;
             text.overflowMode = TextOverflowModes.Overflow;
             text.alignment = TextAlignmentOptions.Center;
-            text.color = Color.white;
+            text.color = new Color(0.13f, 0.12f, 0.25f);
             text.text = "0%";
             if (outlinedTextMaterial == null && text.fontSharedMaterial != null)
             {
                 outlinedTextMaterial = new Material(text.fontSharedMaterial) { name = "Box Fill Percentage" };
                 if (outlinedTextMaterial.HasProperty("_OutlineWidth"))
                 {
-                    outlinedTextMaterial.SetFloat("_OutlineWidth", 0.1f);
-                    outlinedTextMaterial.SetColor("_OutlineColor", new Color(0.20f, 0.23f, 0.36f));
+                    outlinedTextMaterial.EnableKeyword("OUTLINE_ON");
+                    outlinedTextMaterial.SetFloat("_OutlineWidth", 0.08f);
+                    outlinedTextMaterial.SetColor("_OutlineColor", Color.white);
                 }
             }
             if (outlinedTextMaterial != null) text.fontSharedMaterial = outlinedTextMaterial;
@@ -104,7 +107,7 @@ namespace BallsOut
             Vector2 preferred = text.GetPreferredValues("100%");
             text.rectTransform.sizeDelta = preferred;
             float scale = preferred.x > 0f && preferred.y > 0f
-                ? Mathf.Min(cellSize * 0.31f / preferred.x, cellSize * 0.13f / preferred.y)
+                ? Mathf.Min(cellSize * 0.36f / preferred.x, cellSize * 0.18f / preferred.y)
                 : cellSize * 0.01f;
             label.transform.localScale = Vector3.one * scale;
             return new BoxFillLabel(text);

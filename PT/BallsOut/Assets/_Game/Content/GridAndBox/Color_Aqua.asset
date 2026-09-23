@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Color_Aqua
   m_EditorClassIdentifier: 
   id: aqua
-  displayColor: {r: 0.055, g: 0.82, b: 1, a: 1}
+  displayColor: {r: 0.086275, g: 0.862745, b: 1, a: 1}
   ballMaterial: {fileID: 2100000, guid: 103d522bd83ab584391b590b2e70c9a0, type: 2}
   boxMaterial: {fileID: 2100000, guid: 1218bb86611e4de1950f36950c16af4d, type: 2}
   ballPrefabOverride: {fileID: 0}

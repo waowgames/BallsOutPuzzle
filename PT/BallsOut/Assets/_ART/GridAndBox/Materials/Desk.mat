@@ -110,17 +110,17 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _Gloss: 0.42
+    - _Gloss: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Gradient: 0.65
+    - _Gradient: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Shade: 0.75
+    - _Shade: 0
     - _Smoothness: 0.22
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -130,8 +130,8 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.0529, g: 0.0116, b: 0.3467, a: 1}
-    - _Color: {r: 0.0529, g: 0.0116, b: 0.3467, a: 1}
+    - _BaseColor: {r: 0.286275, g: 0.105882, b: 0.596078, a: 1}
+    - _Color: {r: 0.286275, g: 0.105882, b: 0.596078, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

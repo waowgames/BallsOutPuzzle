@@ -21,7 +21,7 @@ namespace BallsOut.Editor
         private static readonly string[] ArtPrefabs =
         {
             Art + "/Prefabs/PF_GridCell.prefab",
-            Art + "/Prefabs/PF_Grid_6x6.prefab",
+            Art + "/Prefabs/PF_BoardFrame.prefab",
             Art + "/Prefabs/PF_Desk.prefab",
             Art + "/Prefabs/PF_Box_1x1.prefab",
             Art + "/Prefabs/PF_Box_1x2.prefab",
@@ -316,7 +316,7 @@ namespace BallsOut.Editor
             var artRoot = new GameObject("Board Art").transform;
             artRoot.SetParent(root.transform, false);
             AddArt(Load<GameObject>(Art + "/Prefabs/PF_Desk.prefab"), artRoot, new Vector3(3f, -0.65f, level.TotalHeight * 0.5f));
-            AddArt(Load<GameObject>(Art + "/Prefabs/PF_Grid_6x6.prefab"), artRoot, new Vector3(3f, 0f, 3f));
+            AddArt(Load<GameObject>(Art + "/Prefabs/PF_BoardFrame.prefab"), artRoot, new Vector3(3f, 0f, 3f));
             CreateBallDepot(artRoot, level);
 
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, RuntimePath);
@@ -405,7 +405,9 @@ namespace BallsOut.Editor
                     camera.orthographic = true;
                     camera.orthographicSize = 10.2f;
                     camera.clearFlags = CameraClearFlags.SolidColor;
-                    camera.backgroundColor = new Color(0.053f, 0.012f, 0.347f);
+                    camera.backgroundColor = new Color(0.212f, 0.082f, 0.467f);
+                    if (camera.TryGetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(out var cameraData))
+                        cameraData.renderPostProcessing = false;
                     camera.transform.SetPositionAndRotation(
                         new Vector3(level.macroGridWidth * 0.5f, 18f, level.TotalHeight * 0.5f),
                         Quaternion.Euler(90f, 0f, 0f));
