@@ -21,6 +21,7 @@ namespace BallsOut
         public Vector3 FillSpacing { get; private set; }
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
         internal List<BallState> CollectedBalls { get; private set; }
+        internal Vector3[] FillSlots { get; private set; }
         internal int PendingFillAnimations;
         public event Action<BoxController> OnBoxFillChanged;
 
@@ -35,6 +36,21 @@ namespace BallsOut
             FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.22f, 0f)) * cellSize;
             float layerSpacing = registry != null ? registry.fillSpacing.y : 0.25f;
             FillSpacing = new Vector3(cellSize / 3f, layerSpacing * cellSize, cellSize / 3f);
+            FillSlots = new Vector3[Shape.CellCount * 9];
+            int slot = 0;
+            foreach (Vector2Int cell in Shape.Cells)
+                for (int row = 0; row < 3; row++)
+                    for (int column = 0; column < 3; column++)
+                        FillSlots[slot++] = new Vector3(
+                            cell.x * cellSize + (column - 1) * FillSpacing.x,
+                            0f,
+                            cell.y * cellSize + (row - 1) * FillSpacing.z);
+            // The game camera looks down with screen up along local +Z.
+            Array.Sort(FillSlots, (a, b) =>
+            {
+                int rowOrder = a.z.CompareTo(b.z);
+                return rowOrder != 0 ? rowOrder : a.x.CompareTo(b.x);
+            });
             if (registry != null && registry.TryGetBox(Shape, out var entry) && entry.prefab != null)
             {
                 GameObject visual = Instantiate(entry.prefab, transform);

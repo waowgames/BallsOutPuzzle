@@ -30,15 +30,10 @@ namespace BallsOut
 
         public static Vector3 GetSlotPosition(BoxController box, int index)
         {
-            int cellCount = box.Shape.CellCount;
-            int layer = index / (9 * cellCount);
-            int slot = index / cellCount % 9;
-            Vector2Int cell = box.Shape.Cells[index % cellCount];
-            int row = slot / 3;
-            int column = slot % 3;
-            // Spread each layer across every connected cell before filling above it.
-            return new Vector3(cell.x * box.runtimeCellSize, 0f, cell.y * box.runtimeCellSize)
-                + Vector3.Scale(new Vector3(column - 1, layer, 1 - row), box.FillSpacing);
+            int layerSize = box.FillSlots.Length;
+            Vector3 position = box.FillSlots[index % layerSize];
+            position.y = index / layerSize * box.FillSpacing.y;
+            return position;
         }
 
         internal void Collect(BallState ball, BoxController box)
