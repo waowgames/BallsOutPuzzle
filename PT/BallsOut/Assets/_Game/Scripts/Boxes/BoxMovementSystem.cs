@@ -7,23 +7,21 @@ namespace BallsOut
     {
         private readonly BoardGrid board;
         private readonly BallMicroGrid balls;
-        private readonly float stepDuration;
+        private readonly float snapDuration;
         private BoxController selected;
         private Vector3 grabOffset;
-        private Vector3 stepStart;
-        private Vector2Int stepOrigin;
-        private Vector2Int target;
-        private float stepElapsed;
+        private Vector3 snapStart;
+        private float snapElapsed;
         private bool releaseRequested;
         public bool IsDragging => selected != null;
         public event Action<BoxController> OnBoxMoved;
         public event Action<BoxController> OnDragEnded;
 
-        public BoxMovementSystem(BoardGrid board, BallMicroGrid balls, float stepDuration)
+        public BoxMovementSystem(BoardGrid board, BallMicroGrid balls, float snapDuration)
         {
             this.board = board;
             this.balls = balls;
-            this.stepDuration = Mathf.Max(0.02f, stepDuration);
+            this.snapDuration = Mathf.Max(0.02f, snapDuration);
         }
 
         public bool Begin(Vector3 worldPoint)
@@ -31,81 +29,132 @@ namespace BallsOut
             if (selected != null) return false;
             selected = board.GetBox(board.WorldToCell(worldPoint));
             if (selected == null || !selected.CanMove) { selected = null; return false; }
-            grabOffset = board.Root.InverseTransformPoint(worldPoint) - board.CellToLocal(selected.Origin);
-            target = selected.Origin;
+            grabOffset = board.Root.InverseTransformPoint(worldPoint) - selected.transform.localPosition;
             releaseRequested = false;
+            selected.IsInTransit = true;
             return true;
         }
 
         public void Drag(Vector3 worldPoint)
         {
             if (selected == null || releaseRequested) return;
-            Vector3 originPoint = board.Root.InverseTransformPoint(worldPoint) - grabOffset;
-            target = new Vector2Int(Mathf.FloorToInt(originPoint.x / board.CellSize), Mathf.FloorToInt(originPoint.z / board.CellSize));
-            // Accept the first neighboring step while the pointer is held, even if
-            // press, motion and release all arrive before the next rendered frame.
-            if (!selected.IsInTransit) Advance(0f);
+            Vector3 current = selected.transform.localPosition;
+            Vector3 desired = board.Root.InverseTransformPoint(worldPoint) - grabOffset;
+            desired.y = current.y;
+            Vector3 horizontalFirst = current;
+            MoveAxis(ref horizontalFirst, desired.x, true, false);
+            MoveAxis(ref horizontalFirst, desired.z, false, false);
+            int route = 0;
+            float remaining = (horizontalFirst - desired).sqrMagnitude;
+            if (!Mathf.Approximately(horizontalFirst.x, desired.x) || !Mathf.Approximately(horizontalFirst.z, desired.z))
+            {
+                Vector3 verticalFirst = current;
+                MoveAxis(ref verticalFirst, desired.z, false, false);
+                MoveAxis(ref verticalFirst, desired.x, true, false);
+                if ((verticalFirst - desired).sqrMagnitude < remaining)
+                {
+                    remaining = (verticalFirst - desired).sqrMagnitude;
+                    route = 1;
+                }
+                Vector3 center = board.CellToLocal(selected.Origin);
+                if (!Mathf.Approximately(current.z, center.z))
+                {
+                    Vector3 aligned = current;
+                    MoveAxis(ref aligned, center.z, false, false);
+                    MoveAxis(ref aligned, desired.x, true, false);
+                    MoveAxis(ref aligned, desired.z, false, false);
+                    if ((aligned - desired).sqrMagnitude < remaining)
+                    {
+                        remaining = (aligned - desired).sqrMagnitude;
+                        route = 2;
+                    }
+                }
+                if (!Mathf.Approximately(current.x, center.x))
+                {
+                    Vector3 aligned = current;
+                    MoveAxis(ref aligned, center.x, true, false);
+                    MoveAxis(ref aligned, desired.z, false, false);
+                    MoveAxis(ref aligned, desired.x, true, false);
+                    if ((aligned - desired).sqrMagnitude < remaining) route = 3;
+                }
+            }
+            Vector3 position = current;
+            if (route == 2) MoveAxis(ref position, board.CellToLocal(selected.Origin).z, false, true);
+            if (route == 3) MoveAxis(ref position, board.CellToLocal(selected.Origin).x, true, true);
+            if (route == 0 || route == 2) MoveAxis(ref position, desired.x, true, true);
+            MoveAxis(ref position, desired.z, false, true);
+            if (route == 1 || route == 3) MoveAxis(ref position, desired.x, true, true);
+            selected.transform.localPosition = position;
+        }
+
+        private void MoveAxis(ref Vector3 position, float desired, bool horizontal, bool commit)
+        {
+            float start = horizontal ? position.x : position.z;
+            int steps = Mathf.CeilToInt(Mathf.Abs(desired - start) * 4f / board.CellSize);
+            for (int i = 1; i <= steps; i++)
+            {
+                Vector3 next = position;
+                float coordinate = Mathf.Lerp(start, desired, (float)i / steps);
+                if (horizontal) next.x = coordinate;
+                else next.z = coordinate;
+                if (!CanOccupy(next)) break;
+                if (commit)
+                {
+                    Vector2Int origin = new Vector2Int(Mathf.FloorToInt(next.x / board.CellSize),
+                        Mathf.FloorToInt(next.z / board.CellSize));
+                    if (origin != selected.Origin)
+                    {
+                        if (!board.TryPlace(selected, origin, balls)) break;
+                        OnBoxMoved?.Invoke(selected);
+                    }
+                }
+                position = next;
+            }
         }
 
         public void Release()
         {
-            // Stop at the latest accepted neighboring origin. Never traverse an
-            // unvisited route after release just because its endpoint is free.
+            if (selected == null) return;
             releaseRequested = true;
+            snapStart = selected.transform.localPosition;
+            snapElapsed = 0f;
         }
 
         public void Advance(float deltaTime)
         {
-            if (selected == null) return;
-            if (!selected.CanMove) { Cancel(); return; }
-            if (selected.IsInTransit)
-            {
-                stepElapsed += deltaTime;
-                float t = Mathf.Clamp01(stepElapsed / stepDuration);
-                selected.transform.localPosition = Vector3.Lerp(stepStart, board.CellToLocal(selected.Origin), t);
-                if (t < 1f) return;
-                board.FinishTransit(selected, stepOrigin);
-                OnBoxMoved?.Invoke(selected);
-            }
-            if (releaseRequested)
-            {
-                BoxController ended = selected;
-                selected = null;
-                OnDragEnded?.Invoke(ended);
-                return;
-            }
-            Vector2Int delta = target - selected.Origin;
-            if (delta == Vector2Int.zero) return;
-            Vector2Int horizontal = new Vector2Int(Math.Sign(delta.x), 0);
-            Vector2Int vertical = new Vector2Int(0, Math.Sign(delta.y));
-            if (Math.Abs(delta.x) >= Math.Abs(delta.y))
-            {
-                if (!TryStep(horizontal)) TryStep(vertical);
-            }
-            else if (!TryStep(vertical)) TryStep(horizontal);
+            if (selected == null || !releaseRequested) return;
+            snapElapsed += deltaTime;
+            float t = Mathf.Clamp01(snapElapsed / snapDuration);
+            selected.transform.localPosition = Vector3.Lerp(snapStart, board.CellToLocal(selected.Origin), t);
+            if (t < 1f) return;
+            board.FinishTransit(selected, selected.Origin);
+            BoxController ended = selected;
+            selected = null;
+            OnDragEnded?.Invoke(ended);
         }
 
-        private bool TryStep(Vector2Int step)
+        private bool CanOccupy(Vector3 position)
         {
-            if (step == Vector2Int.zero) return false;
-            Vector2Int next = selected.Origin + step;
-            if (!board.CanPlace(selected, next, balls)) return false;
-            stepOrigin = selected.Origin;
-            stepStart = selected.transform.localPosition;
-            stepElapsed = 0f;
-            selected.IsInTransit = true;
-            board.TryPlace(selected, next, balls, true);
-            return true;
+            float x = position.x / board.CellSize - 0.5f;
+            float y = position.z / board.CellSize - 0.5f;
+            // Box hit proxies occupy 95% of each grid cell; the remaining margin
+            // lets a box slide along an adjacent wall without catching on it.
+            int left = Mathf.FloorToInt(x + 0.025f);
+            int right = Mathf.FloorToInt(x + 0.975f);
+            int bottom = Mathf.FloorToInt(y + 0.025f);
+            int top = Mathf.FloorToInt(y + 0.975f);
+            if (!board.CanPlace(selected, new Vector2Int(left, bottom), balls)) return false;
+            if (right != left && !board.CanPlace(selected, new Vector2Int(right, bottom), balls)) return false;
+            if (top == bottom) return true;
+            return board.CanPlace(selected, new Vector2Int(left, top), balls) &&
+                   (right == left || board.CanPlace(selected, new Vector2Int(right, top), balls));
         }
 
         public void Cancel()
         {
             if (selected == null) return;
-            if (selected.IsInTransit)
-            {
-                selected.transform.localPosition = board.CellToLocal(selected.Origin);
-                board.FinishTransit(selected, stepOrigin);
-            }
+            selected.transform.localPosition = board.CellToLocal(selected.Origin);
+            board.FinishTransit(selected, selected.Origin);
             selected = null;
             releaseRequested = false;
         }

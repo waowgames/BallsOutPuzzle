@@ -33,7 +33,8 @@ namespace BallsOut
             FillRoot = new GameObject("Fill").transform;
             FillRoot.SetParent(transform, false);
             FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.22f, 0f)) * cellSize;
-            FillSpacing = (registry != null ? registry.fillSpacing : new Vector3(0.25f, 0.18f, 0.25f)) * cellSize;
+            float layerSpacing = registry != null ? registry.fillSpacing.y : 0.25f;
+            FillSpacing = new Vector3(cellSize / 3f, layerSpacing * cellSize, cellSize / 3f);
             if (registry != null && registry.TryGetBox(Shape, out var entry) && entry.prefab != null)
             {
                 GameObject visual = Instantiate(entry.prefab, transform);

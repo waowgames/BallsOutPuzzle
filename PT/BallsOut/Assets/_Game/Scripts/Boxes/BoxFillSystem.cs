@@ -30,12 +30,13 @@ namespace BallsOut
 
         public static Vector3 GetSlotPosition(BoxController box, int index)
         {
-            Vector2Int cell = box.Shape.Cells[index / LevelDefinition.CapacityPerMacroCell];
-            int slot = index % LevelDefinition.CapacityPerMacroCell;
-            int layer = slot / 9;
-            int row = slot % 9 / 3;
+            int cellCount = box.Shape.CellCount;
+            int layer = index / (9 * cellCount);
+            int slot = index / cellCount % 9;
+            Vector2Int cell = box.Shape.Cells[index % cellCount];
+            int row = slot / 3;
             int column = slot % 3;
-            // Stable shape order; each cell fills 9 bottom, 9 middle, 9 top.
+            // Spread each layer across every connected cell before filling above it.
             return new Vector3(cell.x * box.runtimeCellSize, 0f, cell.y * box.runtimeCellSize)
                 + Vector3.Scale(new Vector3(column - 1, layer, 1 - row), box.FillSpacing);
         }
@@ -54,8 +55,7 @@ namespace BallsOut
                 start = ball.Visual.localPosition;
                 startScale = ball.Visual.localScale;
                 float diameter = Mathf.Max(startScale.x, Mathf.Max(startScale.y, startScale.z));
-                float spacing = Mathf.Min(box.FillSpacing.x, Mathf.Min(box.FillSpacing.y, box.FillSpacing.z));
-                endScale = startScale * Mathf.Min(1f, spacing * 0.96f / Mathf.Max(diameter, 0.001f));
+                endScale = startScale * (box.FillSpacing.x / Mathf.Max(diameter, 0.001f));
             }
             box.CollectedBalls.Add(ball);
             box.PendingFillAnimations++;
@@ -87,9 +87,8 @@ namespace BallsOut
             {
                 if (motion.ball.Visual == null) continue;
                 float t = Mathf.Clamp01((motion.elapsed + interpolationTime) / duration);
-                Vector3 position = Vector3.Lerp(motion.start, motion.end, t);
-                position.y += Mathf.Sin(t * Mathf.PI) * motion.box.runtimeCellSize * 0.2f;
-                motion.ball.Visual.localPosition = position;
+                t = 1f - (1f - t) * (1f - t) * (1f - t);
+                motion.ball.Visual.localPosition = Vector3.Lerp(motion.start, motion.end, t);
                 motion.ball.Visual.localScale = Vector3.Lerp(motion.startScale, motion.endScale, t);
             }
         }
