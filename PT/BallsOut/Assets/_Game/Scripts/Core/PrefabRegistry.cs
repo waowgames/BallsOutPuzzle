@@ -16,6 +16,8 @@ namespace BallsOut
     [CreateAssetMenu(menuName = "Balls Out/Prefab Registry")]
     public sealed class PrefabRegistry : ScriptableObject
     {
+        private static readonly int BoxBoundsId = Shader.PropertyToID("_BoxBounds");
+
         public GameObject ballPrefab;
         public Vector3 ballScale = Vector3.one * 0.225f;
         public float ballHeight = 0.1f;
@@ -45,6 +47,21 @@ namespace BallsOut
                 var materials = renderer.sharedMaterials;
                 for (int i = 0; i < materials.Length; i++) materials[i] = material;
                 renderer.sharedMaterials = materials;
+                if (!material.HasProperty("_BoxGlass") || material.GetFloat("_BoxGlass") < 0.5f ||
+                    !renderer.TryGetComponent(out MeshFilter filter) || filter.sharedMesh == null)
+                    continue;
+
+                Bounds bounds = filter.sharedMesh.bounds;
+                Matrix4x4 toWorld = renderer.localToWorldMatrix;
+                var values = new Vector4(
+                    toWorld.m00 >= 0f ? bounds.min.x : bounds.max.x,
+                    toWorld.m00 >= 0f ? bounds.max.x : bounds.min.x,
+                    toWorld.m22 >= 0f ? bounds.min.z : bounds.max.z,
+                    toWorld.m22 >= 0f ? bounds.max.z : bounds.min.z);
+                var properties = new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(properties);
+                properties.SetVector(BoxBoundsId, values);
+                renderer.SetPropertyBlock(properties);
             }
         }
     }

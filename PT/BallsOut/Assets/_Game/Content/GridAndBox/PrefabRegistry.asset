@@ -15,7 +15,7 @@ MonoBehaviour:
   ballPrefab: {fileID: 5847570836986305873, guid: 6172acf395608d644bc26efaf9983281, type: 3}
   ballScale: {x: 0.225, y: 0.225, z: 0.225}
   ballHeight: 0.29
-  fillOffset: {x: 0, y: 0.1, z: 0}
+  fillOffset: {x: 0, y: 0.22, z: 0}
   fillDuration: 0.26
   completionDuration: 0.22
   floorPrefab: {fileID: 744571577134862828, guid: cf92cba8082076748b882e4a088cc3f0, type: 3}

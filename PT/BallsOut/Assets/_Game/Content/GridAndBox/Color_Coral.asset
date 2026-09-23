@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Color_Coral
   m_EditorClassIdentifier: 
   id: coral
-  displayColor: {r: 0.96, g: 0.28, b: 0.43, a: 1}
+  displayColor: {r: 0.96, g: 0.98, b: 1, a: 1}
   ballMaterial: {fileID: 2100000, guid: da22bcc416e82e24aa44d48e221ec74e, type: 2}
   boxMaterial: {fileID: 2100000, guid: 3a0ac31adc4a4493a37c84ba2889afab, type: 2}
   ballPrefabOverride: {fileID: 0}

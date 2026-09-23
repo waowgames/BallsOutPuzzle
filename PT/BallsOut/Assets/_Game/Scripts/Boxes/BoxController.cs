@@ -20,6 +20,7 @@ namespace BallsOut
         public Transform FillRoot { get; private set; }
         public Vector3 FillSpacing { get; private set; }
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
+        private BoxFillLabel fillLabel;
         internal List<BallState> CollectedBalls { get; private set; }
         internal Vector3[] FillSlots { get; private set; }
         internal int PendingFillAnimations;
@@ -72,6 +73,8 @@ namespace BallsOut
                 PrefabRegistry.ApplyMaterial(visual, Color.boxMaterial);
                 FillRoot.localPosition += entry.fillOffset;
                 CompletionAnimation = visual.GetComponentInChildren<BoxCompletionAnimation>(true);
+                fillLabel = BoxFillLabel.Create(this, visual, cellSize);
+                fillLabel.SetFill(CurrentFill, Capacity);
             }
             // Hit proxies follow the data footprint, never mesh bounds.
             foreach (Vector2Int cell in Shape.Cells)
@@ -86,7 +89,11 @@ namespace BallsOut
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
         public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
         internal void RecordCollection() => CurrentFill++;
-        internal void NotifyCollection() => OnBoxFillChanged?.Invoke(this);
+        internal void NotifyCollection()
+        {
+            fillLabel?.SetFill(CurrentFill, Capacity);
+            OnBoxFillChanged?.Invoke(this);
+        }
 
         private void OnDrawGizmos()
         {
