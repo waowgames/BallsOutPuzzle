@@ -70,6 +70,7 @@ namespace BallsOut
                     motion.ball.Visual.localScale = motion.endScale;
                 }
                 motion.box.PendingFillAnimations--;
+                motion.box.PlayCollectPulse();
                 int last = moving.Count - 1;
                 moving[i] = moving[last];
                 moving.RemoveAt(last);
@@ -87,7 +88,9 @@ namespace BallsOut
                     ? Mathf.Sin(t / 0.75f * Mathf.PI) * motion.box.FillSpacing.y * 1.8f
                     : Mathf.Sin((t - 0.75f) * 4f * Mathf.PI) * motion.box.FillSpacing.y * 0.2f;
                 motion.ball.Visual.localPosition = Vector3.Lerp(motion.start, motion.end, eased) + Vector3.up * hop;
-                motion.ball.Visual.localScale = Vector3.Lerp(motion.startScale, motion.endScale, eased);
+                // A short squash-pop as the ball settles into its slot.
+                float pop = t < 0.75f ? 0f : Mathf.Sin((t - 0.75f) * 4f * Mathf.PI) * 0.14f;
+                motion.ball.Visual.localScale = Vector3.Lerp(motion.startScale, motion.endScale, eased) * (1f + pop);
             }
         }
 

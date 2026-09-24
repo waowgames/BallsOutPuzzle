@@ -21,6 +21,14 @@ namespace BallsOut
         public Vector3 FillSpacing { get; private set; }
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
         private BoxFillLabel fillLabel;
+        // Collection pulse: a small damped spring, pivoting on the footprint centre.
+        private const float PulseStiffness = 420f;
+        private const float PulseDamping = 13f;
+        private const float PulseImpulse = 1.1f;
+        private const float PulseLimit = 0.08f;
+        private Transform pulseRoot;
+        private float pulse;
+        private float pulseVelocity;
         internal List<BallState> CollectedBalls { get; private set; }
         internal Vector3[] FillSlots { get; private set; }
         internal int PendingFillAnimations;
@@ -95,6 +103,35 @@ namespace BallsOut
                 hit.center = new Vector3(cell.x * cellSize, cellSize * 0.2f, cell.y * cellSize);
                 hit.size = new Vector3(cellSize * 0.95f, cellSize * 0.4f, cellSize * 0.95f);
             }
+            // Colliders stay on the root; only the art and its fill pulse.
+            Vector3 center = Vector3.zero;
+            foreach (Vector2Int cell in Shape.Cells) center += new Vector3(cell.x, 0f, cell.y);
+            pulseRoot = new GameObject("Pulse").transform;
+            pulseRoot.SetParent(transform, false);
+            pulseRoot.localPosition = center * (cellSize / Shape.Cells.Count);
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (child != pulseRoot) child.SetParent(pulseRoot, true);
+            }
+        }
+
+        internal void PlayCollectPulse()
+        {
+            if (pulseRoot == null || IsRemoved) return;
+            pulseVelocity = Mathf.Min(pulseVelocity + PulseImpulse, PulseImpulse * 1.6f);
+        }
+
+        private void Update()
+        {
+            if (pulseRoot == null || pulse == 0f && pulseVelocity == 0f) return;
+            // Semi-implicit Euler stays stable with the step capped well below 2/ω.
+            float dt = Mathf.Min(Time.deltaTime, 1f / 30f);
+            pulseVelocity += (-PulseStiffness * pulse - PulseDamping * pulseVelocity) * dt;
+            pulse = Mathf.Clamp(pulse + pulseVelocity * dt, -PulseLimit, PulseLimit);
+            if (Mathf.Abs(pulse) < 0.0005f && Mathf.Abs(pulseVelocity) < 0.01f) pulse = pulseVelocity = 0f;
+            // Widen and squash together so the box reads as catching the ball.
+            pulseRoot.localScale = new Vector3(1f + pulse, 1f - pulse * 0.6f, 1f + pulse);
         }
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }

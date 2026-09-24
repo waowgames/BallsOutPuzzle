@@ -11,6 +11,7 @@ namespace BallsOut
         private readonly List<BallState> moving = new List<BallState>();
         private readonly float visualHeight;
         private bool chooseLeft = true;
+        private BallState slidRight;
         private int observedRevision = -1;
         private float elapsed;
         private readonly Action<float> advanceBoxSystems;
@@ -61,14 +62,24 @@ namespace BallsOut
         {
             bool changed = false;
             TickCount++;
+            slidRight = null;
             // Bottom-up in-place traversal: destinations are in rows already visited,
             // so each ball is processed once without a second buffer or allocations.
             for (int y = grid.Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution; y < grid.Height; y++)
                 for (int x = 0; x < grid.Width; x++)
                 {
                     BallState ball = grid.Get(new Vector2Int(x, y));
-                    if (ball == null) continue;
+                    // A ball that rolled right this tick is met again at its new site.
+                    if (ball == null || ball == slidRight) continue;
                     BallMicroGrid.DownNeighbors(ball.Cell, out var down, out var left, out var right);
+                    // A box also draws from the second row: its matching ball
+                    // hops over the front ball straight into the box.
+                    if (collection.CanEnter(ball, down))
+                    {
+                        Enter(ball, down);
+                        changed = true;
+                        continue;
+                    }
                     // Straight-down on odd-r is two rows. Both intervening sites
                     // must be empty; never jump a ball, wall, box or mask hole.
                     if (grid.IsEmpty(left) && grid.IsEmpty(right) && CanEnter(ball, down))
@@ -79,7 +90,11 @@ namespace BallsOut
                     }
                     bool canLeft = CanEnter(ball, left);
                     bool canRight = CanEnter(ball, right);
-                    if (!canLeft && !canRight) continue;
+                    if (!canLeft && !canRight)
+                    {
+                        if (TrySlideOffWall(ball, left, right)) changed = true;
+                        continue;
+                    }
                     Vector2Int target = canLeft && canRight ? (chooseLeft ? left : right) : canLeft ? left : right;
                     if (canLeft && canRight) chooseLeft = !chooseLeft;
                     Enter(ball, target);
@@ -89,6 +104,30 @@ namespace BallsOut
         }
 
         private bool CanEnter(BallState ball, Vector2Int cell) => grid.IsEmpty(cell) || collection.CanEnter(ball, cell);
+
+        // Funnel walls narrow faster than half a column per row, so a ball on the
+        // wall can have no site below it at all. It rolls sideways along the slope
+        // onto a site that does lead down; flat floors never qualify.
+        private bool TrySlideOffWall(BallState ball, Vector2Int left, Vector2Int right)
+        {
+            if (grid.IsBallCell(left) || grid.IsBallCell(right)) return false;
+            Vector2Int toLeft = ball.Cell + Vector2Int.left;
+            Vector2Int toRight = ball.Cell + Vector2Int.right;
+            bool canLeft = grid.IsEmpty(toLeft) && LeadsDown(toLeft);
+            bool canRight = grid.IsEmpty(toRight) && LeadsDown(toRight);
+            if (!canLeft && !canRight) return false;
+            Vector2Int target = canLeft && canRight ? (chooseLeft ? toLeft : toRight) : canLeft ? toLeft : toRight;
+            if (canLeft && canRight) chooseLeft = !chooseLeft;
+            if (target == toRight) slidRight = ball;
+            Enter(ball, target);
+            return true;
+        }
+
+        private bool LeadsDown(Vector2Int cell)
+        {
+            BallMicroGrid.DownNeighbors(cell, out _, out var left, out var right);
+            return grid.IsBallCell(left) || grid.IsBallCell(right);
+        }
 
         private void Enter(BallState ball, Vector2Int cell)
         {
