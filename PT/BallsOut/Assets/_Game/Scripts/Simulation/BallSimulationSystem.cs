@@ -89,14 +89,13 @@ namespace BallsOut
                         continue;
                     }
                     bool canLeft = CanEnter(ball, left);
-                    bool canRight = CanEnter(ball, right);
+                    bool canRight = CanEnter(ball, right) && !DefersTo(ball, right);
                     if (!canLeft && !canRight)
                     {
                         if (TrySlideOffWall(ball, left, right)) changed = true;
                         continue;
                     }
-                    Vector2Int target = canLeft && canRight ? (chooseLeft ? left : right) : canLeft ? left : right;
-                    if (canLeft && canRight) chooseLeft = !chooseLeft;
+                    Vector2Int target = canLeft && canRight ? (PrefersRight(right) ? right : left) : canLeft ? left : right;
                     Enter(ball, target);
                     changed = true;
                 }
@@ -104,6 +103,20 @@ namespace BallsOut
         }
 
         private bool CanEnter(BallState ball, Vector2Int cell) => grid.IsEmpty(cell) || collection.CanEnter(ball, cell);
+
+        // Gravity: a hole is refilled from alternating sides row by row (even rows
+        // from upper-left, odd rows from upper-right), so it climbs straight up its
+        // column and the pile above drops vertically instead of shearing diagonally.
+        private static bool PrefersRight(Vector2Int target) => (target.y & 1) == 0;
+
+        // An odd-row hole belongs to the ball at its upper-right, which this row's
+        // left-to-right sweep has not reached yet; the upper-left ball waits for it.
+        private bool DefersTo(BallState ball, Vector2Int target)
+        {
+            if (PrefersRight(target) || !grid.IsEmpty(target)) return false;
+            BallState owner = grid.Get(ball.Cell + Vector2Int.right);
+            return owner != null && owner != slidRight;
+        }
 
         // Funnel walls narrow faster than half a column per row, so a ball on the
         // wall can have no site below it at all. It rolls sideways along the slope
