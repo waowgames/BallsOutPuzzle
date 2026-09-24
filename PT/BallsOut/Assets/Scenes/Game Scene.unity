@@ -1608,7 +1608,7 @@ PrefabInstance:
       objectReference: {fileID: 1336698686}
     - target: {fileID: 7601907853541211108, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
       propertyPath: _lifetime.m_ConstantMax
-      value: 0.7
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8680589885761080809, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
       propertyPath: m_Pivot.x
