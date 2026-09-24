@@ -103,7 +103,8 @@ namespace BallsOut
             }
             else
             {
-                GameObject visual = BoxShapeVisual.Create(Shape, Color.boxMaterial, transform, cellSize);
+                GameObject visual = BoxShapeVisual.Create(Shape, Color.boxMaterial, transform, cellSize, registry, out Vector3 fillOffset);
+                FillRoot.localPosition += fillOffset;
                 fillLabel = BoxFillLabel.Create(this, visual, cellSize);
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
