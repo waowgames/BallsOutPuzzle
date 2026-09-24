@@ -618,17 +618,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &921235292 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8168079515811721658, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
-  m_PrefabInstance: {fileID: 538004947070343921}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!224 &1057085799 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3621611592421959758, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
@@ -777,17 +766,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 645145249625928364, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
   m_PrefabInstance: {fileID: 538004947070343921}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1719253515 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4655280335531529196, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
-  m_PrefabInstance: {fileID: 538004947070343921}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1 &1726681132 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4910882113788803848, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
@@ -911,17 +889,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51abcdca9f59e964abea51aaa6c0125c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1953179576 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 187384918295340319, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
-  m_PrefabInstance: {fileID: 538004947070343921}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &2092258289 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3313989558440115317, guid: 633e2402da2bc51499bcefdb9d2bc98f, type: 3}
@@ -1046,10 +1013,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boosters (1)
       objectReference: {fileID: 0}
-    - target: {fileID: 7592313816683666182, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8993423600450521643, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1081,9 +1044,13 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     price: 60
+    displayName: 
+    description: 
+    icon: {fileID: 0}
+    purchaseAmount: 1
     purchaseContainer: {fileID: 1651328850}
     watchIcon: {fileID: 0}
-    purchaseButton: {fileID: 921235292}
+    purchaseButton: {fileID: 0}
     priceLabel: {fileID: 0}
     ownedContainer: {fileID: 1726681132}
     ownedCountLabel: {fileID: 803306600}
@@ -1093,9 +1060,13 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     price: 40
+    displayName: 
+    description: 
+    icon: {fileID: 0}
+    purchaseAmount: 1
     purchaseContainer: {fileID: 1279637646}
     watchIcon: {fileID: 0}
-    purchaseButton: {fileID: 1953179576}
+    purchaseButton: {fileID: 0}
     priceLabel: {fileID: 0}
     ownedContainer: {fileID: 1594419160}
     ownedCountLabel: {fileID: 1559239091}
@@ -1105,9 +1076,13 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     price: 75
+    displayName: 
+    description: 
+    icon: {fileID: 0}
+    purchaseAmount: 1
     purchaseContainer: {fileID: 1288243578}
     watchIcon: {fileID: 0}
-    purchaseButton: {fileID: 1719253515}
+    purchaseButton: {fileID: 0}
     priceLabel: {fileID: 0}
     ownedContainer: {fileID: 1751666079}
     ownedCountLabel: {fileID: 79014585}

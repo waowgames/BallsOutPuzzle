@@ -40,6 +40,10 @@ public sealed class LevelTimer : SingletonMonoBehaviour<LevelTimer>
             return;
         }
 
+        // Popups (e.g. booster shop) pause the clock.
+        if (UIManager.Instance != null && UIManager.Instance.HasActivePopup)
+            return;
+
         if (freezeRemaining > 0f)
         {
             freezeRemaining -= Time.deltaTime;

@@ -53,6 +53,12 @@ public sealed class BoosterUIManager : MonoBehaviour
         [SerializeField] private UnityEvent onBoosterTriggered;
         [SerializeField, Min(0)] private int price = 10;
 
+        [Header("Purchase Popup")]
+        [SerializeField] private string displayName = string.Empty;
+        [SerializeField, TextArea] private string description = string.Empty;
+        [SerializeField] private Sprite icon;
+        [SerializeField, Min(1)] private int purchaseAmount = 1;
+
         [Header("Purchase UI")]
         [SerializeField] private GameObject purchaseContainer;
         [SerializeField] private GameObject watchIcon;
@@ -115,13 +121,21 @@ public sealed class BoosterUIManager : MonoBehaviour
             if (purchaseButton != null)
                 purchaseButton.interactable = CanAffordBooster();
 
+            // An empty booster stays clickable: it opens the purchase popup.
             if (boosterButton != null)
-                boosterButton.interactable = hasBooster;
+                boosterButton.interactable = true;
         }
 
         private void UseBooster()
         {
             if (ownedCount <= 0)
+            {
+                OpenPurchasePopup();
+                return;
+            }
+
+            LevelManager manager = LevelManager.Instance;
+            if (manager != null && manager.State != LevelState.Playing)
                 return;
 
             ownedCount--;
@@ -132,10 +146,25 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         private void PurchaseBooster()
         {
+            TryPurchase();
+        }
+
+        private void OpenPurchasePopup()
+        {
+            var offer = new BoosterOffer(displayName, description, icon, purchaseAmount, price);
+            BoosterPurchasePopup.ShowIfAvailable(offer, TryPurchase);
+        }
+
+        private bool TryPurchase()
+        {
             if (owner != null && owner.TrySpend(price))
-                GrantBooster();
-            else
-                Refresh();
+            {
+                GrantBooster(purchaseAmount);
+                return true;
+            }
+
+            Refresh();
+            return false;
         }
 
         private int LoadOwnedCount()
@@ -157,9 +186,9 @@ public sealed class BoosterUIManager : MonoBehaviour
                    CurrencyWallet.Instance.Balance >= price;
         }
 
-        private void GrantBooster()
+        private void GrantBooster(int amount)
         {
-            ownedCount++;
+            ownedCount += amount;
             SaveOwnedCount();
             Refresh();
         }
