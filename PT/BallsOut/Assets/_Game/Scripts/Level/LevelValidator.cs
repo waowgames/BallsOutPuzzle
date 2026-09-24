@@ -53,6 +53,7 @@ namespace BallsOut
                 Visit(box.shape.Cells[0], shape, reached);
                 if (reached.Count != shape.Count) errors.Add($"Box {i}: shape cells must be edge-connected.");
             }
+            ValidateIce(level, errors);
             occupied.Clear();
             for (int i = 0; i < level.balls.Count; i++)
             {
@@ -78,6 +79,32 @@ namespace BallsOut
                 else if (colorIds.TryGetValue(color.id, out var other))
                     errors.Add($"Colors '{color.name}' and '{other.name}' share ID '{color.id}'. Reuse one color asset for matching gameplay colors.");
                 else colorIds.Add(color.id, color);
+            }
+        }
+
+        // Each completion lowers every other frozen box by one, so thaw greedily
+        // from the lowest counts; a count that outruns available completions never breaks.
+        private static void ValidateIce(LevelDefinition level, List<string> errors)
+        {
+            var counts = new List<int>();
+            int completable = 0;
+            for (int i = 0; i < level.boxes.Count; i++)
+            {
+                BoxSpawnData box = level.boxes[i];
+                if (box == null) continue;
+                if (box.iceCount < 0) errors.Add($"Box {i}: ice count cannot be negative.");
+                else if (box.iceCount == 0) completable++;
+                else counts.Add(box.iceCount);
+            }
+            counts.Sort();
+            foreach (int count in counts)
+            {
+                if (count > completable)
+                {
+                    errors.Add($"Ice count {count} can never reach 0: only {completable} boxes can complete before it.");
+                    return;
+                }
+                completable++;
             }
         }
 

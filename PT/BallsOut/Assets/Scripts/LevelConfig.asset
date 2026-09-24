@@ -19,4 +19,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 705956e6c1f2421dbad99048a61e87f2, type: 2}
   - {fileID: 11400000, guid: 7b15f2c4dc700b84091a61dae070d0aa, type: 2}
   - {fileID: 11400000, guid: a60c672608484bda8b43f0ee3d7477f8, type: 2}
+  - {fileID: 11400000, guid: 64f55c77c4aa4feb88cb8eef7df75dfd, type: 2}
   enableLooping: 1

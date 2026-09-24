@@ -16,11 +16,14 @@ namespace BallsOut
         public int Capacity { get; private set; }
         public bool IsCompleting { get; internal set; }
         public bool IsRemoved { get; internal set; }
-        public bool CanMove => IsPlaced && !IsCompleting && !IsRemoved && CurrentFill < Capacity;
+        public int IceCount { get; private set; }
+        public bool IsFrozen => IceCount > 0;
+        public bool CanMove => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && CurrentFill < Capacity;
         public Transform FillRoot { get; private set; }
         public Vector3 FillSpacing { get; private set; }
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
         private BoxFillLabel fillLabel;
+        private IceBoxVisual ice;
         private MeshRenderer shadow;
         // Collection pulse: a small damped spring, pivoting on the footprint centre.
         private const float PulseStiffness = 420f;
@@ -98,6 +101,7 @@ namespace BallsOut
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
             if (registry != null && registry.shadowMaterial != null) CreateShadow(registry, cellSize);
+            IceCount = Mathf.Max(0, spawn.iceCount);
             // Hit proxies follow the data footprint, never mesh bounds.
             foreach (Vector2Int cell in Shape.Cells)
             {
@@ -115,6 +119,12 @@ namespace BallsOut
             {
                 Transform child = transform.GetChild(i);
                 if (child != pulseRoot) child.SetParent(pulseRoot, true);
+            }
+            if (IsFrozen)
+            {
+                // Added after the pulse rig: the ice stays put while the box beneath is locked.
+                ice = IceBoxVisual.Create(this, cellSize, IceCount);
+                SetArtVisible(false);
             }
         }
 
@@ -163,7 +173,25 @@ namespace BallsOut
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
-        public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
+        public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
+        // Returns true when this step breaks the ice and frees the box.
+        internal bool CrackIce()
+        {
+            if (!IsFrozen || IsRemoved) return false;
+            IceCount--;
+            if (ice != null) ice.SetCount(IceCount);
+            if (IsFrozen) return false;
+            SetArtVisible(true);
+            return true;
+        }
+
+        // The ice block stands in for the box until it shatters; the shadow stays.
+        private void SetArtVisible(bool visible)
+        {
+            foreach (Renderer renderer in pulseRoot.GetComponentsInChildren<Renderer>(true))
+                if (renderer != shadow) renderer.enabled = visible;
+        }
+
         internal void RecordCollection() => CurrentFill++;
         internal void NotifyCollection()
         {

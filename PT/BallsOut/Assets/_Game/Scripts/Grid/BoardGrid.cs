@@ -78,6 +78,13 @@ namespace BallsOut
             OnOccupancyChanged?.Invoke();
         }
 
+        // Box state that changes legality without moving anything (e.g. ice breaking).
+        internal void NotifyBoxStateChanged()
+        {
+            Revision++;
+            OnOccupancyChanged?.Invoke();
+        }
+
         internal void Remove(BoxController box)
         {
             if (!box.IsPlaced) return;

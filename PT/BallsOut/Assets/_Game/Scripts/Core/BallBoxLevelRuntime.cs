@@ -32,6 +32,8 @@ namespace BallsOut
         public event Action<BallState, BoxController> OnBallCollected;
         public event Action<BoxController> OnBoxCompleted;
         public event Action<BoxController> OnBoxRemoved;
+        public event Action<BoxController> OnIceCracked;
+        public event Action<BoxController> OnIceBroken;
         public event Action<LevelDefinition> OnLevelWon;
 
         private void OnEnable()
@@ -100,6 +102,7 @@ namespace BallsOut
             Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 0.25f);
             Completion.OnBoxCompleted += ForwardBoxCompleted;
             Completion.OnBoxRemoved += ForwardBoxRemoved;
+            Completion.OnBoxCompleted += CrackIce;
             Collection = new BallCollectionSystem(Balls, Fill, Completion);
             Collection.OnBallCollected += ForwardBallCollected;
             Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork);
@@ -151,6 +154,22 @@ namespace BallsOut
             Completion.Advance(tickInterval);
         }
 
+        // Every completed box chips one step off each frozen box.
+        private void CrackIce(BoxController completed)
+        {
+            bool thawed = false;
+            foreach (BoxController box in boxes)
+            {
+                if (box == completed || !box.IsFrozen) continue;
+                bool broke = box.CrackIce();
+                if (broke) OnIceBroken?.Invoke(box);
+                else OnIceCracked?.Invoke(box);
+                thawed |= broke;
+            }
+            // Wakes the ball simulation so balls can drop into the freed box.
+            if (thawed) Board.NotifyBoxStateChanged();
+        }
+
         private void ForwardFillChanged(BoxController box) => OnBoxFillChanged?.Invoke(box);
         private void ForwardBallCollected(BallState ball, BoxController box) => OnBallCollected?.Invoke(ball, box);
         private void ForwardBoxCompleted(BoxController box) => OnBoxCompleted?.Invoke(box);
@@ -166,6 +185,7 @@ namespace BallsOut
             {
                 Completion.OnBoxCompleted -= ForwardBoxCompleted;
                 Completion.OnBoxRemoved -= ForwardBoxRemoved;
+                Completion.OnBoxCompleted -= CrackIce;
             }
             Fill?.Clear(boxes);
             foreach (var box in boxes) if (box != null) box.OnBoxFillChanged -= ForwardFillChanged;
