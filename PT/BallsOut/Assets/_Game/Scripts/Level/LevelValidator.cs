@@ -16,8 +16,16 @@ namespace BallsOut
             { errors.Add("Grid dimensions and finite cell size must be positive and fit the micro-grid index range."); return; }
             if (level.lowerGridMask == null || level.ballAreaMask == null || level.boxes == null || level.balls == null)
             { errors.Add("Masks and spawn lists must be assigned."); return; }
+            if (level.hopperMicroRows < 0 || level.hopperMicroRows > (level.ballAreaMacroHeight - 1) * LevelDefinition.MicroResolution ||
+                (level.hopperMicroRows > 0 && (level.hopperMicroRows < 4 || level.macroGridWidth < 3)))
+            { errors.Add("Use 0 hopper rows, or at least 4 with a width of 3+ and one full reservoir row below the funnel."); return; }
             ValidateMask(level.lowerGridMask, level.macroGridWidth, level.lowerGridHeight, "Lower", errors);
             ValidateMask(level.ballAreaMask, level.macroGridWidth, level.ballAreaMacroHeight, "Ball area", errors);
+            if (level.hopperMicroRows > 0)
+                for (int y = (level.HopperStartRow - 1) / LevelDefinition.MicroResolution; y < level.ballAreaMacroHeight; y++)
+                    for (int x = 0; x < level.macroGridWidth; x++)
+                        if (level.ballAreaMask.Get(new Vector2Int(x, y), level.macroGridWidth, level.ballAreaMacroHeight) != CellKind.Usable)
+                        { errors.Add("Keep the funnel band and its entrance usable; use ball-area cutouts below it or on flat-reservoir levels."); return; }
             if (errors.Count > 0) return;
             var occupied = new HashSet<Vector2Int>();
             var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -31,7 +39,7 @@ namespace BallsOut
                 { errors.Add($"Box {i}: assign a nonempty shape and color."); continue; }
                 if (string.IsNullOrWhiteSpace(box.id) || !ids.Add(box.id)) errors.Add($"Box {i}: ID must be nonempty and unique.");
                 if (box.startsLocked) errors.Add($"Box {i}: locks require Phase 13; turn off startsLocked.");
-                AddCount(capacities, box.color, (long)box.shape.CellCount * LevelDefinition.CapacityPerMacroCell);
+                AddCount(capacities, box.color, (long)box.shape.FillSlotsPerLayer(level.denseBoxFill) * LevelDefinition.FillLayers);
                 var shape = new HashSet<Vector2Int>();
                 foreach (var offset in box.shape.Cells)
                 {
@@ -50,10 +58,9 @@ namespace BallsOut
             {
                 BallSpawnData ball = level.balls[i];
                 if (ball == null) { errors.Add($"Ball {i}: missing spawn data."); continue; }
-                Vector2Int macro = BallMicroGrid.ToMacro(ball.cell);
                 if (ball.color == null) errors.Add($"Ball {i}: assign a color.");
                 else AddCount(ballCounts, ball.color, 1);
-                if (macro.y < level.lowerGridHeight || level.GetCell(macro) != CellKind.Usable)
+                if (!level.IsBallMicroCell(ball.cell))
                     errors.Add($"Ball {i}: {ball.cell} is outside the usable ball area.");
                 if (!occupied.Add(ball.cell)) errors.Add($"Ball {i}: duplicate cell {ball.cell}.");
                 if (ball.specialType != BallSpecialType.Normal) errors.Add($"Ball {i}: key balls require Phase 13.");

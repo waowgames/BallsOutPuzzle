@@ -21,7 +21,7 @@ namespace BallsOut
         public GameObject ballPrefab;
         public Vector3 ballScale = Vector3.one * 0.225f;
         public float ballHeight = 0.1f;
-        public Vector3 fillOffset = new Vector3(0f, 0.22f, 0f);
+        public Vector3 fillOffset = new Vector3(0f, 0.085f, 0f);
         [Min(0.02f)] public float fillDuration = 0.26f;
         [Min(0f)] public float completionDuration = 0.25f;
         public GameObject floorPrefab;

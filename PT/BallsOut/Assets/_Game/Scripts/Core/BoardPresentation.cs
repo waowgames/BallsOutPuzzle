@@ -23,6 +23,29 @@ namespace BallsOut
                 }
         }
 
+        internal static void FrameBoard(BoardGrid board)
+        {
+            Camera camera = Camera.main;
+            if (camera == null || !camera.orthographic) return;
+            float width = board.Width * board.CellSize;
+            float top = board.Definition.DepotTop;
+            Vector3 center = board.Root.TransformPoint(new Vector3(width * 0.5f, 0f, top * 0.5f));
+            Vector3 delta = center - camera.transform.position;
+            camera.transform.position += camera.transform.right * Vector3.Dot(delta, camera.transform.right) +
+                camera.transform.up * Vector3.Dot(delta, camera.transform.up);
+            float extentX = 0f, extentY = 0f;
+            for (int x = 0; x < 2; x++)
+                for (int z = 0; z < 2; z++)
+                {
+                    Vector3 corner = board.Root.TransformPoint(new Vector3(x * width, 0f, z * top)) - center;
+                    extentX = Mathf.Max(extentX, Mathf.Abs(Vector3.Dot(corner, camera.transform.right)));
+                    extentY = Mathf.Max(extentY, Mathf.Abs(Vector3.Dot(corner, camera.transform.up)));
+                }
+            // Reserve room for the top HUD and bottom controls on both wide and tall levels.
+            camera.orthographicSize = Mathf.Max((extentY + board.CellSize * 0.5f) / 0.80f,
+                (extentX + board.CellSize * 0.5f) / Mathf.Max(0.1f, camera.aspect));
+        }
+
         internal static void DrawGizmos(BoardGrid board, BallMicroGrid balls)
         {
             Gizmos.matrix = board.Root.localToWorldMatrix;

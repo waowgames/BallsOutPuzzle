@@ -222,7 +222,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.53729963, y: 0, z: 0, w: 0.8433915}
-  m_LocalPosition: {x: 3, y: 13.8, z: -1.2}
+  m_LocalPosition: {x: 3, y: 13.8, z: 0.94}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -897,6 +897,10 @@ PrefabInstance:
     - target: {fileID: 6973279006356832166, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
       propertyPath: m_Name
       value: Boosters (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592313816683666182, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8993423600450521643, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
       propertyPath: m_IsActive

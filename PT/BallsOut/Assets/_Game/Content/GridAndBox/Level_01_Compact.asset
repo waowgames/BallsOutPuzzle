@@ -1,0 +1,627 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0927cc5767a13394f9fb22eaf1fb6481, type: 3}
+  m_Name: Level_01_Compact
+  m_EditorClassIdentifier: 
+  levelPrefab: {fileID: 1903656605721246596, guid: 41b36d7bcac348d4baa631aacfacb93c, type: 3}
+  macroGridWidth: 4
+  lowerGridHeight: 4
+  ballAreaMacroHeight: 3
+  hopperMicroRows: 0
+  macroCellSize: 1
+  denseBoxFill: 1
+  lowerGridMask:
+    defaultKind: 1
+    overrides: []
+  ballAreaMask:
+    defaultKind: 1
+    overrides: []
+  boxes:
+  - id: Coral 1x1
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    startingMacroOrigin: {x: 0, y: 2}
+    startsLocked: 0
+    lockId: ''
+  - id: Aqua 1x1
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    startingMacroOrigin: {x: 2, y: 1}
+    startsLocked: 0
+    lockId: ''
+  - id: Saffron 1x1
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    startingMacroOrigin: {x: 3, y: 0}
+    startsLocked: 0
+    lockId: ''
+  balls:
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 0, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 1, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 2, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 3, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 4, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 5, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 6, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 7, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 8, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 9, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 10, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 11, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 12, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 13, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 14, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 15, y: 16}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 0, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 1, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 2, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 3, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 4, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 5, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 6, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 7, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 8, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 9, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 10, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 11, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 12, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 13, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 14, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 15, y: 17}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 0, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 1, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 2, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 3, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 4, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 5, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 6, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 7, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 8, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 9, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 10, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 11, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 12, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 13, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 14, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+    cell: {x: 15, y: 18}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 0, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 1, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 2, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 3, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 4, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 5, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 6, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 7, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 8, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 9, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 10, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 11, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 12, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 13, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 14, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 15, y: 19}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 0, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 1, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 2, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 3, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 4, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 5, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 6, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 7, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 8, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 9, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 10, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 11, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 12, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 13, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 14, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 15, y: 20}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 0, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 1, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 2, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 3, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 4, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 5, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 6, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 7, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 8, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 9, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 10, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 11, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 12, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 13, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 14, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+    cell: {x: 15, y: 21}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 0, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 1, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 2, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 3, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 4, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 5, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 6, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 7, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 8, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 9, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 10, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 11, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 12, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 13, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 14, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 15, y: 22}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 0, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 1, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 2, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 3, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 4, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 5, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 6, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 7, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 8, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 9, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 10, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 11, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 12, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 13, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 14, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 15, y: 23}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 0, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 1, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 2, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 3, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 4, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 5, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 6, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 7, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 8, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 9, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 10, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 11, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 12, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 13, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 14, y: 24}
+    specialType: 0
+    keyId: ''
+  - color: {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}
+    cell: {x: 15, y: 24}
+    specialType: 0
+    keyId: ''
+  palette:
+  - {fileID: 11400000, guid: 2970e9d493dc90041be54ce5c4b628f7, type: 2}
+  - {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
+  - {fileID: 11400000, guid: cbc0309327b654142927117be2d062c8, type: 2}

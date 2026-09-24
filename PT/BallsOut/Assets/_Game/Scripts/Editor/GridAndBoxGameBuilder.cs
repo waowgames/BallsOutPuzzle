@@ -232,8 +232,8 @@ namespace BallsOut.Editor
             }
             registry.ballPrefab = ballPrefab;
             registry.ballScale = Vector3.one * 0.225f;
-            registry.ballHeight = 0.29f;
-            registry.fillOffset = new Vector3(0f, 0.22f, 0f);
+            registry.ballHeight = 0.24f;
+            registry.fillOffset = new Vector3(0f, 0.085f, 0f);
             registry.fillDuration = 0.26f;
             registry.completionDuration = 0.22f;
             registry.floorPrefab = Load<GameObject>(Art + "/Prefabs/PF_GridCell.prefab");
@@ -262,8 +262,10 @@ namespace BallsOut.Editor
             }
             level.macroGridWidth = 6;
             level.lowerGridHeight = 6;
-            level.ballAreaMacroHeight = 6;
+            level.ballAreaMacroHeight = 9;
+            level.hopperMicroRows = 8;
             level.macroCellSize = 1f;
+            level.denseBoxFill = true;
             level.lowerGridMask = new CellMask();
             level.ballAreaMask = new CellMask();
             level.boxes.Clear();
@@ -276,23 +278,19 @@ namespace BallsOut.Editor
             level.palette.AddRange(colors);
             level.balls.Clear();
 
-            int[] macroCounts = { 3, 6, 6, 9, 12 };
+            int[] ballCounts = new int[level.boxes.Count];
+            for (int i = 0; i < ballCounts.Length; i++)
+                ballCounts[i] = level.boxes[i].shape.FillSlotsPerLayer(true) * LevelDefinition.FillLayers;
             int colorIndex = 0;
-            int remaining = macroCounts[0];
-            for (int macroY = 0; macroY < level.ballAreaMacroHeight; macroY++)
-                for (int macroX = 0; macroX < 6; macroX++)
+            int remaining = ballCounts[0];
+            for (int y = level.lowerGridHeight * LevelDefinition.MicroResolution;
+                 y < level.TotalHeight * LevelDefinition.MicroResolution && colorIndex < ballCounts.Length; y++)
+                for (int x = 0; x < level.macroGridWidth * LevelDefinition.MicroResolution && colorIndex < ballCounts.Length; x++)
                 {
-                    if (level.ballAreaMask.Get(V(macroX, macroY), 6, level.ballAreaMacroHeight) != CellKind.Usable)
-                        continue;
-                    while (remaining == 0) remaining = macroCounts[++colorIndex];
-                    for (int microY = 0; microY < LevelDefinition.MicroResolution; microY++)
-                        for (int microX = 0; microX < LevelDefinition.MicroResolution; microX++)
-                            level.balls.Add(new BallSpawnData
-                            {
-                                color = colors[colorIndex],
-                                cell = new Vector2Int(macroX * LevelDefinition.MicroResolution + microX, (level.lowerGridHeight + macroY) * LevelDefinition.MicroResolution + microY)
-                            });
-                    remaining--;
+                    Vector2Int cell = new Vector2Int(x, y);
+                    if (!level.IsBallMicroCell(cell)) continue;
+                    level.balls.Add(new BallSpawnData { color = colors[colorIndex], cell = cell });
+                    if (--remaining == 0 && ++colorIndex < ballCounts.Length) remaining = ballCounts[colorIndex];
                 }
 
             var errors = new List<string>();
@@ -328,29 +326,16 @@ namespace BallsOut.Editor
         {
             var depot = new GameObject("Ball Depot").transform;
             depot.SetParent(parent, false);
-            float width = level.macroGridWidth * level.macroCellSize;
-            float bottom = (level.lowerGridHeight + 0.28f) * level.macroCellSize;
-            float depth = (level.ballAreaMacroHeight * LevelDefinition.MicroResolution * 0.24f * 0.8660254f + 0.2f) * level.macroCellSize;
-            Material floor = Load<Material>(Art + "/Materials/Recess.mat");
-            Material rim = Load<Material>(Art + "/Materials/ReferenceIvory.mat");
-            AddDepotPart("Floor", depot, new Vector3(width * 0.5f, 0.06f, bottom + depth * 0.5f), new Vector3(width, 0.12f, depth), floor);
-            AddDepotPart("Left Rim", depot, new Vector3(-0.08f, 0.14f, bottom + depth * 0.5f), new Vector3(0.16f, 0.4f, depth), rim);
-            AddDepotPart("Right Rim", depot, new Vector3(width + 0.08f, 0.14f, bottom + depth * 0.5f), new Vector3(0.16f, 0.4f, depth), rim);
-            AddDepotPart("Back Rim", depot, new Vector3(width * 0.5f, 0.14f, bottom + depth + 0.08f), new Vector3(width + 0.32f, 0.4f, 0.16f), rim);
-        }
-
-        private static void AddDepotPart(string name, Transform parent, Vector3 position, Vector3 scale, Material material)
-        {
-            var part = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            part.name = name;
-            UnityEngine.Object.DestroyImmediate(part.GetComponent<Collider>());
-            part.transform.SetParent(parent, false);
-            part.transform.localPosition = position;
-            part.transform.localScale = scale;
-            var renderer = part.GetComponent<MeshRenderer>();
-            renderer.sharedMaterial = material;
-            renderer.shadowCastingMode = ShadowCastingMode.Off;
-            renderer.receiveShadows = false;
+            depot.gameObject.AddComponent<MeshFilter>();
+            var renderer = depot.gameObject.AddComponent<MeshRenderer>();
+            renderer.sharedMaterials = new[]
+            {
+                Load<Material>(Art + "/Materials/Recess.mat"),
+                Load<Material>(Art + "/Materials/DepotIvory.mat"),
+                Load<Material>(Art + "/Materials/Ivory.mat"),
+                Load<Material>(Art + "/Materials/ReferenceIvory.mat")
+            };
+            depot.gameObject.AddComponent<BallHopperVisual>().Initialize(level);
         }
 
         private static void ConfigureLevelList(LevelDefinition level)
@@ -358,8 +343,12 @@ namespace BallsOut.Editor
             LevelConfig config = Load<LevelConfig>("Assets/Scripts/LevelConfig.asset");
             var data = new SerializedObject(config);
             SerializedProperty levels = data.FindProperty("levels");
-            levels.arraySize = 1;
-            levels.GetArrayElementAtIndex(0).objectReferenceValue = level;
+            // Keep the authored progression when rebuilding shared art.
+            if (levels.arraySize == 0)
+            {
+                levels.arraySize = 1;
+                levels.GetArrayElementAtIndex(0).objectReferenceValue = level;
+            }
             data.FindProperty("enableLooping").boolValue = true;
             data.ApplyModifiedPropertiesWithoutUndo();
         }
@@ -403,14 +392,14 @@ namespace BallsOut.Editor
                 if (camera != null)
                 {
                     camera.orthographic = true;
-                    camera.orthographicSize = 10.2f;
+                    camera.orthographicSize = 8f;
                     camera.clearFlags = CameraClearFlags.SolidColor;
                     camera.backgroundColor = new Color(0.212f, 0.082f, 0.467f);
                     if (camera.TryGetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(out var cameraData))
                         cameraData.renderPostProcessing = false;
                     camera.transform.SetPositionAndRotation(
-                        new Vector3(level.macroGridWidth * 0.5f, 18f, level.TotalHeight * 0.5f),
-                        Quaternion.Euler(90f, 0f, 0f));
+                        new Vector3(level.macroGridWidth * 0.5f, 13.8f, 0.94f),
+                        Quaternion.Euler(65f, 0f, 0f));
                 }
                 Light light = root.GetComponent<Light>();
                 if (light != null)

@@ -75,6 +75,27 @@ Shader "Money Design/Soft Plastic"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 half3 normal = normalize(input.normalWS);
+                if (_BallStyle > 0.5)
+                {
+                    // Smooth sphere normals and a broad studio light stay legible at mobile size.
+                    // No shadow maps, extra renderers, textures or per-ball materials.
+                    half3 viewDir = GetWorldSpaceNormalizeViewDir(input.positionWS);
+                    half3 keyLight = normalize(half3(-0.55, 0.75, -0.36));
+                    half ndl = saturate(dot(normal, keyLight));
+                    half facing = saturate(dot(normal, viewDir));
+                    half halfDot = saturate(dot(normal, normalize(keyLight + viewDir)));
+                    half edge = smoothstep(0.0, 0.65, facing);
+                    half contact = smoothstep(-0.65, 0.35, normal.y);
+                    half3 body = _BaseColor.rgb * (0.28 + 0.72 * ndl);
+                    body *= lerp(0.58, 1.0, edge) * lerp(0.65, 1.0, contact);
+                    half broad = pow(halfDot, 14.0);
+                    half glint = pow(halfDot, 64.0);
+                    half bounce = saturate(dot(normal, normalize(half3(0.65, 0.1, 0.7))));
+                    body += _BaseColor.rgb * bounce * 0.13;
+                    body += lerp(_BaseColor.rgb, half3(1, 1, 1), 0.6) * broad * 0.28;
+                    body += glint * (0.35 + _Gloss * 0.45);
+                    return half4(body, 1);
+                }
                 half3 faceNormal = normalize(cross(ddy(input.positionWS), ddx(input.positionWS)));
                 half flatTop = step(0.999, abs(faceNormal.y));
                 // Flat tray floors must not inherit triangular highlights from the rim normals.
@@ -91,11 +112,6 @@ Shader "Money Design/Soft Plastic"
                 half3 highlightTint = lerp(_BaseColor.rgb, half3(1, 1, 1), 0.32);
                 half3 color = _BaseColor.rgb * shade + _Gloss *
                     (highlightTint * softReflection * 0.24 + specular * 0.65 + rim * 0.12);
-                if (_BallStyle > 0)
-                {
-                    half upper = saturate(normal.y * 0.5 + 0.5);
-                    color *= lerp(1, 0.66 + upper * 0.34, _BallStyle);
-                }
                 // Recessed grid cells get painted edge light/shadow without extra geometry.
                 if (_FakeInset > 0)
                 {

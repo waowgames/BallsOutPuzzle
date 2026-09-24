@@ -13,7 +13,7 @@ namespace BallsOut
         public bool IsPlaced { get; private set; }
         public bool IsInTransit { get; internal set; }
         public int CurrentFill { get; private set; }
-        public int Capacity => Shape.CellCount * LevelDefinition.CapacityPerMacroCell;
+        public int Capacity { get; private set; }
         public bool IsCompleting { get; internal set; }
         public bool IsRemoved { get; internal set; }
         public bool CanMove => IsPlaced && !IsCompleting && !IsRemoved && CurrentFill < Capacity;
@@ -26,38 +26,50 @@ namespace BallsOut
         internal int PendingFillAnimations;
         public event Action<BoxController> OnBoxFillChanged;
 
-        internal void Initialize(BoxSpawnData spawn, PrefabRegistry registry, float cellSize)
+        internal void Initialize(BoxSpawnData spawn, PrefabRegistry registry, float cellSize, bool denseFill)
         {
             Id = spawn.id;
             Shape = spawn.shape;
             Color = spawn.color;
+            Capacity = Shape.FillSlotsPerLayer(denseFill) * LevelDefinition.FillLayers;
             CollectedBalls = new List<BallState>(Capacity);
             FillRoot = new GameObject("Fill").transform;
             FillRoot.SetParent(transform, false);
-            FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.22f, 0f)) * cellSize;
-            const float fillScale = 0.9f;
-            float slotSpacing = cellSize / LevelDefinition.MicroResolution * fillScale;
-            FillSpacing = Vector3.one * slotSpacing;
-            FillSlots = new Vector3[Shape.CellCount * LevelDefinition.MicroResolution * LevelDefinition.MicroResolution];
-            int minX = int.MaxValue, maxX = int.MinValue, minZ = int.MaxValue, maxZ = int.MinValue;
-            foreach (Vector2Int cell in Shape.Cells)
-            {
-                minX = Mathf.Min(minX, cell.x);
-                maxX = Mathf.Max(maxX, cell.x);
-                minZ = Mathf.Min(minZ, cell.y);
-                maxZ = Mathf.Max(maxZ, cell.y);
-            }
-            float inset = cellSize * (1f - fillScale) * 0.5f;
-            float centerX = (minX + maxX) * inset;
-            float centerZ = (minZ + maxZ) * inset;
+            FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.085f, 0f)) * cellSize;
+            int resolution = LevelDefinition.MicroResolution;
+            int seam = denseFill ? 2 : 0;
+            int stride = resolution + seam;
+            float slotSpacing = cellSize * (denseFill ? 0.168f : 0.68f / resolution);
+            FillSpacing = new Vector3(slotSpacing, cellSize / LevelDefinition.MicroResolution * 0.9f, slotSpacing);
+            FillSlots = new Vector3[Shape.FillSlotsPerLayer(denseFill)];
+            var cells = new HashSet<Vector2Int>(Shape.Cells);
             int slot = 0;
             foreach (Vector2Int cell in Shape.Cells)
-                for (int row = 0; row < LevelDefinition.MicroResolution; row++)
-                    for (int column = 0; column < LevelDefinition.MicroResolution; column++)
+            {
+                int minX = cell.x, maxX = cell.x, minZ = cell.y, maxZ = cell.y;
+                while (cells.Contains(new Vector2Int(minX - 1, cell.y))) minX--;
+                while (cells.Contains(new Vector2Int(maxX + 1, cell.y))) maxX++;
+                while (cells.Contains(new Vector2Int(cell.x, minZ - 1))) minZ--;
+                while (cells.Contains(new Vector2Int(cell.x, maxZ + 1))) maxZ++;
+                int columns = resolution * (maxX - minX + 1) + seam * (maxX - minX);
+                int rows = resolution * (maxZ - minZ + 1) + seam * (maxZ - minZ);
+                float startX = (minX + maxX) * cellSize * 0.5f - (columns - 1) * slotSpacing * 0.5f;
+                float startZ = (minZ + maxZ) * cellSize * 0.5f - (rows - 1) * slotSpacing * 0.5f + 0.01f * cellSize;
+                int startColumn = (cell.x - minX) * stride;
+                int startRow = (cell.y - minZ) * stride;
+                bool right = seam != 0 && cells.Contains(cell + Vector2Int.right);
+                bool up = seam != 0 && cells.Contains(cell + Vector2Int.up);
+                bool diagonal = right && up && cells.Contains(cell + Vector2Int.one);
+                for (int row = 0; row < resolution + (up ? seam : 0); row++)
+                    for (int column = 0; column < resolution + (right ? seam : 0); column++)
+                    {
+                        if (row >= resolution && column >= resolution && !diagonal) continue;
                         FillSlots[slot++] = new Vector3(
-                            cell.x * cellSize * fillScale + centerX + (column - 1.5f) * FillSpacing.x,
+                            startX + (startColumn + column) * slotSpacing,
                             0f,
-                            cell.y * cellSize * fillScale + centerZ + (row - 1.5f) * FillSpacing.z);
+                            startZ + (startRow + row) * slotSpacing);
+                    }
+            }
             // The game camera looks down with screen up along local +Z.
             Array.Sort(FillSlots, (a, b) =>
             {

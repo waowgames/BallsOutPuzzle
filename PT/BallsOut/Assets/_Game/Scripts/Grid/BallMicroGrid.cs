@@ -7,6 +7,7 @@ namespace BallsOut
         private readonly BallState[] occupants;
         private readonly bool[] mask;
         private readonly int[] visualReservations;
+        private readonly Vector3[] positions;
         public BoardGrid Board { get; }
         public int Width => Board.Width * LevelDefinition.MicroResolution;
         public int Height => Board.Height * LevelDefinition.MicroResolution;
@@ -17,10 +18,15 @@ namespace BallsOut
             Board = board;
             occupants = new BallState[Width * Height];
             mask = new bool[occupants.Length];
+            positions = new Vector3[occupants.Length];
             visualReservations = new int[board.Width * board.Height];
             for (int y = board.Definition.lowerGridHeight * LevelDefinition.MicroResolution; y < Height; y++)
                 for (int x = 0; x < Width; x++)
-                    mask[y * Width + x] = board.GetCell(ToMacro(new Vector2Int(x, y))) == CellKind.Usable;
+                {
+                    Vector2Int cell = new Vector2Int(x, y);
+                    mask[y * Width + x] = board.Definition.IsBallMicroCell(cell);
+                    positions[y * Width + x] = CalculatePosition(cell);
+                }
         }
 
         public static Vector2Int ToMacro(Vector2Int cell) => new Vector2Int(Mathf.FloorToInt((float)cell.x / LevelDefinition.MicroResolution), Mathf.FloorToInt((float)cell.y / LevelDefinition.MicroResolution));
@@ -39,19 +45,26 @@ namespace BallsOut
 
         internal void ReserveVisual(Vector2Int macro, int change) => visualReservations[macro.y * Board.Width + macro.x] += change;
 
-        public Vector3 CellToLocal(Vector2Int cell)
+        public Vector3 CellToLocal(Vector2Int cell) => positions[cell.y * Width + cell.x];
+
+        private Vector3 CalculatePosition(Vector2Int cell)
         {
             // Logical sites only drive flow. The depot has no visible macro tiles.
             // Touching staggered rows, with small stable offsets, form a loose pile.
             float pitch = Board.CellSize * 0.24f;
             int row = cell.y - Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution;
-            float margin = (Board.Width * Board.CellSize - (Width + 0.5f) * pitch) * 0.5f;
             float noise = Mathf.Sin(cell.x * 12.9898f + row * 78.233f);
+            float x = Board.Definition.BallColumnX(cell.x, row) + noise * 0.025f * pitch;
+            Vector2Int macro = ToMacro(cell);
+            // Keep spheres clear of the vertical edges of reservoir cutouts as well.
+            if (Board.GetCell(macro + Vector2Int.left) != CellKind.Usable)
+                x = Mathf.Max(x, macro.x * Board.CellSize + Board.CellSize * 0.13f);
+            if (Board.GetCell(macro + Vector2Int.right) != CellKind.Usable)
+                x = Mathf.Min(x, (macro.x + 1) * Board.CellSize - Board.CellSize * 0.13f);
             return new Vector3(
-                margin + (cell.x + 0.5f + (cell.y & 1) * 0.5f + noise * 0.035f) * pitch,
-                Mathf.Abs(noise) * Board.CellSize * 0.025f,
-                Board.Definition.lowerGridHeight * Board.CellSize + Board.CellSize * 0.28f
-                    + (0.5f + row * 0.8660254f + noise * 0.035f) * pitch);
+                x,
+                Board.Definition.DepotElevation + Mathf.Abs(noise) * Board.CellSize * 0.025f,
+                Board.Definition.BallRowZ(row) + noise * 0.025f * pitch);
         }
 
         public static void DownNeighbors(Vector2Int cell, out Vector2Int down, out Vector2Int left, out Vector2Int right)

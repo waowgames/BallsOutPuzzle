@@ -49,7 +49,11 @@ namespace BallsOut
         private void Start()
         {
             if (Board != null) return;
-            LevelDefinition definition = level != null ? level : LevelManager.Instance != null ? LevelManager.Instance.CurrentLevelData as LevelDefinition : null;
+            // A shared runtime prefab must use the level selected by its owning loader.
+            var loader = GetComponentInParent<LevelContentLoader>();
+            LevelDefinition definition = loader != null ? loader.CurrentLevelData as LevelDefinition : level;
+            if (definition == null && LevelManager.Instance != null)
+                definition = LevelManager.Instance.CurrentLevelData as LevelDefinition;
             LoadLevel(definition);
         }
 
@@ -64,10 +68,12 @@ namespace BallsOut
             }
             Clear();
             level = definition;
+            GetComponentInChildren<BallHopperVisual>(true)?.Initialize(level);
             content = new GameObject("Board Content").transform;
             content.SetParent(transform, false);
             Board = new BoardGrid(level, content);
             Balls = new BallMicroGrid(Board);
+            BoardPresentation.FrameBoard(Board);
             pool = new BallPool(prefabs, content);
             BoardPresentation.Build(Board, prefabs);
             foreach (var spawn in level.boxes)
@@ -75,7 +81,7 @@ namespace BallsOut
                 var root = new GameObject("Box " + spawn.id);
                 root.transform.SetParent(content, false);
                 var box = root.AddComponent<BoxController>();
-                box.Initialize(spawn, prefabs, Board.CellSize);
+                box.Initialize(spawn, prefabs, Board.CellSize, level.denseBoxFill);
                 box.runtimeCellSize = Board.CellSize;
                 Board.TryPlace(box, spawn.startingMacroOrigin, Balls);
                 root.transform.localPosition = Board.CellToLocal(box.Origin);
