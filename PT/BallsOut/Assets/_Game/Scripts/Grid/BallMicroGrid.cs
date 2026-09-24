@@ -63,7 +63,7 @@ namespace BallsOut
                 x = Mathf.Min(x, (macro.x + 1) * Board.CellSize - Board.CellSize * 0.13f);
             return new Vector3(
                 x,
-                Board.Definition.DepotElevation + Mathf.Abs(noise) * Board.CellSize * 0.025f,
+                Mathf.Abs(noise) * Board.CellSize * 0.025f,
                 Board.Definition.BallRowZ(row) + noise * 0.025f * pitch);
         }
 

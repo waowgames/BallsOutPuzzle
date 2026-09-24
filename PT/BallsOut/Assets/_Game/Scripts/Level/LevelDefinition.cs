@@ -26,7 +26,8 @@ namespace BallsOut
         public float BallRowSpacing => macroCellSize * 0.24f * 0.8660254f;
         public float DepotBottom => lowerGridHeight * macroCellSize;
         public float DepotTop => BallRowZ(ballAreaMacroHeight * MicroResolution - 0.5f);
-        public float DepotElevation => macroCellSize * 0.22f;
+        // Balls rest on this; the rails share the grid's base so the whole outline is one piece.
+        public float DepotFloorHeight => macroCellSize * 0.13f;
 
         // Leave clearance for the rounded divider at the front of the reservoir.
         public float BallRowZ(float row) => DepotBottom + macroCellSize * 0.47f + row * BallRowSpacing;

@@ -20,6 +20,8 @@ namespace BallsOut
 
         private const float Offset = 0.19f;
         private const float CornerRadius = 0.28f;
+        // Lip half-width plus a small gap, measured from the rail centerline.
+        private const float LipClearance = 0.15f;
         private const int ArcSteps = 8;
         private static readonly Vector2[] Profile = CreateProfile();
         private static readonly Vector2[] ProfileNormals = CreateProfileNormals();
@@ -123,7 +125,14 @@ namespace BallsOut
                     samples.Add(new Sample(p, Outward(outgoing)));
                     continue;
                 }
-                float trim = Mathf.Min(CornerRadius * scale * tangent, available);
+                float corner = CornerRadius;
+                if (angle > 0f)
+                {
+                    // On sharp outer corners a wide arc would pull the lip over the playfield.
+                    float cosine = Mathf.Cos(Mathf.Abs(angle) * 0.5f);
+                    corner = Mathf.Min(corner, Mathf.Max(0.02f, (Offset / cosine - LipClearance) / (1f / cosine - 1f)));
+                }
+                float trim = Mathf.Min(corner * scale * tangent, available);
                 float radius = trim / tangent;
                 float turn = Mathf.Sign(angle);
                 Vector3 first = p - incoming * trim;

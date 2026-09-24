@@ -170,7 +170,12 @@ namespace BallsOut
             Fill?.Clear(boxes);
             foreach (var box in boxes) if (box != null) box.OnBoxFillChanged -= ForwardFillChanged;
             boxes.Clear();
-            if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
+            if (content != null)
+            {
+                content.gameObject.SetActive(false);
+                if (Application.isPlaying) Destroy(content.gameObject);
+                else DestroyImmediate(content.gameObject);
+            }
             Board = null;
             Balls = null;
             Simulation = null;

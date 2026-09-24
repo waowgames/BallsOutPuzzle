@@ -4,16 +4,23 @@ using UnityEngine.Rendering;
 
 namespace BallsOut
 {
-    // The reservoir, funnel and lower frame share one surface and four shared materials.
+    // The reservoir, funnel and lower frame share one surface and five shared materials.
     [ExecuteAlways, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class BallHopperVisual : MonoBehaviour
     {
+        private const int FrameFloorMaterial = 0;
+        private const int DepotFloorMaterial = 4;
+        private const float NeckRadius = 0.42f;
+        private const int NeckSteps = 10;
         [SerializeField] private LevelDefinition level;
         private Mesh generatedMesh;
+        private float shoulderLeft, shoulderRight;
         private readonly List<Vector3> vertices = new List<Vector3>();
         private readonly List<Vector3> normals = new List<Vector3>();
         private readonly List<BoardRimMesh.Edge> rimEdges = new List<BoardRimMesh.Edge>();
-        private readonly List<int>[] triangles = { new List<int>(), new List<int>(), new List<int>(), new List<int>() };
+        private readonly List<Vector3> neckOutline = new List<Vector3>();
+        private readonly List<int>[] triangles =
+            { new List<int>(), new List<int>(), new List<int>(), new List<int>(), new List<int>() };
 
         public void Initialize(LevelDefinition definition)
         {
@@ -46,9 +53,14 @@ namespace BallsOut
             normals.Clear();
             rimEdges.Clear();
             foreach (var submesh in triangles) submesh.Clear();
+            if (level.hopperMicroRows > 0) PlanNeck();
+            // Grid, reservoir and funnel share one base height, so their outline is a single unbroken rail.
             BuildLowerFrame();
             BuildReservoir();
             if (level.hopperMicroRows > 0) BuildHopper();
+            BoardRimMesh.Append(rimEdges, level.macroCellSize, vertices, normals, triangles);
+            // The divider is swept on its own so its ends tuck into the side rails instead of rerouting them.
+            rimEdges.Clear();
             BuildDivider();
             BoardRimMesh.Append(rimEdges, level.macroCellSize, vertices, normals, triangles);
             generatedMesh = new Mesh { name = "Level Board Surface", hideFlags = HideFlags.DontSave };
@@ -78,7 +90,7 @@ namespace BallsOut
                 {
                     if (!Lower(x, y)) continue;
                     float left = x * s, right = left + s, bottom = y * s, top = bottom + s;
-                    Floor(left, right, bottom, top, 0.025f * s);
+                    Floor(FrameFloorMaterial, left, right, bottom, top, 0.025f * s);
                     if (!Lower(x - 1, y)) Rail(P(left, bottom), P(left, top));
                     if (!Lower(x + 1, y)) Rail(P(right, top), P(right, bottom));
                     if (!Lower(x, y - 1)) Rail(P(right, bottom), P(left, bottom));
@@ -90,7 +102,8 @@ namespace BallsOut
         private void BuildReservoir()
         {
             float s = level.macroCellSize;
-            int endRow = level.hopperMicroRows > 0 ? level.HopperStartRow : level.ballAreaMacroHeight * LevelDefinition.MicroResolution;
+            bool hopper = level.hopperMicroRows > 0;
+            int endRow = hopper ? level.HopperStartRow : level.ballAreaMacroHeight * LevelDefinition.MicroResolution;
             for (int y = 0; y * LevelDefinition.MicroResolution < endRow; y++)
                 for (int x = 0; x < level.macroGridWidth; x++)
                 {
@@ -99,38 +112,71 @@ namespace BallsOut
                     float bottom = y == 0 ? level.DepotBottom : level.BallRowZ(y * LevelDefinition.MicroResolution - 0.5f);
                     int nextRow = Mathf.Min((y + 1) * LevelDefinition.MicroResolution, endRow);
                     float top = level.BallRowZ(nextRow - 0.5f);
-                    Floor(left, right, bottom, top, level.DepotElevation + 0.13f * s);
-                    if (!Depot(x - 1, y)) Rail(Raised(left, bottom), Raised(left, top));
-                    if (!Depot(x + 1, y)) Rail(Raised(right, top), Raised(right, bottom));
+                    Floor(DepotFloorMaterial, left, right, bottom, top, level.DepotFloorHeight);
+                    if (!Depot(x - 1, y)) Rail(P(left, bottom), P(left, top));
+                    if (!Depot(x + 1, y)) Rail(P(right, top), P(right, bottom));
                     bool joinsGrid = y == 0 && Lower(x, level.lowerGridHeight - 1);
-                    if (!Depot(x, y - 1) && !joinsGrid) Rail(Raised(right, bottom), Raised(left, bottom));
-                    // The funnel entrance is deliberately wall-free, including both shoulders.
-                    bool joinsHopper = level.hopperMicroRows > 0 && nextRow == endRow;
-                    if (!Depot(x, y + 1) && !joinsHopper) Rail(Raised(left, top), Raised(right, top));
+                    if (!Depot(x, y - 1) && !joinsGrid) Rail(P(right, bottom), P(left, bottom));
+                    if (hopper && nextRow == endRow)
+                    {
+                        // Shoulders are walled up to the rounded neck, which the funnel outline continues.
+                        if (left < shoulderLeft) Rail(P(left, top), P(Mathf.Min(right, shoulderLeft), top));
+                        if (right > shoulderRight) Rail(P(Mathf.Max(left, shoulderRight), top), P(right, top));
+                    }
+                    else if (!Depot(x, y + 1)) Rail(P(left, top), P(right, top));
                 }
+        }
+
+        private float Center => level.macroGridWidth * level.macroCellSize * 0.5f;
+        private Vector3 Mirror(Vector3 p) => new Vector3(2f * Center - p.x, p.y, p.z);
+
+        // Rounds the concave neck so the funnel wall flows into the shoulder and its rail
+        // stays clear of the reservoir balls below.
+        private void PlanNeck()
+        {
+            float bottom = level.BallRowZ(level.HopperStartRow - 0.5f);
+            float neck = level.HopperHalfWidth(level.HopperStartRow - 0.5f);
+            float mouth = level.HopperHalfWidth(level.ballAreaMacroHeight * LevelDefinition.MicroResolution - 0.5f);
+            Vector3 a = P(Center - neck, bottom), d = P(Center - mouth, level.DepotTop);
+            Vector3 wall = (d - a).normalized;
+            float half = Vector3.Angle(Vector3.left, wall) * Mathf.Deg2Rad * 0.5f;
+            float reach = Mathf.Min(NeckRadius * level.macroCellSize / Mathf.Tan(half),
+                0.45f * Mathf.Min((d - a).magnitude, Center - neck));
+            float radius = reach * Mathf.Tan(half);
+            Vector3 start = a + Vector3.left * reach, end = a + wall * reach;
+            Vector3 pivot = a + (Vector3.left + wall).normalized * (radius / Mathf.Sin(half));
+            float sweep = Vector3.SignedAngle(start - pivot, end - pivot, Vector3.up);
+            neckOutline.Clear();
+            neckOutline.Add(a);
+            for (int i = 0; i <= NeckSteps; i++)
+                neckOutline.Add(pivot + Quaternion.AngleAxis(sweep * i / NeckSteps, Vector3.up) * (start - pivot));
+            neckOutline.Add(d);
+            shoulderLeft = start.x;
+            shoulderRight = Mirror(start).x;
         }
 
         private void BuildHopper()
         {
-            float center = level.macroGridWidth * level.macroCellSize * 0.5f;
-            float bottom = level.BallRowZ(level.HopperStartRow - 0.5f);
-            float top = level.DepotTop;
-            float neck = level.HopperHalfWidth(level.HopperStartRow - 0.5f);
-            float mouth = level.HopperHalfWidth(level.ballAreaMacroHeight * LevelDefinition.MicroResolution - 0.5f);
-            Vector3 a = Raised(center - neck, bottom), b = Raised(center + neck, bottom);
-            Vector3 c = Raised(center + mouth, top), d = Raised(center - mouth, top);
-            Vector3 lift = Vector3.up * (0.13f * level.macroCellSize);
-            Quad(0, a + lift, b + lift, c + lift, d + lift);
-            Rail(a, d);
-            Rail(c, b);
-            Rail(d, c);
+            // neckOutline: [neck corner, rounded neck..., mouth corner] for the left wall.
+            Vector3 lift = Vector3.up * level.DepotFloorHeight;
+            Vector3 a = neckOutline[0], d = neckOutline[neckOutline.Count - 1];
+            Quad(DepotFloorMaterial, a + lift, Mirror(a) + lift, Mirror(d) + lift, d + lift);
+            for (int i = 1; i < neckOutline.Count - 2; i++)
+            {
+                Triangle(DepotFloorMaterial, a + lift, neckOutline[i] + lift, neckOutline[i + 1] + lift);
+                Triangle(DepotFloorMaterial, Mirror(a) + lift, Mirror(neckOutline[i]) + lift, Mirror(neckOutline[i + 1]) + lift);
+            }
+            for (int i = 1; i < neckOutline.Count - 1; i++) Rail(neckOutline[i], neckOutline[i + 1]);
+            Rail(d, Mirror(d));
+            for (int i = neckOutline.Count - 1; i > 1; i--) Rail(Mirror(neckOutline[i]), Mirror(neckOutline[i - 1]));
         }
 
         private void BuildDivider()
         {
             float s = level.macroCellSize;
             float z = level.DepotBottom;
-            float endExtension = 0.34f * s;
+            // Ends stop on the side rails' centerline so each cap hides inside them as a clean T.
+            float endExtension = 0.19f * s;
             // The rail faces the grid, so its rounded body sits on the reservoir side of the seam.
             for (int x = 0; x < level.macroGridWidth; x++)
             {
@@ -139,17 +185,16 @@ namespace BallsOut
                 bool joinsRight = Lower(x + 1, level.lowerGridHeight - 1) && Depot(x + 1, 0);
                 float left = x * s - (joinsLeft ? 0f : endExtension);
                 float right = (x + 1) * s + (joinsRight ? 0f : endExtension);
-                Rail(new Vector3(left, 0.08f * s, z), new Vector3(right, 0.08f * s, z));
+                Rail(P(left, z), P(right, z));
             }
         }
 
         private static Vector3 P(float x, float z) => new Vector3(x, 0f, z);
-        private Vector3 Raised(float x, float z) => new Vector3(x, level.DepotElevation, z);
 
-        private void Floor(float left, float right, float bottom, float top, float height)
+        private void Floor(int material, float left, float right, float bottom, float top, float height)
         {
             Vector3 lift = Vector3.up * height;
-            Quad(0, P(left, bottom) + lift, P(right, bottom) + lift,
+            Quad(material, P(left, bottom) + lift, P(right, bottom) + lift,
                 P(right, top) + lift, P(left, top) + lift);
         }
 
@@ -160,20 +205,19 @@ namespace BallsOut
 
         private void Quad(int material, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
         {
+            Triangle(material, a, b, c);
+            Triangle(material, a, c, d);
+        }
+
+        private void Triangle(int material, Vector3 a, Vector3 b, Vector3 c)
+        {
             int start = vertices.Count;
-            vertices.Add(a); vertices.Add(b); vertices.Add(c); vertices.Add(d);
-            for (int i = 0; i < 4; i++) normals.Add(Vector3.up);
+            vertices.Add(a); vertices.Add(b); vertices.Add(c);
+            for (int i = 0; i < 3; i++) normals.Add(Vector3.up);
             var indices = triangles[material];
-            if (Vector3.Cross(b - a, c - a).y >= 0f)
-            {
-                indices.Add(start); indices.Add(start + 1); indices.Add(start + 2);
-                indices.Add(start); indices.Add(start + 2); indices.Add(start + 3);
-            }
-            else
-            {
-                indices.Add(start); indices.Add(start + 2); indices.Add(start + 1);
-                indices.Add(start); indices.Add(start + 3); indices.Add(start + 2);
-            }
+            // Unity treats clockwise-from-above as front facing.
+            bool upward = Vector3.Cross(b - a, c - a).y >= 0f;
+            indices.Add(start); indices.Add(upward ? start + 1 : start + 2); indices.Add(upward ? start + 2 : start + 1);
         }
     }
 }
