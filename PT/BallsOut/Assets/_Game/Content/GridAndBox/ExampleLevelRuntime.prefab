@@ -377,6 +377,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40ca2fe1e56b4c49a8522c4c2f22a8cc, type: 3}
   level: {fileID: 11400000, guid: 7b15f2c4dc700b84091a61dae070d0aa, type: 2}
+  shadowMaterial: {fileID: 2100000, guid: 2f17f0ab98764bbbb19897f010f2b114, type: 2}
 --- !u!1 &8714423319559342426
 GameObject:
   m_ObjectHideFlags: 0

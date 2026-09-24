@@ -12,7 +12,15 @@ namespace BallsOut
         private const int DepotFloorMaterial = 4;
         private const float NeckRadius = 0.42f;
         private const int NeckSteps = 10;
+        private const string ShadowName = "Board Shadow";
+        private const float ShadowPixelsPerCell = 12f;
+        // Between the desk top (-0.33) and the board floor, so the board hides the blob's core.
+        private const float ShadowHeight = -0.2f;
         [SerializeField] private LevelDefinition level;
+        [SerializeField] private Material shadowMaterial;
+        [Tooltip("Drop shadow shift in macro cells; negative Y falls toward the bottom of the screen.")]
+        [SerializeField] private Vector2 shadowOffset = new Vector2(0.06f, -0.32f);
+        [SerializeField, Range(0.05f, 1f)] private float shadowSoftness = 0.34f;
         private Mesh generatedMesh;
         private float shoulderLeft, shoulderRight;
         private readonly List<Vector3> vertices = new List<Vector3>();
@@ -30,6 +38,16 @@ namespace BallsOut
 
         private void OnEnable() => Rebuild();
         private void OnDisable() => ReleaseMesh();
+        private void OnDestroy() => SoftShadowMask.Release(ShadowRenderer);
+
+        private MeshRenderer ShadowRenderer
+        {
+            get
+            {
+                Transform shadow = transform.Find(ShadowName);
+                return shadow != null ? shadow.GetComponent<MeshRenderer>() : null;
+            }
+        }
 
         private void ReleaseMesh()
         {
@@ -43,10 +61,16 @@ namespace BallsOut
         private void Rebuild()
         {
             ReleaseMesh();
+            MeshRenderer shadow = ShadowRenderer;
             if (level == null || level.macroGridWidth < 1 || level.lowerGridHeight < 1 ||
-                level.ballAreaMacroHeight < 1 || level.macroCellSize <= 0f) return;
+                level.ballAreaMacroHeight < 1 || level.macroCellSize <= 0f)
+            {
+                if (shadow != null) shadow.gameObject.SetActive(false);
+                return;
+            }
             // Retire the old rectangular art so only the generated board is visible.
-            foreach (Transform child in transform) child.gameObject.SetActive(false);
+            foreach (Transform child in transform)
+                if (child.name != ShadowName) child.gameObject.SetActive(false);
             Transform oldFrame = transform.parent != null ? transform.parent.Find("PF_BoardFrame") : null;
             if (oldFrame != null) oldFrame.gameObject.SetActive(false);
             vertices.Clear();
@@ -74,7 +98,36 @@ namespace BallsOut
             var renderer = GetComponent<MeshRenderer>();
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+            BuildShadow(shadow);
         }
+
+        // The finished board mesh is its own silhouette, rim corners and funnel included.
+        private void BuildShadow(MeshRenderer shadow)
+        {
+            if (shadowMaterial == null)
+            {
+                if (shadow != null) shadow.gameObject.SetActive(false);
+                return;
+            }
+            float s = level.macroCellSize;
+            Vector2 min = Vector2.positiveInfinity, max = Vector2.negativeInfinity;
+            foreach (Vector3 v in vertices)
+            {
+                min = Vector2.Min(min, new Vector2(v.x, v.z));
+                max = Vector2.Max(max, new Vector2(v.x, v.z));
+            }
+            var mask = new SoftShadowMask(Rect.MinMaxRect(min.x, min.y, max.x, max.y),
+                ShadowPixelsPerCell / s, shadowSoftness * s);
+            foreach (var submesh in triangles)
+                for (int i = 0; i < submesh.Count; i += 3)
+                    mask.AddTriangle(XZ(vertices[submesh[i]]), XZ(vertices[submesh[i + 1]]), XZ(vertices[submesh[i + 2]]));
+            if (shadow == null) shadow = SoftShadowMask.CreateRenderer(transform, shadowMaterial, ShadowName);
+            shadow.sharedMaterial = shadowMaterial;
+            shadow.gameObject.SetActive(true);
+            mask.ApplyTo(shadow, ShadowHeight, shadowOffset * s, 1f);
+        }
+
+        private static Vector2 XZ(Vector3 p) => new Vector2(p.x, p.z);
 
         private bool Lower(int x, int y) => level.lowerGridMask.Get(new Vector2Int(x, y),
             level.macroGridWidth, level.lowerGridHeight) != CellKind.Outside;

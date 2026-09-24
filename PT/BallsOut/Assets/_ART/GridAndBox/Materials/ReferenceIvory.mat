@@ -29,6 +29,6 @@ Material:
     - _Gradient: 0
     - _Shade: 0.45
     m_Colors:
-    - _BaseColor: {r: 0.568627, g: 0.509804, b: 1.000000, a: 1}
+    - _BaseColor: {r: 0.6, g: 0.58, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

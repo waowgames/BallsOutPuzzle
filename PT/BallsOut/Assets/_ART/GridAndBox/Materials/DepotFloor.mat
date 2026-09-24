@@ -30,6 +30,6 @@ Material:
     - _Gradient: 0
     - _Shade: 0.42
     m_Colors:
-    - _BaseColor: {r: 0.19, g: 0.15, b: 0.48, a: 1}
+    - _BaseColor: {r: 0.25, g: 0.24, b: 0.48, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

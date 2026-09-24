@@ -22,6 +22,9 @@ namespace BallsOut.EditorTools
                 if (EditorApplication.timeSinceStartup < nextPoll) return;
                 nextPoll = EditorApplication.timeSinceStartup + 1.0;
                 if (!File.Exists(RequestFile) || EditorApplication.isPlayingOrWillChangePlaymode) return;
+                // Import external edits first; a script change reloads the domain and the next poll captures.
+                AssetDatabase.Refresh();
+                if (EditorApplication.isCompiling || EditorApplication.isUpdating) return;
                 File.Delete(RequestFile);
                 Capture();
             };

@@ -77,23 +77,27 @@ Shader "Money Design/Soft Plastic"
                 half3 normal = normalize(input.normalWS);
                 if (_BallStyle > 0.5)
                 {
-                    // Smooth sphere normals and a broad studio light stay legible at mobile size.
+                    // Candy plastic: saturated core shadow, coloured bounce rim and a crisp glint.
                     // No shadow maps, extra renderers, textures or per-ball materials.
                     half3 viewDir = GetWorldSpaceNormalizeViewDir(input.positionWS);
-                    half3 keyLight = normalize(half3(-0.55, 0.75, -0.36));
-                    half ndl = saturate(dot(normal, keyLight));
+                    // Upper-left key for the 65 degree board camera.
+                    half3 keyLight = normalize(half3(-0.45, 0.82, 0.34));
+                    half3 base = _BaseColor.rgb;
+                    half wrap = saturate(dot(normal, keyLight) * 0.5 + 0.5);
                     half facing = saturate(dot(normal, viewDir));
                     half halfDot = saturate(dot(normal, normalize(keyLight + viewDir)));
-                    half edge = smoothstep(0.0, 0.65, facing);
-                    half contact = smoothstep(-0.65, 0.35, normal.y);
-                    half3 body = _BaseColor.rgb * (0.28 + 0.72 * ndl);
-                    body *= lerp(0.58, 1.0, edge) * lerp(0.65, 1.0, contact);
-                    half broad = pow(halfDot, 14.0);
-                    half glint = pow(halfDot, 64.0);
-                    half bounce = saturate(dot(normal, normalize(half3(0.65, 0.1, 0.7))));
-                    body += _BaseColor.rgb * bounce * 0.13;
-                    body += lerp(_BaseColor.rgb, half3(1, 1, 1), 0.6) * broad * 0.28;
-                    body += glint * (0.35 + _Gloss * 0.45);
+                    // Shading by the base colour itself deepens the hue instead of greying it;
+                    // near-white balls shade toward a cool lavender instead.
+                    half3 deep = lerp(base * base * 0.45, half3(0.36, 0.36, 0.55), min(base.r, min(base.g, base.b)) * 0.5);
+                    half3 body = lerp(deep, base, smoothstep(0.25, 0.95, wrap));
+                    // Packed neighbours stay readable as separate spheres.
+                    body *= lerp(0.55, 1.0, smoothstep(0.0, 0.6, facing));
+                    // Fake contact shadow where the ball rests on the board.
+                    body *= lerp(0.72, 1.0, smoothstep(-0.7, 0.3, normal.y));
+                    half rimLight = pow(1 - facing, 2.5) * saturate(dot(normal, normalize(half3(0.6, -0.3, -0.74))));
+                    body += base * rimLight * 0.6;
+                    body += lerp(base, half3(1, 1, 1), 0.5) * pow(halfDot, 10.0) * 0.24;
+                    body += smoothstep(0.962, 0.988, halfDot) * (0.5 + _Gloss * 0.6);
                     return half4(body, 1);
                 }
                 half3 faceNormal = normalize(cross(ddy(input.positionWS), ddx(input.positionWS)));
@@ -110,7 +114,12 @@ Shader "Money Design/Soft Plastic"
                 half softReflection = pow(reflection, 12);
                 half rim = pow(1 - saturate(dot(normal, view)), 4);
                 half3 highlightTint = lerp(_BaseColor.rgb, half3(1, 1, 1), 0.32);
-                half3 color = _BaseColor.rgb * shade + _Gloss *
+                half3 surface = _BaseColor.rgb * shade;
+                #if defined(_BOX_GLASS)
+                // Box walls turn toward their own interior hue instead of greying out.
+                surface = lerp(lerp(_InnerColor.rgb, _BaseColor.rgb, 0.45), _BaseColor.rgb, shade);
+                #endif
+                half3 color = surface + _Gloss *
                     (highlightTint * softReflection * 0.24 + specular * 0.65 + rim * 0.12);
                 // Recessed grid cells get painted edge light/shadow without extra geometry.
                 if (_FakeInset > 0)
@@ -169,7 +178,7 @@ Shader "Money Design/Soft Plastic"
                 // Mesh rings: base to 0.084, wall to 0.266, bright lip to 0.29.
                 half wall = smoothstep(0.084, 0.105, input.positionOS.y) *
                     (1 - smoothstep(0.245, 0.266, input.positionOS.y));
-                color += wall * rim * half3(0.1, 0.13, 0.2);
+                color += wall * rim * lerp(_BaseColor.rgb, half3(1, 1, 1), 0.5) * 0.18;
                 return half4(color, 1);
                 #else
                 return half4(color, 1);

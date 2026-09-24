@@ -21,6 +21,7 @@ namespace BallsOut
         public Vector3 FillSpacing { get; private set; }
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
         private BoxFillLabel fillLabel;
+        private MeshRenderer shadow;
         // Collection pulse: a small damped spring, pivoting on the footprint centre.
         private const float PulseStiffness = 420f;
         private const float PulseDamping = 13f;
@@ -96,6 +97,7 @@ namespace BallsOut
                 fillLabel = BoxFillLabel.Create(this, visual, cellSize);
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
+            if (registry != null && registry.shadowMaterial != null) CreateShadow(registry, cellSize);
             // Hit proxies follow the data footprint, never mesh bounds.
             foreach (Vector2Int cell in Shape.Cells)
             {
@@ -115,6 +117,31 @@ namespace BallsOut
                 if (child != pulseRoot) child.SetParent(pulseRoot, true);
             }
         }
+
+        // A blurred footprint on the tiles; it rides the pulse and completion shrink with the art.
+        private void CreateShadow(PrefabRegistry registry, float cellSize)
+        {
+            // Box meshes stop 0.025 cells short of each outer footprint edge.
+            const float inset = 0.025f;
+            var cells = new HashSet<Vector2Int>(Shape.Cells);
+            Vector2 min = Vector2.positiveInfinity, max = Vector2.negativeInfinity;
+            foreach (Vector2Int cell in Shape.Cells)
+            {
+                min = Vector2.Min(min, cell - Vector2.one * 0.5f);
+                max = Vector2.Max(max, cell + Vector2.one * 0.5f);
+            }
+            var mask = new SoftShadowMask(Rect.MinMaxRect(min.x, min.y, max.x, max.y), 16f, registry.boxShadowSoftness);
+            foreach (Vector2Int cell in Shape.Cells)
+                mask.AddRect(Rect.MinMaxRect(
+                    cell.x - 0.5f + (cells.Contains(cell + Vector2Int.left) ? 0f : inset),
+                    cell.y - 0.5f + (cells.Contains(cell + Vector2Int.down) ? 0f : inset),
+                    cell.x + 0.5f - (cells.Contains(cell + Vector2Int.right) ? 0f : inset),
+                    cell.y + 0.5f - (cells.Contains(cell + Vector2Int.up) ? 0f : inset)));
+            shadow = SoftShadowMask.CreateRenderer(transform, registry.shadowMaterial, "Soft Shadow");
+            mask.ApplyTo(shadow, registry.boxShadowHeight, registry.boxShadowOffset, cellSize);
+        }
+
+        private void OnDestroy() => SoftShadowMask.Release(shadow);
 
         internal void PlayCollectPulse()
         {

@@ -30,6 +30,13 @@ namespace BallsOut
         public Vector3 tileScale = Vector3.one;
         public Vector3 tileOffset;
         public BoxVisualEntry[] boxes = Array.Empty<BoxVisualEntry>();
+        [Tooltip("Soft Shadow material for box drop shadows; empty disables them.")]
+        public Material shadowMaterial;
+        [Tooltip("Local height of the box shadow: above the floor tiles, below the box base.")]
+        public float boxShadowHeight = 0.2f;
+        [Tooltip("Box shadow shift in macro cells; negative Y falls toward the bottom of the screen.")]
+        public Vector2 boxShadowOffset = new Vector2(0.06f, -0.2f);
+        [Range(0.02f, 0.5f)] public float boxShadowSoftness = 0.14f;
 
         public bool TryGetBox(BoxShapeDefinition shape, out BoxVisualEntry entry)
         {

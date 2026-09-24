@@ -49,3 +49,7 @@ MonoBehaviour:
     localOffset: {x: 1, y: 0.22, z: 1}
     localScale: {x: -1, y: 2.2275, z: -1}
     fillOffset: {x: 0, y: 0.22, z: 0}
+  shadowMaterial: {fileID: 2100000, guid: f9359c98a5a24650b03aa31891e66a16, type: 2}
+  boxShadowHeight: 0.2
+  boxShadowOffset: {x: 0.06, y: -0.2}
+  boxShadowSoftness: 0.14
