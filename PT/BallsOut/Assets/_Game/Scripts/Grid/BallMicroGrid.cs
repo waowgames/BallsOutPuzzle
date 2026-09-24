@@ -34,6 +34,21 @@ namespace BallsOut
         public bool IsBallCell(Vector2Int cell) => Contains(cell) && mask[cell.y * Width + cell.x];
         public BallState Get(Vector2Int cell) => Contains(cell) ? occupants[cell.y * Width + cell.x] : null;
         public bool IsEmpty(Vector2Int cell) => IsBallCell(cell) && Get(cell) == null && Board.GetBox(ToMacro(cell)) == null;
+        public bool CanTravel(Vector2Int from, Vector2Int to)
+        {
+            var dividers = Board.Definition.reservoirDividerColumns;
+            if (dividers == null || dividers.Count == 0 ||
+                from.y < Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution ||
+                to.y < Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution)
+                return true;
+            for (int i = 0; i < dividers.Count; i++)
+            {
+                int boundary = dividers[i] * LevelDefinition.MicroResolution;
+                if (from.x < boundary && to.x >= boundary || from.x >= boundary && to.x < boundary)
+                    return false;
+            }
+            return true;
+        }
         public bool HasBalls(Vector2Int macro)
         {
             if (Board.Contains(macro) && visualReservations[macro.y * Board.Width + macro.x] > 0) return true;

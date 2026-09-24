@@ -38,12 +38,13 @@ namespace BallsOut
         internal int PendingFillAnimations;
         public event Action<BoxController> OnBoxFillChanged;
 
-        internal void Initialize(BoxSpawnData spawn, PrefabRegistry registry, float cellSize, bool denseFill)
+        internal void Initialize(BoxSpawnData spawn, PrefabRegistry registry, float cellSize, bool denseFill, int fillLayers)
         {
             Id = spawn.id;
             Shape = spawn.shape;
             Color = spawn.color;
-            Capacity = Shape.FillSlotsPerLayer(denseFill) * LevelDefinition.FillLayers;
+            Capacity = Shape.FillSlotsPerLayer(denseFill) * fillLayers;
+            CurrentFill = spawn.initialFillCount;
             CollectedBalls = new List<BallState>(Capacity);
             FillRoot = new GameObject("Fill").transform;
             FillRoot.SetParent(transform, false);
@@ -97,6 +98,12 @@ namespace BallsOut
                 PrefabRegistry.ApplyMaterial(visual, Color.boxMaterial);
                 FillRoot.localPosition += entry.fillOffset;
                 CompletionAnimation = visual.GetComponentInChildren<BoxCompletionAnimation>(true);
+                fillLabel = BoxFillLabel.Create(this, visual, cellSize);
+                fillLabel.SetFill(CurrentFill, Capacity);
+            }
+            else
+            {
+                GameObject visual = BoxShapeVisual.Create(Shape, Color.boxMaterial, transform, cellSize);
                 fillLabel = BoxFillLabel.Create(this, visual, cellSize);
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
@@ -172,6 +179,21 @@ namespace BallsOut
         }
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }
+        internal void CreateInitialFill(BallPool pool)
+        {
+            for (int index = 0; index < CurrentFill; index++)
+            {
+                var ball = new BallState(new BallSpawnData { color = Color });
+                ball.Visual = pool.Rent(Color);
+                if (ball.Visual != null)
+                {
+                    ball.Visual.SetParent(FillRoot, false);
+                    ball.Visual.localPosition = BoxFillSystem.GetSlotPosition(this, index);
+                    ball.Visual.localScale = Vector3.one * FillSpacing.x;
+                }
+                CollectedBalls.Add(ball);
+            }
+        }
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
         public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
         // Returns true when this step breaks the ice and frees the box.

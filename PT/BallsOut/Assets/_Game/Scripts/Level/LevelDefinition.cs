@@ -15,12 +15,16 @@ namespace BallsOut
         [Min(0)] public int hopperMicroRows;
         [Min(0.01f)] public float macroCellSize = 1f;
         public bool denseBoxFill;
+        [Min(1)] public int fillLayers = FillLayers;
+        [Tooltip("Macro-column boundaries that separate reservoir chambers. The outlet below stays open.")]
+        public List<int> reservoirDividerColumns = new List<int>();
         public CellMask lowerGridMask = new CellMask();
         public CellMask ballAreaMask = new CellMask();
         public List<BoxSpawnData> boxes = new List<BoxSpawnData>();
         public List<BallSpawnData> balls = new List<BallSpawnData>();
         [Tooltip("Editor dense-field authoring palette; runtime uses the explicit balls list.")]
         public List<BallColorDefinition> palette = new List<BallColorDefinition>();
+        public int FillLayerCount => fillLayers > 0 ? fillLayers : FillLayers;
         public int TotalHeight => lowerGridHeight + ballAreaMacroHeight;
         public int HopperStartRow => ballAreaMacroHeight * MicroResolution - hopperMicroRows;
         public float BallRowSpacing => macroCellSize * 0.24f * 0.8660254f;

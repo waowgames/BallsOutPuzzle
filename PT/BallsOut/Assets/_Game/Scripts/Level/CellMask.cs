@@ -51,5 +51,7 @@ namespace BallsOut
         public string lockId;
         [Tooltip("0 = no ice. Frozen boxes cannot move or collect; each other completed box lowers the count by one.")]
         [Min(0)] public int iceCount;
+        [Tooltip("Balls already held by this box when the level starts.")]
+        [Min(0)] public int initialFillCount;
     }
 }

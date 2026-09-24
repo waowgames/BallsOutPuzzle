@@ -13,11 +13,19 @@ MonoBehaviour:
   m_Name: LevelConfig
   m_EditorClassIdentifier: 
   levels:
-  - {fileID: 11400000, guid: abd88dfc3c334badb83eee3ad446a08f, type: 2}
-  - {fileID: 11400000, guid: 0be9b88a18f847a385c2f08f3275e93f, type: 2}
-  - {fileID: 11400000, guid: e8f0942795f14ac3b12d19a8a193fdf1, type: 2}
-  - {fileID: 11400000, guid: 705956e6c1f2421dbad99048a61e87f2, type: 2}
-  - {fileID: 11400000, guid: 7b15f2c4dc700b84091a61dae070d0aa, type: 2}
-  - {fileID: 11400000, guid: a60c672608484bda8b43f0ee3d7477f8, type: 2}
-  - {fileID: 11400000, guid: 64f55c77c4aa4feb88cb8eef7df75dfd, type: 2}
+  - {fileID: 11400000, guid: 585829f232f551afb1ae2da3f216c9dd, type: 2}
+  - {fileID: 11400000, guid: 8324c228cffc5b1fa69726fb9f7c0e53, type: 2}
+  - {fileID: 11400000, guid: 4c0950c92aef58a78a3adccef70204ac, type: 2}
+  - {fileID: 11400000, guid: 9e96219c46e35e6898c1e39a0e3afe08, type: 2}
+  - {fileID: 11400000, guid: ed01cd66932c5a9da7e14b44f47b268b, type: 2}
+  - {fileID: 11400000, guid: 5412611c69c55b848543a63370b9e129, type: 2}
+  - {fileID: 11400000, guid: d1ff7339f25a57e794b37e384bceded1, type: 2}
+  - {fileID: 11400000, guid: f9850e78224a59f18d790db2390ec324, type: 2}
+  - {fileID: 11400000, guid: 2a73c0be058754fb8a51021fad58133f, type: 2}
+  - {fileID: 11400000, guid: 9ffb15968864595bbc590e7f211bd19e, type: 2}
+  - {fileID: 11400000, guid: 708c1cf2116a5ae2b6536ae042fba9a0, type: 2}
+  - {fileID: 11400000, guid: 6fd754b0755555d3a6a50fcfbab9ddb7, type: 2}
+  - {fileID: 11400000, guid: 6643b85e208954f397198c21d7e713bf, type: 2}
+  - {fileID: 11400000, guid: ad77948d0bcf5a258e8aca052da5069b, type: 2}
+  - {fileID: 11400000, guid: e330023a3b695b08b51dad0a6cbd18ec, type: 2}
   enableLooping: 1

@@ -10,7 +10,7 @@ namespace BallsOut
         public static void Validate(LevelDefinition level, List<string> errors)
         {
             if (level == null) { errors.Add("Assign a LevelDefinition."); return; }
-            if (level.macroGridWidth <= 0 || level.lowerGridHeight <= 0 || level.ballAreaMacroHeight <= 0 ||
+            if (level.macroGridWidth <= 0 || level.lowerGridHeight <= 0 || level.ballAreaMacroHeight <= 0 || level.fillLayers < 0 ||
                 (long)level.macroGridWidth * ((long)level.lowerGridHeight + level.ballAreaMacroHeight) * LevelDefinition.MicroResolution * LevelDefinition.MicroResolution > int.MaxValue ||
                 level.macroCellSize <= 0f || float.IsNaN(level.macroCellSize) || float.IsInfinity(level.macroCellSize))
             { errors.Add("Grid dimensions and finite cell size must be positive and fit the micro-grid index range."); return; }
@@ -21,6 +21,15 @@ namespace BallsOut
             { errors.Add("Use 0 hopper rows, or at least 4 with a width of 3+ and one full reservoir row below the funnel."); return; }
             ValidateMask(level.lowerGridMask, level.macroGridWidth, level.lowerGridHeight, "Lower", errors);
             ValidateMask(level.ballAreaMask, level.macroGridWidth, level.ballAreaMacroHeight, "Ball area", errors);
+            if (level.reservoirDividerColumns != null)
+            {
+                var dividers = new HashSet<int>();
+                foreach (int column in level.reservoirDividerColumns)
+                    if (column <= 0 || column >= level.macroGridWidth || !dividers.Add(column))
+                        errors.Add($"Invalid or duplicate reservoir divider at column {column}.");
+                if (level.hopperMicroRows > 0 && dividers.Count > 0)
+                    errors.Add("Reservoir dividers cannot be combined with a funnel.");
+            }
             if (level.hopperMicroRows > 0)
                 for (int y = (level.HopperStartRow - 1) / LevelDefinition.MicroResolution; y < level.ballAreaMacroHeight; y++)
                     for (int x = 0; x < level.macroGridWidth; x++)
@@ -39,7 +48,10 @@ namespace BallsOut
                 { errors.Add($"Box {i}: assign a nonempty shape and color."); continue; }
                 if (string.IsNullOrWhiteSpace(box.id) || !ids.Add(box.id)) errors.Add($"Box {i}: ID must be nonempty and unique.");
                 if (box.startsLocked) errors.Add($"Box {i}: locks require Phase 13; turn off startsLocked.");
-                AddCount(capacities, box.color, (long)box.shape.FillSlotsPerLayer(level.denseBoxFill) * LevelDefinition.FillLayers);
+                long capacity = (long)box.shape.FillSlotsPerLayer(level.denseBoxFill) * level.FillLayerCount;
+                if (box.initialFillCount < 0 || box.initialFillCount >= capacity)
+                    errors.Add($"Box {i}: initial fill must be between 0 and capacity - 1.");
+                AddCount(capacities, box.color, capacity - box.initialFillCount);
                 var shape = new HashSet<Vector2Int>();
                 foreach (var offset in box.shape.Cells)
                 {

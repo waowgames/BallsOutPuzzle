@@ -280,7 +280,7 @@ namespace BallsOut.Editor
 
             int[] ballCounts = new int[level.boxes.Count];
             for (int i = 0; i < ballCounts.Length; i++)
-                ballCounts[i] = level.boxes[i].shape.FillSlotsPerLayer(true) * LevelDefinition.FillLayers;
+                ballCounts[i] = level.boxes[i].shape.FillSlotsPerLayer(true) * level.FillLayerCount;
             int colorIndex = 0;
             int remaining = ballCounts[0];
             for (int y = level.lowerGridHeight * LevelDefinition.MicroResolution;

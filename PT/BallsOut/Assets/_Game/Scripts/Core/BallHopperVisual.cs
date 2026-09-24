@@ -86,6 +86,7 @@ namespace BallsOut
             // The divider is swept on its own so its ends tuck into the side rails instead of rerouting them.
             rimEdges.Clear();
             BuildDivider();
+            BuildReservoirDividers();
             BoardRimMesh.Append(rimEdges, level.macroCellSize, vertices, normals, triangles);
             generatedMesh = new Mesh { name = "Level Board Surface", hideFlags = HideFlags.DontSave };
             if (vertices.Count > 65535) generatedMesh.indexFormat = IndexFormat.UInt32;
@@ -239,6 +240,17 @@ namespace BallsOut
                 float left = x * s - (joinsLeft ? 0f : endExtension);
                 float right = (x + 1) * s + (joinsRight ? 0f : endExtension);
                 Rail(P(left, z), P(right, z));
+            }
+        }
+
+        private void BuildReservoirDividers()
+        {
+            if (level.reservoirDividerColumns == null) return;
+            float size = level.macroCellSize;
+            foreach (int column in level.reservoirDividerColumns)
+            {
+                float x = column * size;
+                Rail(P(x, level.DepotBottom), P(x, level.DepotTop));
             }
         }
 

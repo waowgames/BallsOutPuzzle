@@ -83,7 +83,8 @@ namespace BallsOut
                 var root = new GameObject("Box " + spawn.id);
                 root.transform.SetParent(content, false);
                 var box = root.AddComponent<BoxController>();
-                box.Initialize(spawn, prefabs, Board.CellSize, level.denseBoxFill);
+                box.Initialize(spawn, prefabs, Board.CellSize, level.denseBoxFill, level.FillLayerCount);
+                box.CreateInitialFill(pool);
                 box.runtimeCellSize = Board.CellSize;
                 Board.TryPlace(box, spawn.startingMacroOrigin, Balls);
                 root.transform.localPosition = Board.CellToLocal(box.Origin);

@@ -102,7 +102,8 @@ namespace BallsOut
             SetStable(!changed);
         }
 
-        private bool CanEnter(BallState ball, Vector2Int cell) => grid.IsEmpty(cell) || collection.CanEnter(ball, cell);
+        private bool CanEnter(BallState ball, Vector2Int cell) => grid.CanTravel(ball.Cell, cell) &&
+            (grid.IsEmpty(cell) || collection.CanEnter(ball, cell));
 
         // Gravity: a hole is refilled from alternating sides row by row (even rows
         // from upper-left, odd rows from upper-right), so it climbs straight up its
@@ -126,8 +127,8 @@ namespace BallsOut
             if (grid.IsBallCell(left) || grid.IsBallCell(right)) return false;
             Vector2Int toLeft = ball.Cell + Vector2Int.left;
             Vector2Int toRight = ball.Cell + Vector2Int.right;
-            bool canLeft = grid.IsEmpty(toLeft) && LeadsDown(toLeft);
-            bool canRight = grid.IsEmpty(toRight) && LeadsDown(toRight);
+            bool canLeft = grid.CanTravel(ball.Cell, toLeft) && grid.IsEmpty(toLeft) && LeadsDown(toLeft);
+            bool canRight = grid.CanTravel(ball.Cell, toRight) && grid.IsEmpty(toRight) && LeadsDown(toRight);
             if (!canLeft && !canRight) return false;
             Vector2Int target = canLeft && canRight ? (chooseLeft ? toLeft : toRight) : canLeft ? toLeft : toRight;
             if (canLeft && canRight) chooseLeft = !chooseLeft;
