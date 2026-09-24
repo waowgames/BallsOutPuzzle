@@ -42,8 +42,9 @@ namespace BallsOut
                     extentY = Mathf.Max(extentY, Mathf.Abs(Vector3.Dot(corner, camera.transform.up)));
                 }
             // Reserve room for the top HUD and bottom controls on both wide and tall levels.
-            camera.orthographicSize = Mathf.Max((extentY + board.CellSize * 0.5f) / 0.80f,
-                (extentX + board.CellSize * 0.5f) / Mathf.Max(0.1f, camera.aspect));
+            // Board uses at most ~72% of screen height and ~90% of width so it never slips behind the UI.
+            camera.orthographicSize = Mathf.Max((extentY + board.CellSize * 0.5f) / 0.72f,
+                (extentX + board.CellSize * 0.5f) / (0.90f * Mathf.Max(0.1f, camera.aspect)));
         }
 
         internal static void DrawGizmos(BoardGrid board, BallMicroGrid balls)
