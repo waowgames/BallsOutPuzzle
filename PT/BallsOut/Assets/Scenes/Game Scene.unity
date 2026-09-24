@@ -724,6 +724,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1315243101}
   m_CullTransparentMesh: 1
+--- !u!224 &1336698686 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3031185893517275193, guid: 633e2402da2bc51499bcefdb9d2bc98f, type: 3}
+  m_PrefabInstance: {fileID: 8833013656158999662}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1515857663 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8890657253131856469, guid: 633e2402da2bc51499bcefdb9d2bc98f, type: 3}
@@ -1004,6 +1009,10 @@ PrefabInstance:
     - target: {fileID: 3621611592421959758, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4948626897322373021, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 5585033098309267760, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
       propertyPath: m_IsActive
@@ -1590,8 +1599,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7601907853541211108, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
       propertyPath: _startDelay
-      value: 0.1
+      value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7601907853541211108, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
+      propertyPath: _attractorTarget
+      value: 
+      objectReference: {fileID: 1336698686}
     - target: {fileID: 7601907853541211108, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
       propertyPath: _lifetime.m_ConstantMax
       value: 1.6

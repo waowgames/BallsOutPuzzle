@@ -369,7 +369,7 @@ MonoBehaviour:
   _shape: 1
   _spread: 0
   _spreadLoop: 1
-  _startDelay: 0.5
+  _startDelay: 0
   _radius: 50
   _width: 100
   _height: 100

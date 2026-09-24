@@ -287,6 +287,62 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &563246773850067065
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1814043139685309891}
+  - component: {fileID: 6565214848952759069}
+  m_Layer: 5
+  m_Name: Firework 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1814043139685309891
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563246773850067065}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1235516855553962138}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -310, y: 290}
+  m_SizeDelta: {x: 10, y: 10}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6565214848952759069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563246773850067065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa9b8f2e98a24714dac650f87b6334e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sparkSprite: {fileID: 21300000, guid: 2cdce52d7c6b6df4caaeffc7c59d1a47, type: 3}
+  glowSprite: {fileID: 21300000, guid: 3739caddfac77e84db1f1d789a0e5cc6, type: 3}
+  color: {r: 1, g: 0.86, b: 0.3, a: 1}
+  sparkCount: 14
+  radius: 180
+  duration: 0.75
+  sparkSize: {x: 64, y: 19}
+  glowSize: 260
 --- !u!1 &1440772484201954691
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,6 +642,8 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1933527256495070832}
+  - {fileID: 1814043139685309891}
+  - {fileID: 8749742527295339091}
   - {fileID: 7329493629444206308}
   - {fileID: 2451862432877021490}
   - {fileID: 8135312035576826554}
@@ -786,6 +844,23 @@ MonoBehaviour:
   particleImage: {fileID: 0}
   rewardConfig: {fileID: 11400000, guid: 7a4de103af9d4c7c96b2c6a4d10f1a08, type: 2}
   flyEffect: {fileID: 8524498362424636395}
+  confettiPrefab: {fileID: 129898, guid: 36bdc02b23d9ca94d93bd715c0cca5c0, type: 3}
+  confettiCount: 3
+  confettiInterval: 0.18
+  confettiDistance: 8
+  confettiScale: 1.5
+  confettiLifetime: 4
+  popupDelay: 0.9
+  panelTransition: {fileID: 629200000000000001}
+  stars:
+  - {fileID: 4297166769819470389}
+  - {fileID: 1997605810586158533}
+  - {fileID: 1749188427181474037}
+  starsDelay: 0.3
+  starInterval: 0.28
+  fireworks:
+  - {fileID: 6565214848952759069}
+  - {fileID: 4573488873840328371}
 --- !u!114 &629200000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2096,3 +2171,59 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &9085402578692885702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8749742527295339091}
+  - component: {fileID: 4573488873840328371}
+  m_Layer: 5
+  m_Name: Firework 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8749742527295339091
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9085402578692885702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1235516855553962138}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 320, y: 250}
+  m_SizeDelta: {x: 10, y: 10}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4573488873840328371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9085402578692885702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa9b8f2e98a24714dac650f87b6334e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sparkSprite: {fileID: 21300000, guid: 2cdce52d7c6b6df4caaeffc7c59d1a47, type: 3}
+  glowSprite: {fileID: 21300000, guid: 3739caddfac77e84db1f1d789a0e5cc6, type: 3}
+  color: {r: 1, g: 0.86, b: 0.3, a: 1}
+  sparkCount: 14
+  radius: 180
+  duration: 0.75
+  sparkSize: {x: 64, y: 19}
+  glowSize: 260
