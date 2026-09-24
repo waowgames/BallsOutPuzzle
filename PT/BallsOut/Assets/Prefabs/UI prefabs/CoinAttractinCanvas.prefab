@@ -379,7 +379,7 @@ MonoBehaviour:
   _emitOnSurface: 1
   _emitterThickness: 0
   _loop: 0
-  _duration: 0.3
+  _duration: 0.52
   _playMode: 0
   _startSize:
     separable: 1
@@ -400,7 +400,7 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
       m_ConstantMin: 0
-      m_ConstantMax: 115
+      m_ConstantMax: 72
     xCurve:
       m_Mode: 0
       m_CurveMultiplier: 0
@@ -531,8 +531,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    m_ConstantMin: 1.5
-    m_ConstantMax: 2
+    m_ConstantMin: 0.19
+    m_ConstantMax: 0.19
   _startSpeed:
     m_Mode: 3
     m_CurveMultiplier: 0
@@ -716,7 +716,7 @@ MonoBehaviour:
           outWeight: 0.33333334
         - serializedVersion: 3
           time: 0.9780852
-          value: 2
+          value: 1
           inSlope: 0
           outSlope: 0
           tangentMode: 0
@@ -1357,7 +1357,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.6946691
+        time: 0.3
         value: -0.0020119883
         inSlope: 0.000033206496
         outSlope: 0.000033206496
@@ -1381,7 +1381,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.69418335
+        time: 0.3
         value: -0.0020141602
         inSlope: 0
         outSlope: 0
@@ -1596,15 +1596,15 @@ MonoBehaviour:
   _frameSpeedRange:
     from: 0
     to: 1
-  _textureSheetFPS: 25
+  _textureSheetFPS: 84
   _textureSheetCycles: 1
-  _rate: 55
+  _rate: 0
   _rateOverLifetime: 0
   _rateOverDistance: 0
   _bursts: []
   _trailRenderer: {fileID: 4242092783197895755}
   _trailModule:
-    enabled: 1
+    enabled: 0
   _trailWidth:
     m_Mode: 1
     m_CurveMultiplier: 1

@@ -820,11 +820,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3414193467061492045}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11531ee42ce8c3b42b0b28874d1dce24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  completionDelay: 2
+  m_Script: {fileID: 11500000, guid: 88aef223c33c4d42958d728b618734ab, type: 3}
+  m_Name: ''
+  m_EditorClassIdentifier: ''
+  coinOrigin: {fileID: 4779714628335946645}
 --- !u!114 &5432939205637744618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -841,9 +840,7 @@ MonoBehaviour:
   levelText: {fileID: 1270981879754995293}
   rewardAmountText: {fileID: 8513682931579686091}
   getButton: {fileID: 3458742469162843953}
-  particleImage: {fileID: 0}
   rewardConfig: {fileID: 11400000, guid: 7a4de103af9d4c7c96b2c6a4d10f1a08, type: 2}
-  flyEffect: {fileID: 8524498362424636395}
   confettiPrefab: {fileID: 129898, guid: 36bdc02b23d9ca94d93bd715c0cca5c0, type: 3}
   confettiCount: 3
   confettiInterval: 0.18

@@ -1,10 +1,10 @@
 using System.Collections;
-using AssetKits.ParticleImage;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CoinRewardSequence))]
 public sealed class LevelUpPopup : UIPopup
 {
     public static LevelUpPopup Instance { get; private set; }
@@ -13,11 +13,9 @@ public sealed class LevelUpPopup : UIPopup
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private TMP_Text rewardAmountText;
     [SerializeField] private Button getButton;
-    [SerializeField] private ParticleImage particleImage;
 
     [Header("Reward")]
     [SerializeField] private LevelRewardConfig rewardConfig;
-    [SerializeField] private FlyToUIEffect flyEffect;
 
     [Header("Celebration")]
     [SerializeField] private GameObject confettiPrefab;
@@ -41,6 +39,7 @@ public sealed class LevelUpPopup : UIPopup
 
     private Vector3[] starScales;
     private Coroutine celebration;
+    private CoinRewardSequence coinRewardSequence;
 
     private int pendingReward;
     private bool rewardClaimed;
@@ -52,12 +51,7 @@ public sealed class LevelUpPopup : UIPopup
         Instance = this;
         base.Awake();
 
-        if (particleImage == null)
-        {
-            UIManager uiManager = GetComponentInParent<UIManager>();
-            if (uiManager != null)
-                particleImage = uiManager.GetComponentInChildren<ParticleImage>(true);
-        }
+        coinRewardSequence = GetComponent<CoinRewardSequence>();
 
         starScales = new Vector3[stars.Length];
         for (int i = 0; i < stars.Length; i++)
@@ -210,17 +204,8 @@ public sealed class LevelUpPopup : UIPopup
         if (getButton != null)
             getButton.interactable = false;
 
-        CurrencyWallet.Instance?.Add(pendingReward);
-        particleImage?.Play();
+        coinRewardSequence.Play(pendingReward, ContinueToNextLevel);
         Hide();
-        flyEffect?.Play(null);
-        StartCoroutine(ContinueAfterCoinAnimation());
-    }
-
-    private IEnumerator ContinueAfterCoinAnimation()
-    {
-        yield return new WaitForSecondsRealtime(0.7f);
-        ContinueToNextLevel();
     }
 
     private static void ContinueToNextLevel()
