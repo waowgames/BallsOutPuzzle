@@ -1377,8 +1377,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2.857143
+        outSlope: 2.857143
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
@@ -1410,8 +1410,8 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 1
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 2.857143
+        outSlope: 2.857143
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
@@ -1427,7 +1427,7 @@ MonoBehaviour:
   _gravityModule:
     enabled: 0
   _vortexModule:
-    enabled: 1
+    enabled: 0
   _velocityModule:
     enabled: 1
   _velocitySpace: 0
@@ -1499,8 +1499,8 @@ MonoBehaviour:
           inWeight: 0
           outWeight: 0
         - serializedVersion: 3
-          time: 0.45
-          value: 0.43747032
+          time: 0.55
+          value: 4.2
           inSlope: 0
           outSlope: 0
           tangentMode: 0
@@ -1508,10 +1508,10 @@ MonoBehaviour:
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.71
-          value: -0.5500517
-          inSlope: -0.07422701
-          outSlope: -0.07422701
+          time: 0.78
+          value: 0
+          inSlope: 0
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334

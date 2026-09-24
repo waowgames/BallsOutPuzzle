@@ -5,7 +5,7 @@ using UnityEngine;
 
 public sealed class CoinRewardSequence : MonoBehaviour
 {
-    private const int MaximumVisualCoins = 7;
+    private const int MaximumVisualCoins = 5;
     private const float CoinInterval = 0.14f;
     private const float MinimumSequenceTime = 0.8f;
     private const float CoinArrivalTimeout = 2f;
@@ -77,7 +77,7 @@ public sealed class CoinRewardSequence : MonoBehaviour
 
     private void PlayCoins()
     {
-        visualCoinCount = Mathf.Clamp(Mathf.CeilToInt(creditedReward / 4f), 3, MaximumVisualCoins);
+        visualCoinCount = Mathf.Clamp(Mathf.CeilToInt(creditedReward / 3f), 3, MaximumVisualCoins);
 
         particleImage.onParticleFinish.RemoveListener(HandleCoinArrived);
         particleImage.Stop(true);
