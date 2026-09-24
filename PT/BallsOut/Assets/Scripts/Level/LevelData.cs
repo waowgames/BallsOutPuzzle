@@ -8,6 +8,9 @@ using UnityEngine;
 public class LevelData : ScriptableObject
 {
     [SerializeField] private GameObject levelPrefab;
+    [Tooltip("Seconds the player has to finish the level. 0 = no time limit.")]
+    [SerializeField, Min(0f)] private float timeLimitSeconds = 180f;
 
     public GameObject LevelPrefab => levelPrefab;
+    public float TimeLimitSeconds => timeLimitSeconds;
 }
