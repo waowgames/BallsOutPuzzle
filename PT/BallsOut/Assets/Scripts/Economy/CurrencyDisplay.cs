@@ -5,18 +5,22 @@ using UnityEngine;
 public sealed class CurrencyDisplay : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI currencyText;
+    [SerializeField] private RectTransform coinIcon;
 
     private Vector3 textScale;
+    private CoinArrivalBurst coinArrivalBurst;
     private int latestBalance;
     private bool rewardAnimationActive;
     private Sequence pulse;
 
-    public RectTransform Target => currencyText != null ? currencyText.rectTransform : null;
+    public RectTransform Target => coinIcon;
 
     private void Awake()
     {
         if (currencyText != null)
             textScale = currencyText.rectTransform.localScale;
+        if (coinIcon != null)
+            coinArrivalBurst = coinIcon.GetComponent<CoinArrivalBurst>();
     }
 
     private void OnEnable()
@@ -64,13 +68,14 @@ public sealed class CurrencyDisplay : MonoBehaviour
             return;
 
         ShowBalance(balance);
+        coinArrivalBurst?.Play();
 
         RectTransform target = currencyText.rectTransform;
         pulse?.Kill();
         target.localScale = textScale;
         pulse = DOTween.Sequence().SetUpdate(true)
-            .Append(target.DOScale(textScale * 1.16f, 0.03f).SetEase(Ease.OutQuad))
-            .Append(target.DOScale(textScale, 0.05f).SetEase(Ease.OutQuad));
+            .Append(target.DOScale(textScale * 1.18f, 0.055f).SetEase(Ease.OutCubic))
+            .Append(target.DOScale(textScale, 0.075f).SetEase(Ease.InOutSine));
     }
 
     public void EndRewardAnimation()

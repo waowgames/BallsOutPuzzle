@@ -2789,6 +2789,7 @@ GameObject:
   - component: {fileID: 3031185893517275193}
   - component: {fileID: 4003273243683557669}
   - component: {fileID: 2401548667734633377}
+  - component: {fileID: 880000000000000011}
   m_Layer: 5
   m_Name: Coin Icon
   m_TagString: Untagged
@@ -2853,6 +2854,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &880000000000000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8663266677464656966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a66051057fa49f89c352337899c0d28, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  sparkSprite: {fileID: 21300000, guid: 2cdce52d7c6b6df4caaeffc7c59d1a47, type: 3}
+  glowSprite: {fileID: 21300000, guid: 3739caddfac77e84db1f1d789a0e5cc6, type: 3}
+  gold: {r: 1, g: 0.82, b: 0.22, a: 1}
 --- !u!1 &8735129155923675380
 GameObject:
   m_ObjectHideFlags: 0

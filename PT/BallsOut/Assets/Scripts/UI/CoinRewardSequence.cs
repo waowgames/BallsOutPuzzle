@@ -6,8 +6,10 @@ using UnityEngine;
 public sealed class CoinRewardSequence : MonoBehaviour
 {
     private const int MaximumVisualCoins = 7;
-    private const float CoinInterval = 0.08f;
-    private const float NextLevelDelay = 0.7f;
+    private const float CoinInterval = 0.14f;
+    private const float MinimumSequenceTime = 0.8f;
+    private const float CoinArrivalTimeout = 2f;
+    private const float FinalPause = 0.3f;
 
     [SerializeField] private RectTransform coinOrigin;
 
@@ -109,11 +111,14 @@ public sealed class CoinRewardSequence : MonoBehaviour
 
     private IEnumerator CompleteAfterCoins()
     {
-        yield return new WaitForSecondsRealtime(NextLevelDelay);
+        yield return new WaitForSecondsRealtime(MinimumSequenceTime);
 
-        float timeout = Time.realtimeSinceStartup + 0.2f;
+        float timeout = Time.realtimeSinceStartup + CoinArrivalTimeout;
         while (arrivedCoinCount < visualCoinCount && Time.realtimeSinceStartup < timeout)
             yield return null;
+
+        if (visualCoinCount > 0 && arrivedCoinCount == visualCoinCount)
+            yield return new WaitForSecondsRealtime(FinalPause);
 
         FinishVisuals();
         sequence = null;

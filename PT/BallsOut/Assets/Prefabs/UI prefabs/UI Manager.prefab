@@ -393,6 +393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currencyText: {fileID: 6298439037724017117}
+  coinIcon: {fileID: 880000000000000010}
 --- !u!114 &880000000000000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1064,7 +1065,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7601907853541211108, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
       propertyPath: _lifetime.m_ConstantMax
-      value: 0.19
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 8680589885761080809, guid: a66aef3306119c844a2570b27863b6ec, type: 3}
       propertyPath: m_Pivot.x
@@ -1383,3 +1384,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &880000000000000010 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3031185893517275193, guid: 633e2402da2bc51499bcefdb9d2bc98f, type: 3}
+  m_PrefabInstance: {fileID: 8833013655744511400}
+  m_PrefabAsset: {fileID: 0}

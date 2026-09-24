@@ -379,7 +379,7 @@ MonoBehaviour:
   _emitOnSurface: 1
   _emitterThickness: 0
   _loop: 0
-  _duration: 0.52
+  _duration: 0.95
   _playMode: 0
   _startSize:
     separable: 1
@@ -400,7 +400,7 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
       m_ConstantMin: 0
-      m_ConstantMax: 72
+      m_ConstantMax: 86.4
     xCurve:
       m_Mode: 0
       m_CurveMultiplier: 0
@@ -531,8 +531,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    m_ConstantMin: 0.19
-    m_ConstantMax: 0.19
+    m_ConstantMin: 0.7
+    m_ConstantMax: 0.7
   _startSpeed:
     m_Mode: 3
     m_CurveMultiplier: 0
@@ -549,7 +549,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_ConstantMin: 1
-    m_ConstantMax: 15
+    m_ConstantMax: 9
   _colorOverLifetime:
     m_Mode: 1
     m_GradientMin:
@@ -1357,32 +1357,8 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.3
-        value: -0.0020119883
-        inSlope: 0.000033206496
-        outSlope: 0.000033206496
-        tangentMode: 0
-        weightedMode: 2
-        inWeight: 0
-        outWeight: 0.8866889
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 7.236108
-        outSlope: 7.236108
-        tangentMode: 0
-        weightedMode: 1
-        inWeight: 0.0961184
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_CurveMax:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0.3
-        value: -0.0020141602
+        time: 0.12
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -1392,11 +1368,35 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 1
         value: 1
-        inSlope: 4.5544767
-        outSlope: 4.5544767
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.042658035
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_CurveMax:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.12
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -1522,7 +1522,7 @@ MonoBehaviour:
       m_ConstantMax: 0
   _vortexStrength:
     m_Mode: 1
-    m_CurveMultiplier: 8
+    m_CurveMultiplier: 3
     m_CurveMin:
       serializedVersion: 2
       m_Curve: []
@@ -1596,7 +1596,7 @@ MonoBehaviour:
   _frameSpeedRange:
     from: 0
     to: 1
-  _textureSheetFPS: 84
+  _textureSheetFPS: 22
   _textureSheetCycles: 1
   _rate: 0
   _rateOverLifetime: 0
