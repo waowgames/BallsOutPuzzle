@@ -35,6 +35,7 @@ namespace BallsOut
         private const float PulseImpulse = 1.1f;
         private const float PulseLimit = 0.08f;
         private Transform pulseRoot;
+        private GameObject art;
         private float pulse;
         private float pulseVelocity;
         internal List<BallState> CollectedBalls { get; private set; }
@@ -124,6 +125,7 @@ namespace BallsOut
                 fillLabel = BoxFillLabel.Create(this, visual, cellSize);
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
+            art = visual;
             if (registry != null && registry.shadowMaterial != null) CreateShadow(registry, cellSize);
             IceCount = Mathf.Max(0, spawn.iceCount);
             // Keep the pick volume level with the visible box, including its raised rim.
@@ -207,6 +209,30 @@ namespace BallsOut
             // Widen and squash together so the box reads as catching the ball.
             pulseRoot.localScale = new Vector3(1f + pulse, 1f - pulse * 0.6f, 1f + pulse);
         }
+
+        // The completion celebration takes over the art pivot from the collect pulse.
+        internal Transform ClaimArtRoot()
+        {
+            pulse = pulseVelocity = 0f;
+            if (pulseRoot != null) pulseRoot.localScale = Vector3.one;
+            return pulseRoot;
+        }
+
+        // Rim height of the box art, in box-local space.
+        internal float ArtTop
+        {
+            get
+            {
+                float top = 0f;
+                if (art == null) return top;
+                foreach (MeshFilter filter in art.GetComponentsInChildren<MeshFilter>())
+                    if (filter.TryGetComponent(out Renderer renderer))
+                        top = Mathf.Max(top, transform.InverseTransformPoint(renderer.bounds.max).y);
+                return top;
+            }
+        }
+
+        internal void HideFillLabel() => fillLabel?.SetVisible(false);
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }
         internal void MarkPlayerInteraction() => HasPlayerInteracted = true;

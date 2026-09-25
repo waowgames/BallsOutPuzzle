@@ -11,8 +11,13 @@ namespace BallsOut
         private static Material tabMaterial;
         private static Material outlinedTextMaterial;
         private readonly TextMeshPro text;
+        private readonly GameObject tab;
 
-        private BoxFillLabel(TextMeshPro text) => this.text = text;
+        private BoxFillLabel(TextMeshPro text, GameObject tab)
+        {
+            this.text = text;
+            this.tab = tab;
+        }
 
         internal static BoxFillLabel Create(BoxController box, GameObject visual, float cellSize)
         {
@@ -110,13 +115,19 @@ namespace BallsOut
                 ? Mathf.Min(cellSize * 0.36f / preferred.x, cellSize * 0.18f / preferred.y)
                 : cellSize * 0.01f;
             label.transform.localScale = Vector3.one * scale;
-            return new BoxFillLabel(text);
+            return new BoxFillLabel(text, tab);
         }
 
         internal void SetFill(int current, int capacity)
         {
             int percent = capacity > 0 ? Mathf.Clamp((current * 100 + capacity / 2) / capacity, 0, 100) : 0;
             text.text = percent + "%";
+        }
+
+        internal void SetVisible(bool visible)
+        {
+            text.gameObject.SetActive(visible);
+            tab.SetActive(visible);
         }
     }
 }

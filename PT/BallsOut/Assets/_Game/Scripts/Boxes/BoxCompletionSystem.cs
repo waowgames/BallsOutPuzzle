@@ -13,6 +13,7 @@ namespace BallsOut
             public float waited;
             public float elapsed;
             public float duration;
+            public BoxCompletionEffect effect;
         }
 
         private readonly BoardGrid board;
@@ -61,12 +62,14 @@ namespace BallsOut
                 {
                     entry.started = true;
                     entry.duration = box.CompletionAnimation != null ? Mathf.Max(0f, box.CompletionAnimation.duration) : defaultDuration;
-                    box.CompletionAnimation?.Begin();
+                    if (box.CompletionAnimation != null) box.CompletionAnimation.Begin();
+                    else entry.effect = new BoxCompletionEffect(box, entry.duration);
                 }
                 else entry.elapsed += deltaTime;
                 float t = entry.duration <= 0f ? 1f : Mathf.Clamp01(entry.elapsed / entry.duration);
                 if (t < 1f) { pending[i] = entry; continue; }
                 box.CompletionAnimation?.Finish();
+                entry.effect?.Finish();
                 board.Remove(box);
                 fill.Release(box);
                 box.gameObject.SetActive(false);
@@ -80,9 +83,9 @@ namespace BallsOut
         {
             foreach (Completion entry in pending)
             {
-                if (!entry.started || entry.box.CompletionAnimation != null) continue;
+                if (entry.effect == null) continue;
                 float t = entry.duration <= 0f ? 1f : Mathf.Clamp01((entry.elapsed + interpolationTime) / entry.duration);
-                entry.box.transform.localScale = Vector3.one * (1f - t * 0.9f);
+                entry.effect.Evaluate(t);
             }
         }
     }

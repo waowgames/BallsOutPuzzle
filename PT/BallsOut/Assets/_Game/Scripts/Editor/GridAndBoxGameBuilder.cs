@@ -235,7 +235,7 @@ namespace BallsOut.Editor
             registry.ballHeight = 0.24f;
             registry.fillOffset = new Vector3(0f, 0.085f, 0f);
             registry.fillDuration = 0.26f;
-            registry.completionDuration = 0.22f;
+            registry.completionDuration = 1.1f;
             registry.floorPrefab = Load<GameObject>(Art + "/Prefabs/PF_GridCell.prefab");
             registry.alternateTileMaterial = Load<Material>(Art + "/Materials/GridLight.mat");
             registry.blockedCellPrefab = null;

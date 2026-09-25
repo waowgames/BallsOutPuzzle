@@ -17,7 +17,7 @@ MonoBehaviour:
   ballHeight: 0.24
   fillOffset: {x: 0, y: 0.085, z: 0}
   fillDuration: 0.26
-  completionDuration: 0.22
+  completionDuration: 1.1
   floorPrefab: {fileID: 744571577134862828, guid: cf92cba8082076748b882e4a088cc3f0, type: 3}
   alternateTileMaterial: {fileID: 2100000, guid: 9f2daae431d847539a4f9418e9d65422, type: 2}
   blockedCellPrefab: {fileID: 0}

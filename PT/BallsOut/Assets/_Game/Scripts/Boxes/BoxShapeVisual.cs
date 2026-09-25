@@ -57,7 +57,28 @@ namespace BallsOut
             return visual;
         }
 
-        private static Mesh BuildMesh(BoxShapeDefinition shape)
+        // Completion lid in cell units: a rounded slab over the rim with a raised centre panel.
+        private static readonly Dictionary<BoxShapeDefinition, Mesh> LidMeshes = new Dictionary<BoxShapeDefinition, Mesh>();
+        private static readonly Vector2[] LidProfile =
+        {
+            new Vector2(0.03f, 0f), new Vector2(0.012f, 0.014f),
+            new Vector2(0.012f, 0.052f), new Vector2(0.03f, 0.07f),
+            new Vector2(0.085f, 0.074f), new Vector2(0.11f, 0.094f)
+        };
+
+        internal static Mesh LidMesh(BoxShapeDefinition shape)
+        {
+            if (!LidMeshes.TryGetValue(shape, out Mesh mesh))
+            {
+                mesh = BuildMesh(shape, LidProfile, "Lid ");
+                LidMeshes.Add(shape, mesh);
+            }
+            return mesh;
+        }
+
+        private static Mesh BuildMesh(BoxShapeDefinition shape) => BuildMesh(shape, Profile, "Box ");
+
+        private static Mesh BuildMesh(BoxShapeDefinition shape, Vector2[] rings, string prefix)
         {
             var vertices = new List<Vector3>();
             var uv = new List<Vector2>();
@@ -65,9 +86,9 @@ namespace BallsOut
             foreach (List<Vector2> outline in Outlines(shape))
             {
                 int first = vertices.Count;
-                foreach (Vector2 profile in Profile) AppendRing(outline, profile, vertices, uv);
-                int count = (vertices.Count - first) / Profile.Length;
-                for (int ring = 0; ring < Profile.Length - 1; ring++)
+                foreach (Vector2 profile in rings) AppendRing(outline, profile, vertices, uv);
+                int count = (vertices.Count - first) / rings.Length;
+                for (int ring = 0; ring < rings.Length - 1; ring++)
                     for (int i = 0; i < count; i++)
                     {
                         int a = first + ring * count + i;
@@ -76,9 +97,9 @@ namespace BallsOut
                         triangles.Add(b); triangles.Add(a + count); triangles.Add(b + count);
                     }
                 Cap(first, count, false, vertices, triangles);
-                Cap(first + (Profile.Length - 1) * count, count, true, vertices, triangles);
+                Cap(first + (rings.Length - 1) * count, count, true, vertices, triangles);
             }
-            var mesh = new Mesh { name = "Box " + shape.name };
+            var mesh = new Mesh { name = prefix + shape.name };
             if (vertices.Count > ushort.MaxValue) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             mesh.SetVertices(vertices);
             mesh.SetUVs(0, uv);
