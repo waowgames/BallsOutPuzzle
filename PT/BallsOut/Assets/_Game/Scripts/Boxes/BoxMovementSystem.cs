@@ -46,6 +46,9 @@ namespace BallsOut
             Vector3 current = selected.transform.localPosition;
             Vector3 desired = board.Root.InverseTransformPoint(worldPoint) - grabOffset;
             desired.y = current.y;
+            // An axis-locked box never leaves its row or column, so pin the other coordinate.
+            if (selected.MoveAxis == BoxMoveAxis.Horizontal) desired.z = board.CellToLocal(selected.Origin).z;
+            else if (selected.MoveAxis == BoxMoveAxis.Vertical) desired.x = board.CellToLocal(selected.Origin).x;
             Vector3 horizontalFirst = current;
             MoveAxis(ref horizontalFirst, desired.x, true, false);
             MoveAxis(ref horizontalFirst, desired.z, false, false);
@@ -128,8 +131,8 @@ namespace BallsOut
         public void Advance(float deltaTime)
         {
             if (selected == null) return;
-            // A box filled mid-drag lets go on its own so its completion can play.
-            if (selected.IsCompleting) Release();
+            // A box filled mid-drag lets go on its own so its completion or layer swap can play.
+            if (selected.IsCompleting || selected.IsSwappingLayer) Release();
             if (!releaseRequested) return;
             snapElapsed += deltaTime;
             float t = Mathf.Clamp01(snapElapsed / snapDuration);

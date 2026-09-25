@@ -84,9 +84,18 @@ namespace BallsOut.Editor
             foreach (var box in level.boxes)
             {
                 if (box?.color == null || box.shape == null) { Debug.LogError("Assign every box shape and color first.", level); return; }
-                int index = colors.IndexOf(box.color);
-                if (index < 0) { index = colors.Count; colors.Add(box.color); counts.Add(0); }
-                int count = level.BoxCapacity(box.shape) - box.initialFillCount;
+                int capacity = level.BoxCapacity(box.shape);
+                if (box.innerColor != null)
+                {
+                    Add(box.innerColor, capacity - box.initialFillCount);
+                    Add(box.color, capacity);
+                }
+                else Add(box.color, capacity - box.initialFillCount);
+            }
+            void Add(BallColorDefinition color, int count)
+            {
+                int index = colors.IndexOf(color);
+                if (index < 0) { index = colors.Count; colors.Add(color); counts.Add(0); }
                 counts[index] += count;
                 total += count;
             }

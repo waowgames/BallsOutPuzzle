@@ -24,23 +24,9 @@ namespace BallsOut
                 mesh = BuildMesh(shape);
                 Meshes.Add(shape, mesh);
             }
-            float elevation = 0.22f;
-            float depthScale = 2.2275f;
-            fillOffset = new Vector3(0f, elevation, 0f);
-            MeshRenderer referenceRenderer = null;
-            if (registry != null)
-                foreach (BoxVisualEntry entry in registry.boxes)
-                {
-                    if (entry.prefab == null) continue;
-                    elevation = entry.localOffset.y;
-                    depthScale = entry.localScale == Vector3.zero ? 1f : Mathf.Abs(entry.localScale.y);
-                    fillOffset = new Vector3(0f, entry.fillOffset.y, 0f);
-                    referenceRenderer = entry.prefab.GetComponentInChildren<MeshRenderer>();
-                    break;
-                }
+            MeshRenderer referenceRenderer = Placement(registry, out float elevation, out float depthScale, out fillOffset);
             var visual = new GameObject("Box Shape", typeof(MeshFilter), typeof(MeshRenderer));
             visual.transform.SetParent(parent, false);
-            // Registry elevation/depth are absolute, just as for the prefab branch in BoxController.
             visual.transform.localPosition = Vector3.up * elevation;
             visual.transform.localScale = new Vector3(cellSize, depthScale, cellSize);
             visual.GetComponent<MeshFilter>().sharedMesh = mesh;
@@ -55,6 +41,67 @@ namespace BallsOut
             renderer.sharedMaterial = material;
             PrefabRegistry.ApplyMaterial(visual, material);
             return visual;
+        }
+
+        // Registry elevation/depth are absolute, so every procedural piece shares the first prefab's placement.
+        private static MeshRenderer Placement(PrefabRegistry registry, out float elevation, out float depthScale, out Vector3 fillOffset)
+        {
+            elevation = 0.22f;
+            depthScale = 2.2275f;
+            fillOffset = new Vector3(0f, elevation, 0f);
+            if (registry != null)
+                foreach (BoxVisualEntry entry in registry.boxes)
+                {
+                    if (entry.prefab == null) continue;
+                    elevation = entry.localOffset.y;
+                    depthScale = entry.localScale == Vector3.zero ? 1f : Mathf.Abs(entry.localScale.y);
+                    fillOffset = new Vector3(0f, entry.fillOffset.y, 0f);
+                    return entry.prefab.GetComponentInChildren<MeshRenderer>();
+                }
+            return null;
+        }
+
+        // Nested box: a lower tray standing on the outer floor, inset past the outer wall
+        // so a band of the outer color frames it on every side.
+        private static readonly Dictionary<BoxShapeDefinition, Mesh> InnerMeshes = new Dictionary<BoxShapeDefinition, Mesh>();
+        private static readonly Vector2[] InnerProfile =
+        {
+            new Vector2(0.165f, 0.055f), new Vector2(0.145f, 0.075f),
+            new Vector2(0.145f, 0.225f), new Vector2(0.165f, 0.245f),
+            new Vector2(0.195f, 0.245f), new Vector2(0.215f, 0.225f),
+            new Vector2(0.215f, 0.105f), new Vector2(0.235f, 0.085f)
+        };
+
+        // Returns a pivot on the footprint centre so the tray can shrink away about its middle.
+        internal static Transform CreateInner(BoxShapeDefinition shape, Material material, Transform parent,
+            float cellSize, PrefabRegistry registry)
+        {
+            if (!InnerMeshes.TryGetValue(shape, out Mesh mesh))
+            {
+                mesh = BuildMesh(shape, InnerProfile, "Inner ");
+                InnerMeshes.Add(shape, mesh);
+            }
+            MeshRenderer referenceRenderer = Placement(registry, out float elevation, out float depthScale, out _);
+            Vector3 center = Vector3.zero;
+            foreach (Vector2Int cell in shape.Cells) center += new Vector3(cell.x, 0f, cell.y);
+            center *= cellSize / shape.Cells.Count;
+            var pivot = new GameObject("Inner Box").transform;
+            pivot.SetParent(parent, false);
+            pivot.localPosition = center + Vector3.up * elevation;
+            var visual = new GameObject("Inner Box Shape", typeof(MeshFilter), typeof(MeshRenderer));
+            visual.transform.SetParent(pivot, false);
+            visual.transform.localPosition = -center;
+            visual.transform.localScale = new Vector3(cellSize, depthScale, cellSize);
+            visual.GetComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = visual.GetComponent<MeshRenderer>();
+            if (referenceRenderer != null)
+            {
+                renderer.shadowCastingMode = referenceRenderer.shadowCastingMode;
+                renderer.receiveShadows = referenceRenderer.receiveShadows;
+            }
+            renderer.sharedMaterial = material;
+            PrefabRegistry.ApplyMaterial(visual, material);
+            return pivot;
         }
 
         // Completion lid in cell units: a rounded slab over the rim with a raised centre panel.

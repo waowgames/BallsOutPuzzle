@@ -51,7 +51,15 @@ namespace BallsOut
                 long capacity = level.BoxCapacity(box.shape);
                 if (box.initialFillCount < 0 || box.initialFillCount >= capacity)
                     errors.Add($"Box {i}: initial fill must be between 0 and capacity - 1.");
-                AddCount(capacities, box.color, capacity - box.initialFillCount);
+                if (!Enum.IsDefined(typeof(BoxMoveAxis), box.moveAxis)) errors.Add($"Box {i}: invalid move axis.");
+                if (box.innerColor == box.color) errors.Add($"Box {i}: inner color must differ from the outer color.");
+                // A nested box takes a full load of its inner color, then a full load of its outer color.
+                if (box.innerColor != null)
+                {
+                    AddCount(capacities, box.innerColor, capacity - box.initialFillCount);
+                    AddCount(capacities, box.color, capacity);
+                }
+                else AddCount(capacities, box.color, capacity - box.initialFillCount);
                 var shape = new HashSet<Vector2Int>();
                 foreach (var offset in box.shape.Cells)
                 {

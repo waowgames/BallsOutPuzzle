@@ -34,6 +34,7 @@ namespace BallsOut
         public event Action<BoxController> OnBoxFillChanged;
         public event Action<BallState, BoxController> OnBallCollected;
         public event Action<BoxController> OnBoxCompleted;
+        public event Action<BoxController> OnInnerLayerCompleted;
         public event Action<BoxController> OnBoxRemoved;
         public event Action<BoxController> OnIceCracked;
         public event Action<BoxController> OnIceBroken;
@@ -107,6 +108,7 @@ namespace BallsOut
                 prefabs != null ? prefabs.completionDelay : 0.3f);
             Completion.OnBoxCompleted += ForwardBoxCompleted;
             Completion.OnBoxRemoved += ForwardBoxRemoved;
+            Completion.OnInnerLayerCompleted += ForwardInnerLayerCompleted;
             Completion.OnBoxCompleted += CrackIce;
             Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
             Collection.OnBallCollected += ForwardBallCollected;
@@ -179,6 +181,7 @@ namespace BallsOut
         private void ForwardBallCollected(BallState ball, BoxController box) => OnBallCollected?.Invoke(ball, box);
         private void ForwardBoxCompleted(BoxController box) => OnBoxCompleted?.Invoke(box);
         private void ForwardBoxRemoved(BoxController box) => OnBoxRemoved?.Invoke(box);
+        private void ForwardInnerLayerCompleted(BoxController box) => OnInnerLayerCompleted?.Invoke(box);
 
         private void Clear()
         {
@@ -190,6 +193,7 @@ namespace BallsOut
             {
                 Completion.OnBoxCompleted -= ForwardBoxCompleted;
                 Completion.OnBoxRemoved -= ForwardBoxRemoved;
+                Completion.OnInnerLayerCompleted -= ForwardInnerLayerCompleted;
                 Completion.OnBoxCompleted -= CrackIce;
             }
             Fill?.Clear(boxes);

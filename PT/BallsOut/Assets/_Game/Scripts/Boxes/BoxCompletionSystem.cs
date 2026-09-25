@@ -16,14 +16,28 @@ namespace BallsOut
             public BoxCompletionEffect effect;
         }
 
+        private struct LayerSwap
+        {
+            public BoxController box;
+            public float waited;
+            public float elapsed;
+            public bool started;
+        }
+
+        // Time for a finished inner tray and its balls to shrink away.
+        private const float LayerSwapDuration = 0.45f;
+
         private readonly BoardGrid board;
         private readonly BoxFillSystem fill;
         private readonly List<Completion> pending;
+        private readonly List<LayerSwap> swaps = new List<LayerSwap>();
         private readonly float defaultDuration;
         private readonly float startDelay;
         public int RemainingBoxes { get; private set; }
-        public bool IsAnimating => pending.Count != 0;
+        public bool IsAnimating => pending.Count != 0 || swaps.Count != 0;
         public event Action<BoxController> OnBoxCompleted;
+        // A nested box filled its inner layer; it keeps going in its outer color.
+        public event Action<BoxController> OnInnerLayerCompleted;
         public event Action<BoxController> OnBoxRemoved;
 
         public BoxCompletionSystem(BoardGrid board, BoxFillSystem fill, int boxCount, float defaultDuration, float startDelay)
@@ -38,7 +52,15 @@ namespace BallsOut
 
         internal void Enqueue(BoxController box)
         {
-            if (box.CurrentFill != box.Capacity || box.IsCompleting || box.IsRemoved) return;
+            if (box.CurrentFill != box.Capacity || box.IsCompleting || box.IsSwappingLayer || box.IsRemoved) return;
+            if (box.HasInnerLayer)
+            {
+                // Not a completion: no ice cracks and the box stays on the board.
+                box.IsSwappingLayer = true;
+                swaps.Add(new LayerSwap { box = box });
+                OnInnerLayerCompleted?.Invoke(box);
+                return;
+            }
             box.IsCompleting = true;
             pending.Add(new Completion { box = box });
             OnBoxCompleted?.Invoke(box);
@@ -46,6 +68,7 @@ namespace BallsOut
 
         public void Advance(float deltaTime)
         {
+            AdvanceSwaps(deltaTime);
             for (int i = pending.Count - 1; i >= 0; i--)
             {
                 Completion entry = pending[i];
@@ -79,8 +102,46 @@ namespace BallsOut
             }
         }
 
+        private void AdvanceSwaps(float deltaTime)
+        {
+            for (int i = swaps.Count - 1; i >= 0; i--)
+            {
+                LayerSwap swap = swaps[i];
+                BoxController box = swap.box;
+                if (box.PendingFillAnimations != 0 || box.IsInTransit) continue;
+                if (swap.waited < startDelay)
+                {
+                    swap.waited += deltaTime;
+                    swaps[i] = swap;
+                    continue;
+                }
+                if (swap.started) swap.elapsed += deltaTime;
+                swap.started = true;
+                if (swap.elapsed < LayerSwapDuration) { swaps[i] = swap; continue; }
+                fill.Release(box);
+                box.FinishInnerLayer();
+                swaps.RemoveAt(i);
+                // Wakes the ball simulation so outer-color balls can drop in.
+                board.NotifyBoxStateChanged();
+            }
+        }
+
         public void Render(float interpolationTime)
         {
+            foreach (LayerSwap swap in swaps)
+            {
+                if (!swap.started) continue;
+                float t = Mathf.Clamp01((swap.elapsed + interpolationTime) / LayerSwapDuration);
+                // Anticipation, then the tray and its load pop out of the outer frame.
+                float scale = t < 0.2f ? 1f + Mathf.Sin(t / 0.2f * Mathf.PI) * 0.08f : 1f - Smooth((t - 0.2f) / 0.8f);
+                if (swap.box.InnerArt != null)
+                {
+                    swap.box.InnerArt.localScale = Vector3.one * scale;
+                    swap.box.InnerArt.localRotation = Quaternion.Euler(0f, (1f - scale) * 40f, 0f);
+                }
+                foreach (BallState ball in swap.box.CollectedBalls)
+                    if (ball.Visual != null) ball.Visual.localScale = Vector3.one * (swap.box.FillBallDiameter * scale);
+            }
             foreach (Completion entry in pending)
             {
                 if (entry.effect == null) continue;
@@ -88,5 +149,7 @@ namespace BallsOut
                 entry.effect.Evaluate(t);
             }
         }
+
+        private static float Smooth(float t) => t * t * (3f - 2f * t);
     }
 }

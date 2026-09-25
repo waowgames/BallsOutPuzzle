@@ -75,7 +75,7 @@ namespace BallsOut
             if (!landed && t >= LandAt)
             {
                 landed = true;
-                box.HideFillLabel();
+                box.HideTopDecals();
                 SpawnFirework();
             }
 

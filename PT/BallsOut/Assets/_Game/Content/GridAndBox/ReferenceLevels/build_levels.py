@@ -1,4 +1,4 @@
-"""Author the first fifteen Sand Blocks reference layouts as Unity level assets.
+"""Author the Sand Blocks reference layouts (levels 1-28) as Unity level assets.
 
 Run from the project Assets directory: python _Game/Content/GridAndBox/ReferenceLevels/build_levels.py
 The source videos/images are visual references; the layouts use Balls Out's grid rules.
@@ -110,11 +110,15 @@ SHAPE_CELLS = {
     "L4A": [(0, 0), (0, 1), (0, 2), (1, 2)],
     "L4B": [(1, 0), (1, 1), (1, 2), (0, 2)],
     "T4": [(1, 0), (0, 1), (1, 1), (2, 1)],
+    "R6": [(x, y) for y in range(2) for x in range(3)],
 }
 
+AXIS = {None: 0, "H": 1, "V": 2}
 
-def box(shape, color, x, y, ice=0, fill=0):
-    return (shape, color, x, y, ice, fill)
+
+def box(shape, color, x, y, ice=0, fill=0, axis=None, inner=None):
+    """axis: None (free), "H" or "V". inner: color a nested box collects before its own."""
+    return (shape, color, x, y, ice, fill, axis, inner)
 
 
 LEVELS = [
@@ -235,6 +239,109 @@ LEVELS = [
                 box("S", "Y", 2, 0), box("S", "R", 3, 0)],
          art=["BBYGRR", "BBYGGR", "RRYGGR", "RRYGGG", "YYYGBB",
               "GGGGBR", "GGYYBR", "GGYYBR", "GGGGGB"]),
+    # From here on, "H"/"V" boxes only slide along one axis (arrow on the lid) and
+    # layered chambers list their bands bottom to top. Balls never enter the lower grid,
+    # so a sideways-only box must start in the top row to ever collect.
+    dict(n=16, width=7, lower=4,
+         boxes=[box("R6", "B", 4, 2, axis="H"),
+                box("R6", "R", 0, 0, axis="V"), box("R6", "R", 4, 0, axis="V")],
+         upper_outside_columns=[3], dividers=[3, 4],
+         layers=[[("B", 38), ("R", 77)], [], [("R", 77), ("B", None)]]),
+    dict(n=17, slots=2, width=6, lower=6,
+         boxes=[box("V3", "B", 0, 3), box("V3", "Y", 1, 3), box("V3", "B", 2, 3),
+                box("V2", "G", 3, 4), box("V2", "G", 4, 4),
+                box("V3", "B", 0, 0), box("V3", "Y", 1, 0), box("V3", "B", 2, 0),
+                box("V2", "B", 3, 1), box("V2", "G", 4, 0), box("S", "B", 5, 1)],
+         lower_outside=[(5, 0), (5, 2)], dividers=[1, 2, 3, 5],
+         layers=[[("B", None)], [("Y", None)], [("B", None)], [("G", None)], [("B", None)]]),
+    dict(n=18, slots=2, width=6, lower=5,
+         boxes=[box("H2", "R", 0, 4, axis="H"), box("H2", "G", 2, 4),
+                box("S", "Y", 0, 3, ice=3), box("S", "Y", 1, 3, ice=3), box("H2", "B", 2, 3),
+                box("H2", "Y", 0, 2, ice=2), box("H2", "Y", 2, 2),
+                box("H2", "B", 0, 1), box("H2", "Y", 0, 0),
+                box("V2", "G", 3, 0), box("V2", "R", 4, 0), box("V2", "B", 5, 0)],
+         dividers=[2, 4],
+         layers=[[("G", None), ("Y", None)], [("B", None), ("Y", None)], [("R", None)]]),
+    dict(n=19, slots=2, width=6, lower=6,
+         boxes=[box("H2", "Y", 0, 5, axis="H"),
+                box("V2", "Y", 1, 3), box("L3B", "R", 2, 3), box("L3B", "G", 4, 3),
+                box("V2", "B", 0, 1), box("Q", "G", 1, 1), box("Q", "Y", 3, 1), box("V2", "B", 5, 1),
+                box("H2", "Y", 0, 0), box("H2", "R", 2, 0), box("S", "B", 4, 0), box("S", "R", 5, 0)],
+         art=["GGRBYY", "GGRRBY", "GGGRBY"]),
+    # Wrong-color stacks under narrow chambers, joined only by the bottom corridor.
+    dict(n=20, width=7, lower=5,
+         boxes=[box("S", "G", 0, y) for y in range(1, 5)] +
+               [box("S", "R", 2, y) for y in range(2, 5)] +
+               [box("S", "B", 4, y) for y in range(3, 5)] + [box("S", "Y", 6, 0)],
+         lower_outside=[(x, y) for x in (1, 3, 5) for y in range(1, 5)],
+         upper_outside_columns=[1, 3, 5], dividers=[1, 2, 3, 4, 5, 6],
+         layers=[[("Y", None)], [], [("B", None)], [], [("R", None)], [], [("G", None)]]),
+    dict(n=21, slots=2, width=6, lower=5,
+         boxes=[box("H2", "R", 0, 4, axis="H"), box("H2", "B", 4, 4),
+                box("S", "G", 0, 3, ice=4), box("S", "Y", 1, 3, ice=4), box("H2", "G", 4, 3, ice=4),
+                box("H2", "Y", 4, 1), box("H2", "R", 4, 0),
+                box("Q", "G", 0, 0), box("Q", "B", 2, 0)],
+         dividers=[3],
+         layers=[[("B", None), ("G", None)], [("R", None), ("Y", None)]]),
+    dict(n=22, slots=2, width=6, lower=5,
+         boxes=[box("V2", "R", 0, 3), box("S", "B", 1, 4), box("S", "G", 2, 4),
+                box("S", "W", 3, 4), box("S", "G", 4, 4), box("V2", "R", 5, 3),
+                box("S", "Y", 1, 3, ice=6), box("S", "B", 4, 3, ice=7),
+                box("Q", "Y", 0, 1), box("Q", "Y", 4, 1),
+                box("H2", "G", 0, 0), box("L3D", "G", 2, 0), box("S", "W", 5, 0)],
+         # One chamber per column: each top-row box meets its own color first.
+         dividers=[1, 2, 3, 4, 5],
+         layers=[[("R", 10), ("W", 4), ("Y", None)], [("B", 4), ("Y", None)],
+                 [("G", 20), ("Y", None)], [("W", 4), ("Y", None)],
+                 [("G", 14), ("Y", None)], [("R", 10), ("B", 4), ("Y", None)]]),
+    dict(n=23, slots=2, width=7, lower=4,
+         boxes=[box("S", "R", 0, 3), box("S", "B", 1, 3), box("S", "B", 2, 3),
+                box("V3", "Y", 3, 1, ice=9),
+                box("S", "Y", 4, 3), box("S", "G", 5, 3), box("S", "G", 6, 3),
+                box("S", "Y", 1, 2), box("S", "Y", 2, 2), box("S", "B", 6, 2),
+                box("S", "R", 0, 1), box("S", "Y", 1, 1), box("S", "R", 2, 1),
+                box("L3A", "R", 4, 1), box("S", "Y", 6, 1), box("S", "G", 5, 0)],
+         dividers=[1, 2, 3, 4, 6],
+         layers=[[("R", None)], [("Y", None)], [("B", None)], [("Y", None)],
+                 [("G", None)], [("R", None), ("G", None)]]),
+    dict(n=24, slots=2, width=6, lower=6,
+         boxes=[box("S", "R", 0, 5), box("H2", "Y", 2, 5, ice=5), box("S", "B", 4, 5),
+                box("S", "G", 0, 4, ice=3), box("S", "G", 5, 4, ice=4),
+                box("V3", "Y", 4, 1), box("H2", "B", 2, 3),
+                box("L3C", "R", 0, 2), box("S", "B", 5, 0),
+                box("T4", "G", 1, 0), box("H2", "R", 3, 0)],
+         dividers=[2, 4],
+         layers=[[("B", None), ("R", None), ("G", None)], [("Y", None)], [("B", None), ("G", None)]]),
+    dict(n=25, slots=2, width=6, lower=6,
+         boxes=[box("V3", "Y", 1, 1, axis="V"), box("V3", "R", 5, 0, axis="V"),
+                box("T4", "G", 2, 4), box("S", "U", 5, 5), box("S", "Y", 4, 4),
+                box("H2", "G", 2, 2, ice=4), box("Q", "U", 3, 0, ice=5),
+                box("V2", "R", 0, 3), box("S", "U", 0, 0), box("H2", "G", 1, 0)],
+         # A sliding-only box can drain just its own column, so that column holds every
+         # ball of its color: whichever box of that color arrives first, the rest still fit.
+         upper_outside_columns=[2], dividers=[1, 2, 3, 5],
+         layers=[[("G", None)], [("Y", None), ("G", None)], [],
+                 [("U", 25), ("G", None)], [("R", None), ("U", None)]]),
+    dict(n=26, width=5, lower=3,
+         boxes=[box("R6", "R", 1, 0), box("S", "B", 0, 0), box("S", "B", 0, 1), box("S", "B", 4, 0)],
+         layers=[[("R", None), ("B", None)]]),
+    # Nested boxes: an inner tray of one color framed by the outer color.
+    dict(n=27, width=6, lower=5,
+         boxes=[box("Q", "Y", 0, 3), box("H2", "Y", 4, 3), box("H2", "Y", 0, 1),
+                box("H2", "U", 0, 0), box("Q", "Y", 2, 0, fill=2, inner="C"), box("Q", "G", 4, 0)],
+         # The inner color lies on the floor: nothing that only the nested box's outer
+         # layer could clear may ever sit beneath it.
+         layers=[[("C", 48), ("G", None), ("Y", 70), ("U", None), ("Y", None)]],
+         blobs=("U", "Y", [(0.15, 0.35), (0.5, 0.75), (0.85, 0.3), (0.35, 0.95)])),
+    dict(n=28, slots=2, width=6, lower=5,
+         boxes=[box("L3A", "G", 2, 3, inner="C"), box("S", "Y", 0, 4), box("S", "G", 5, 4),
+                box("L3C", "R", 3, 1, inner="Y"), box("S", "Y", 0, 2),
+                box("V2", "R", 0, 0), box("L4A", "R", 1, 0), box("H2", "G", 2, 0),
+                box("L4B", "R", 4, 0)],
+         # Each inner color fits in the two floor rows a box draws from, so it can
+         # never end up buried under a color only the nested box's outer layer takes.
+         dividers=[3],
+         layers=[[("Y", 24), ("R", None)], [("C", 16), ("G", None)]]),
 ]
 
 
@@ -330,18 +437,95 @@ def upper_outside(level, upper):
     return {(x, y) for x in level.get("upper_outside_columns", ()) for y in range(upper)}
 
 
+def resolve_layers(level, needed):
+    """Chamber layers, bottom to top, as (color, count). A None count takes an even
+    share of whatever that color still needs after the explicit counts."""
+    fixed, open_layers = Counter(), Counter()
+    for chamber in level["layers"]:
+        for color, count in chamber:
+            if count is None:
+                open_layers[color] += 1
+            else:
+                fixed[color] += count
+    given = Counter()
+    resolved = []
+    for chamber in level["layers"]:
+        layers = []
+        for color, count in chamber:
+            if count is None:
+                share, extra = divmod(needed[color] - fixed[color], open_layers[color])
+                count = share + (1 if given[color] < extra else 0)
+                given[color] += 1
+            if count < 0:
+                raise ValueError(f"Level {level['n']}: layer counts exceed the {color} boxes")
+            layers.append((color, count))
+        resolved.append(layers)
+    totals = Counter()
+    for chamber in resolved:
+        for color, count in chamber:
+            totals[color] += count
+    if +totals != +needed:
+        raise ValueError(f"Level {level['n']}: layers hold {dict(totals)}, boxes need {dict(needed)}")
+    return resolved
+
+
 def reservoir_height(level, needed):
     """Smallest reservoir, in macro rows, that keeps every chamber under MAX_RESERVOIR_FILL."""
     outside_columns = set(level.get("upper_outside_columns", ()))
     boundaries = [0] + level.get("dividers", []) + [level["width"]]
-    palettes = level.get("chamber_colors") or ["".join(needed)]
+    if "layers" in level:
+        quotas = [sum(count for _, count in chamber) for chamber in resolve_layers(level, needed)]
+    else:
+        palettes = level.get("chamber_colors") or ["".join(needed)]
+        quotas = [sum(needed.get(color, 0) for color in palette) for palette in palettes]
     rows = 2
-    for chamber, palette in enumerate(palettes):
+    for chamber, quota in enumerate(quotas):
         first, last = boundaries[chamber:chamber + 2]
         columns = 4 * sum(x not in outside_columns for x in range(first, last))
-        quota = sum(needed.get(color, 0) for color in palette)
+        if columns == 0:
+            if quota:
+                raise ValueError(f"Level {level['n']}: chamber {chamber} has balls but no columns")
+            continue
         rows = max(rows, math.ceil(quota / (columns * MAX_RESERVOIR_FILL) / 4))
-    return rows
+    return rows + level.get("extra_rows", 0)
+
+
+def make_layered_balls(level, needed):
+    """Each chamber fills bottom-up, row by row, one color band after another."""
+    width, lower, upper = level["width"], level["lower"], level["upper"]
+    outside = upper_outside(level, upper)
+    boundaries = [0] + level.get("dividers", []) + [width]
+    layers = resolve_layers(level, needed)
+    if len(layers) != len(boundaries) - 1:
+        raise ValueError(f"Level {level['n']}: layer list count differs from chamber count")
+    balls = []
+    for chamber, bands in enumerate(layers):
+        first, last = boundaries[chamber:chamber + 2]
+        sites = [(x, y) for y in range(lower * 4, (lower + upper) * 4) for x in range(first * 4, last * 4)
+                 if (x // 4, y // 4 - lower) not in outside]
+        colors = [color for color, count in bands for _ in range(count)]
+        if len(colors) > len(sites):
+            raise ValueError(f"Level {level['n']}: chamber {chamber} needs {len(colors)} balls, has {len(sites)} positions")
+        balls.extend(zip(sites, colors))
+    if "blobs" in level:
+        balls = gather_blobs(balls, *level["blobs"])
+    balls.sort(key=lambda item: (item[0][1], item[0][0]))
+    return balls
+
+
+def gather_blobs(balls, spot, ground, centers):
+    """Regroup `spot` balls into round blobs inside the region they share with `ground`.
+    Counts and the region itself stay unchanged, so nothing moves under another band."""
+    region = [cell for cell, color in balls if color in (spot, ground)]
+    count = sum(color == spot for _, color in balls)
+    xs = [x for x, _ in region]
+    ys = [y for _, y in region]
+    anchors = [(min(xs) + u * (max(xs) - min(xs)), min(ys) + v * (max(ys) - min(ys))) for u, v in centers]
+    ranked = sorted(region, key=lambda cell: (min((cell[0] - ax) ** 2 + ((cell[1] - ay) * 0.87) ** 2
+                                                  for ax, ay in anchors), cell[1], cell[0]))
+    spots = set(ranked[:count])
+    return [(cell, spot if cell in spots else ground) if color in (spot, ground) else (cell, color)
+            for cell, color in balls]
 
 
 def make_balls(level, needed):
@@ -417,7 +601,7 @@ def build_level(level, colors, shapes):
     occupied = set()
     needed = Counter()
     ids = Counter()
-    for shape, color, x, y, ice, prefill in level["boxes"]:
+    for shape, color, x, y, ice, prefill, axis, inner in level["boxes"]:
         offsets = shapes[shape][1]
         for dx, dy in offsets:
             cell = (x + dx, y + dy)
@@ -428,9 +612,16 @@ def build_level(level, colors, shapes):
         prefill = scaled_prefill(prefill, offsets, slots, dense)
         if not 0 <= prefill < full:
             raise ValueError(f"Level {n}: invalid prefill on {shape}")
-        needed[color] += full - prefill
+        if axis == "H" and not any(y + dy == lower - 1 for _, dy in offsets):
+            raise ValueError(f"Level {n}: a sideways-only box must start touching the reservoir")
+        if inner is not None:
+            # A nested box takes a full load of its inner color, then a full load of its own.
+            needed[inner] += full - prefill
+            needed[color] += full
+        else:
+            needed[color] += full - prefill
     upper = level["upper"] = reservoir_height(level, needed)
-    balls = make_balls(level, needed)
+    balls = make_layered_balls(level, needed) if "layers" in level else make_balls(level, needed)
     path = OUTPUT / f"Level_{n:02d}_Reference.asset"
     body = f"""%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
@@ -464,7 +655,7 @@ MonoBehaviour:
     body += "  ballAreaMask:\n    defaultKind: 1\n"
     body += mask_lines(upper_outside(level, upper), width, upper)
     body += "  boxes:\n"
-    for shape, color, x, y, ice, prefill in level["boxes"]:
+    for shape, color, x, y, ice, prefill, axis, inner in level["boxes"]:
         prefill = scaled_prefill(prefill, shapes[shape][1], slots, dense)
         ids[color] += 1
         body += f"""  - id: {color}_{ids[color]}
@@ -476,6 +667,10 @@ MonoBehaviour:
     iceCount: {ice}
     initialFillCount: {prefill}
 """
+        if axis is not None:
+            body += f"    moveAxis: {AXIS[axis]}\n"
+        if inner is not None:
+            body += f"    innerColor: {reference(colors[inner])}\n"
     body += "  balls:\n"
     for (x, y), color in balls:
         body += f"""  - color: {reference(colors[color])}

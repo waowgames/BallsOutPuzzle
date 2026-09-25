@@ -9,6 +9,12 @@ namespace BallsOut
         public string Id { get; private set; }
         public BoxShapeDefinition Shape { get; private set; }
         public BallColorDefinition Color { get; private set; }
+        // Nested boxes collect their inner color first; null once the inner layer is done.
+        public BallColorDefinition InnerColor { get; private set; }
+        public bool HasInnerLayer => InnerColor != null;
+        public BallColorDefinition ActiveColor => InnerColor != null ? InnerColor : Color;
+        public BoxMoveAxis MoveAxis { get; private set; }
+        public bool IsSwappingLayer { get; internal set; }
         public Vector2Int Origin { get; private set; }
         public bool IsPlaced { get; private set; }
         public bool IsInTransit { get; internal set; }
@@ -19,7 +25,7 @@ namespace BallsOut
         public bool HasPlayerInteracted { get; private set; }
         public int IceCount { get; private set; }
         public bool IsFrozen => IceCount > 0;
-        public bool CanMove => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && CurrentFill < Capacity;
+        public bool CanMove => IsPlaced && !IsFrozen && !IsCompleting && !IsSwappingLayer && !IsRemoved && CurrentFill < Capacity;
         public Transform FillRoot { get; private set; }
         public Vector3 FillSpacing { get; private set; }
         public float FillBallDiameter { get; private set; }
@@ -27,6 +33,8 @@ namespace BallsOut
         private const float FillInterior = 0.76f;
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
         private BoxFillLabel fillLabel;
+        private GameObject axisArrow;
+        internal Transform InnerArt { get; private set; }
         private IceBoxVisual ice;
         private MeshRenderer shadow;
         // Collection pulse: a small damped spring, pivoting on the footprint centre.
@@ -49,6 +57,9 @@ namespace BallsOut
             Id = spawn.id;
             Shape = spawn.shape;
             Color = spawn.color;
+            InnerColor = spawn.innerColor;
+            MoveAxis = spawn.moveAxis;
+            IsSwappingLayer = false;
             HasPlayerInteracted = false;
             int resolution = Mathf.Clamp(slotsPerSide, 1, LevelDefinition.MicroResolution);
             int slotsPerLayer = Shape.FillSlotsPerLayer(denseFill, resolution);
@@ -130,6 +141,10 @@ namespace BallsOut
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
             art = visual;
+            // Outer color frames an inset inner tray until the inner layer is filled.
+            if (HasInnerLayer)
+                InnerArt = BoxShapeVisual.CreateInner(Shape, InnerColor.boxMaterial, transform, cellSize, registry);
+            if (MoveAxis != BoxMoveAxis.Free) axisArrow = BoxAxisArrow.Create(this, visual, cellSize);
             if (registry != null && registry.shadowMaterial != null) CreateShadow(registry, cellSize);
             IceCount = Mathf.Max(0, spawn.iceCount);
             // Keep the pick volume level with the visible box, including its raised rim.
@@ -236,7 +251,22 @@ namespace BallsOut
             }
         }
 
-        internal void HideFillLabel() => fillLabel?.SetVisible(false);
+        internal void HideTopDecals()
+        {
+            fillLabel?.SetVisible(false);
+            if (axisArrow != null) axisArrow.SetActive(false);
+        }
+
+        // The inner layer is full and its balls are gone: start over in the outer color.
+        internal void FinishInnerLayer()
+        {
+            InnerColor = null;
+            if (InnerArt != null) Destroy(InnerArt.gameObject);
+            InnerArt = null;
+            CurrentFill = 0;
+            IsSwappingLayer = false;
+            NotifyCollection();
+        }
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }
         internal void MarkPlayerInteraction() => HasPlayerInteracted = true;
@@ -244,8 +274,8 @@ namespace BallsOut
         {
             for (int index = 0; index < CurrentFill; index++)
             {
-                var ball = new BallState(new BallSpawnData { color = Color });
-                ball.Visual = pool.Rent(Color);
+                var ball = new BallState(new BallSpawnData { color = ActiveColor });
+                ball.Visual = pool.Rent(ActiveColor);
                 if (ball.Visual != null)
                 {
                     ball.Visual.SetParent(FillRoot, false);
@@ -256,7 +286,7 @@ namespace BallsOut
             }
         }
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
-        public bool CanCollect(BallColorDefinition color) => HasPlayerInteracted && IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
+        public bool CanCollect(BallColorDefinition color) => HasPlayerInteracted && IsPlaced && !IsFrozen && !IsCompleting && !IsSwappingLayer && !IsRemoved && ActiveColor == color && CurrentFill < Capacity;
         // Returns true when this step breaks the ice and frees the box.
         internal bool CrackIce()
         {
