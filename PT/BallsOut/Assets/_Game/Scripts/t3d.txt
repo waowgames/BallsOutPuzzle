@@ -1,0 +1,1 @@
+C:\Python311\python.exe: can't open file 'C:\\GitRepos\\BallsOutPuzzle\\PT\\BallsOut\\Assets\\_Game\\Scripts\\trial.py': [Errno 2] No such file or directory
