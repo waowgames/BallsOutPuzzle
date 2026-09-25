@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -8,15 +9,16 @@ namespace BallsOut
     // swings side to side, then pops away in a puff of sparkles. Driven by normalised time.
     internal sealed class BoxCompletionEffect
     {
-        private const float LandAt = 0.24f;
+        private const float LandAt = 0.28f;
         private const float PopAt = 0.72f;
         private const float SparkleAt = 0.4f;
-        private const float DropHeight = 1.1f;
+        private const float LidTwist = 200f;
         private const float SwingDegrees = 16f;
         private static readonly Color Gold = new Color(1f, 0.84f, 0.3f);
         private static readonly int ShapeId = Shader.PropertyToID("_Shape");
         private static Material sparkMaterial;
         private static Material ringMaterial;
+        private static readonly Dictionary<Material, Material> LidMaterials = new Dictionary<Material, Material>();
 
         private readonly BoxController box;
         private readonly Transform art;
@@ -58,19 +60,18 @@ namespace BallsOut
             mesh.transform.localScale = Vector3.one * cellSize;
             mesh.GetComponent<MeshFilter>().sharedMesh = BoxShapeVisual.LidMesh(box.Shape);
             Evaluate(0f);
-            PrefabRegistry.ApplyMaterial(mesh, box.Color != null ? box.Color.boxMaterial : null);
+            PrefabRegistry.ApplyMaterial(mesh, LidMaterial(box.Color != null ? box.Color.boxMaterial : null));
         }
 
         internal void Evaluate(float t)
         {
             t = Mathf.Clamp01(t);
 
-            // The lid accelerates onto the rim, untwisting as it falls.
-            float fall = Mathf.Clamp01(t / LandAt);
-            fall *= fall;
-            lid.localPosition = lidRest + Vector3.up * ((1f - fall) * DropHeight * cellSize);
-            lid.localRotation = Quaternion.Euler(0f, (1f - fall) * -35f, 0f);
-            lid.localScale = Vector3.one * (1f + (1f - fall) * 0.2f);
+            // The lid grows from nothing on the rim, twisting into place.
+            float close = 1f - Mathf.Pow(1f - Mathf.Clamp01(t / LandAt), 3f);
+            lid.localPosition = lidRest;
+            lid.localRotation = Quaternion.Euler(0f, (1f - close) * -LidTwist, 0f);
+            lid.localScale = Vector3.one * close;
             if (!landed && t >= LandAt)
             {
                 landed = true;
@@ -83,11 +84,9 @@ namespace BallsOut
             float impact = landed ? Mathf.Exp(-since * 10f) * Mathf.Cos(since * 30f) : 0f;
             float swing = landed ? Mathf.Sin(since * 19f) * Mathf.Exp(-since * 2.6f) * Mathf.Clamp01(since * 14f) : 0f;
 
-            // A quick swell, then a spinning shrink out of existence.
+            // A spinning shrink out of existence, never growing first.
             float pop = Mathf.Clamp01((t - PopAt) / (1f - PopAt));
-            float scale = pop < 0.3f
-                ? 1f + 0.16f * Mathf.Sin(pop / 0.3f * Mathf.PI * 0.5f)
-                : 1.16f * Mathf.Max(0f, 1f - EaseInBack((pop - 0.3f) / 0.7f));
+            float scale = 1f - pop * pop * (3f - 2f * pop);
             if (!sparkled && pop >= SparkleAt)
             {
                 sparkled = true;
@@ -96,7 +95,7 @@ namespace BallsOut
 
             art.localPosition = pivot + new Vector3(swing * 0.05f * cellSize, pop * pop * 0.2f * cellSize, 0f);
             art.localRotation = Quaternion.Euler(0f, swing * SwingDegrees + pop * pop * 170f, -swing * 6f);
-            art.localScale = new Vector3(1f + impact * 0.1f, 1f - impact * 0.16f, 1f + impact * 0.1f) * scale;
+            art.localScale = new Vector3(1f, 1f - Mathf.Max(0f, impact) * 0.14f, 1f) * scale;
         }
 
         internal void Finish()
@@ -105,7 +104,19 @@ namespace BallsOut
             if (!sparkled) { sparkled = true; SpawnSparkles(); }
         }
 
-        private static float EaseInBack(float x) => 2.70158f * x * x * x - 1.70158f * x * x;
+        // The recessed-tray shading would paint the lid's raised panel as a dark inner wall.
+        private static Material LidMaterial(Material boxMaterial)
+        {
+            if (boxMaterial == null || !boxMaterial.HasProperty("_BoxGlass")) return boxMaterial;
+            if (!LidMaterials.TryGetValue(boxMaterial, out Material lidMaterial))
+            {
+                lidMaterial = new Material(boxMaterial) { name = boxMaterial.name + " Lid" };
+                lidMaterial.SetFloat("_BoxGlass", 0f);
+                lidMaterial.DisableKeyword("_BOX_GLASS");
+                LidMaterials.Add(boxMaterial, lidMaterial);
+            }
+            return lidMaterial;
+        }
 
         private void SpawnFirework()
         {
