@@ -8,6 +8,9 @@ public sealed class LevelTimer : SingletonMonoBehaviour<LevelTimer>
     public float RemainingSeconds { get; private set; }
     public bool HasTimeLimit { get; private set; }
     public bool IsFrozen => freezeRemaining > 0f;
+    public float FreezeRemaining => freezeRemaining;
+    /// <summary>Length of the current freeze, used to normalise <see cref="FreezeRemaining"/>.</summary>
+    public float FreezeDuration { get; private set; }
 
     private bool running;
     private float freezeRemaining;
@@ -61,7 +64,11 @@ public sealed class LevelTimer : SingletonMonoBehaviour<LevelTimer>
     /// <summary>Pauses the countdown for the given duration (time-freeze booster).</summary>
     public void Freeze(float seconds)
     {
-        freezeRemaining = Mathf.Max(freezeRemaining, seconds);
+        if (seconds <= freezeRemaining)
+            return;
+
+        freezeRemaining = seconds;
+        FreezeDuration = seconds;
     }
 
     public void AddTime(float seconds)
