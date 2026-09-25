@@ -17,7 +17,11 @@ OUTPUT = Path(__file__).resolve().parent
 MATERIALS = ROOT / "_ART" / "GridAndBox" / "Materials"
 NAMESPACE = uuid.UUID("76e91398-e9d0-40f6-a5e2-c44503689ca0")
 # Balls per box cell edge (LevelDefinition.boxSlotsPerSide): 4 -> 16 per cell, 3 -> 9, 2 -> 4.
+# 3 is the ceiling: at 4 the balls in a box end up smaller than the ones in the reservoir.
 DEFAULT_SLOTS = 3
+# Ball layers stacked in each box (LevelDefinition.fillLayers). A second layer doubles the
+# balls without shrinking them; levels opt in with fill_layers=2 when the board stays compact.
+DEFAULT_FILL_LAYERS = 1
 # The reservoir is sized so balls fill at most this share of it; the rest is room to flow.
 # A packed reservoir cannot move at all, which traps colours behind each other.
 MAX_RESERVOIR_FILL = 0.75
@@ -122,14 +126,14 @@ def box(shape, color, x, y, ice=0, fill=0, axis=None, inner=None):
 
 
 LEVELS = [
-    dict(n=1, width=4, lower=4, dense=True,
+    dict(n=1, width=4, lower=4, dense=True, fill_layers=2,
          boxes=[box("Q", "B", 0, 0, fill=37), box("Q", "R", 2, 0)],
          dividers=[2], chamber_colors=["B", "R"],
          art=["BBRR", "BBRR", "BBRR"]),
-    dict(n=2, width=5, lower=6,
+    dict(n=2, width=5, lower=6, fill_layers=2,
          boxes=[box("L3A", "R", 0, 2), box("L3B", "B", 3, 1), box("T4", "G", 1, 0)],
          art=["BBBBB", "GGRRR"]),
-    dict(n=3, width=5, lower=6,
+    dict(n=3, width=5, lower=6, fill_layers=2,
          boxes=[box("V2", "R", 2, 3), box("H3", "Y", 0, 1),
                 box("H3", "G", 0, 0), box("V2", "B", 4, 0)],
          art=["GGGGG", "YYYBB", "BBBRR", "RRRRR"]),
@@ -140,7 +144,7 @@ LEVELS = [
          art=["RRRRRR", "BBBBBB", "GGGYYY"]),
     # V3 boxes fill the lower grid's height, so they can never pass each other:
     # chambers follow the box order and the puzzle is shifting them into place.
-    dict(n=5, width=7, lower=3,
+    dict(n=5, width=7, lower=3, fill_layers=2,
          boxes=[box("V3", "C", 0, 0), box("V3", "Y", 1, 0),
                 box("V3", "R", 2, 0), box("V3", "U", 3, 0),
                 box("V3", "B", 4, 0), box("V3", "P", 5, 0)],
@@ -154,32 +158,32 @@ LEVELS = [
                 box("S", "Y", 1, 1), box("S", "Y", 2, 1),
                 box("V2", "B", 3, 0), box("H3", "R", 0, 0)],
          art=["RRRR", "YYYY", "BBBB", "YYYY"]),
-    dict(n=7, width=6, lower=6,
+    dict(n=7, width=6, lower=6, fill_layers=2,
          boxes=[box("Q", "R", 4, 4), box("L3D", "R", 4, 2),
                 box("H3", "R", 1, 0), box("T4", "B", 1, 2),
                 box("L3A", "B", 0, 3), box("L3B", "B", 4, 0),
                 box("H3", "B", 0, 1)],
          art=["BBBBBB", "BBRRBB", "BRRBBB", "BBBBBB"]),
-    dict(n=8, width=6, lower=4, dense=True,
+    dict(n=8, width=6, lower=4, dense=True, fill_layers=2,
          boxes=[box("Q", "B", 0, 2, fill=75), box("Q", "B", 4, 2),
                 box("H2", "R", 0, 0, ice=1), box("H2", "R", 2, 0, ice=2),
                 box("H2", "B", 4, 0, ice=3), box("H2", "B", 2, 1, ice=4)],
          art=["RRRRRR", "RRRRRB", "RBBBBB"]),
-    dict(n=9, width=6, lower=5,
+    dict(n=9, width=6, lower=5, fill_layers=2,
          boxes=[box("H2", "W", 0, 3), box("H2", "W", 4, 3),
                 box("L4A", "Y", 0, 0), box("L4B", "Y", 4, 0),
                 box("V2", "Y", 1, 0), box("V2", "Y", 4, 0),
                 box("S", "C", 2, 0), box("S", "C", 3, 0),
                 box("S", "C", 2, 1), box("S", "C", 3, 1)],
          art=["WWYYWW", "WWYYWW", "CCYYCC", "CCYYCC"]),
-    dict(n=10, width=7, lower=6,
+    dict(n=10, width=7, lower=6, fill_layers=2,
          boxes=[box("S", "R", 0, y) for y in range(1, 5)] + [box("S", "B", 0, 0)] +
                [box("S", "B", 2, y, ice=3 if y == 4 else 0) for y in range(5)] +
                [box("S", "G", 4, y, ice=6 if y == 4 else 0) for y in range(5)] +
                [box("S", "Y", 6, y, ice=10 if y == 4 else 0) for y in range(5)],
          lower_outside=[(x, y) for x in (1, 3, 5) for y in range(5)],
          art=["RYYYYYY", "RYYYYYY", "RBGBGBG"]),
-    dict(n=11, slots=2, width=6, lower=7,
+    dict(n=11, width=6, lower=7,
          boxes=[box("S", "B", 0, 6, ice=8), box("H2", "B", 1, 6),
                 box("H2", "R", 3, 6), box("S", "R", 5, 6, ice=8),
                 box("S", "R", 0, 5, ice=8), box("H2", "R", 1, 5),
@@ -191,7 +195,7 @@ LEVELS = [
                 box("H2", "B", 4, 1, ice=8), box("H2", "B", 0, 0),
                 box("H2", "R", 2, 0, ice=5), box("H2", "B", 4, 0)],
          art=["BBBBBB", "BBRRRB", "RRRRRR", "RRRRRR", "RBBBBR", "BBBBBB"]),
-    dict(n=12, slots=2, width=8, lower=5,
+    dict(n=12, width=8, lower=5,
          boxes=[box("H2", "B", x, 4) for x in (0, 2, 4, 6)] +
                [box("H2", "Y", 0, 3), box("S", "G", 2, 3),
                 box("H2", "Y", 3, 3), box("S", "G", 5, 3),
@@ -242,19 +246,19 @@ LEVELS = [
     # From here on, "H"/"V" boxes only slide along one axis (arrow on the lid) and
     # layered chambers list their bands bottom to top. Balls never enter the lower grid,
     # so a sideways-only box must start in the top row to ever collect.
-    dict(n=16, width=7, lower=4,
+    dict(n=16, width=7, lower=4, fill_layers=2,
          boxes=[box("R6", "B", 4, 2, axis="H"),
                 box("R6", "R", 0, 0, axis="V"), box("R6", "R", 4, 0, axis="V")],
          upper_outside_columns=[3], dividers=[3, 4],
-         layers=[[("B", 38), ("R", 77)], [], [("R", 77), ("B", None)]]),
-    dict(n=17, slots=2, width=6, lower=6,
+         layers=[[("B", 77), ("R", 154)], [], [("R", 154), ("B", None)]]),
+    dict(n=17, width=6, lower=6,
          boxes=[box("V3", "B", 0, 3), box("V3", "Y", 1, 3), box("V3", "B", 2, 3),
                 box("V2", "G", 3, 4), box("V2", "G", 4, 4),
                 box("V3", "B", 0, 0), box("V3", "Y", 1, 0), box("V3", "B", 2, 0),
                 box("V2", "B", 3, 1), box("V2", "G", 4, 0), box("S", "B", 5, 1)],
          lower_outside=[(5, 0), (5, 2)], dividers=[1, 2, 3, 5],
          layers=[[("B", None)], [("Y", None)], [("B", None)], [("G", None)], [("B", None)]]),
-    dict(n=18, slots=2, width=6, lower=5,
+    dict(n=18, width=6, lower=5,
          boxes=[box("H2", "R", 0, 4, axis="H"), box("H2", "G", 2, 4),
                 box("S", "Y", 0, 3, ice=3), box("S", "Y", 1, 3, ice=3), box("H2", "B", 2, 3),
                 box("H2", "Y", 0, 2, ice=2), box("H2", "Y", 2, 2),
@@ -262,28 +266,28 @@ LEVELS = [
                 box("V2", "G", 3, 0), box("V2", "R", 4, 0), box("V2", "B", 5, 0)],
          dividers=[2, 4],
          layers=[[("G", None), ("Y", None)], [("B", None), ("Y", None)], [("R", None)]]),
-    dict(n=19, slots=2, width=6, lower=6,
+    dict(n=19, width=6, lower=6,
          boxes=[box("H2", "Y", 0, 5, axis="H"),
                 box("V2", "Y", 1, 3), box("L3B", "R", 2, 3), box("L3B", "G", 4, 3),
                 box("V2", "B", 0, 1), box("Q", "G", 1, 1), box("Q", "Y", 3, 1), box("V2", "B", 5, 1),
                 box("H2", "Y", 0, 0), box("H2", "R", 2, 0), box("S", "B", 4, 0), box("S", "R", 5, 0)],
          art=["GGRBYY", "GGRRBY", "GGGRBY"]),
     # Wrong-color stacks under narrow chambers, joined only by the bottom corridor.
-    dict(n=20, width=7, lower=5,
+    dict(n=20, width=7, lower=5, fill_layers=2,
          boxes=[box("S", "G", 0, y) for y in range(1, 5)] +
                [box("S", "R", 2, y) for y in range(2, 5)] +
                [box("S", "B", 4, y) for y in range(3, 5)] + [box("S", "Y", 6, 0)],
          lower_outside=[(x, y) for x in (1, 3, 5) for y in range(1, 5)],
          upper_outside_columns=[1, 3, 5], dividers=[1, 2, 3, 4, 5, 6],
          layers=[[("Y", None)], [], [("B", None)], [], [("R", None)], [], [("G", None)]]),
-    dict(n=21, slots=2, width=6, lower=5,
+    dict(n=21, width=6, lower=5,
          boxes=[box("H2", "R", 0, 4, axis="H"), box("H2", "B", 4, 4),
                 box("S", "G", 0, 3, ice=4), box("S", "Y", 1, 3, ice=4), box("H2", "G", 4, 3, ice=4),
                 box("H2", "Y", 4, 1), box("H2", "R", 4, 0),
                 box("Q", "G", 0, 0), box("Q", "B", 2, 0)],
          dividers=[3],
          layers=[[("B", None), ("G", None)], [("R", None), ("Y", None)]]),
-    dict(n=22, slots=2, width=6, lower=5,
+    dict(n=22, width=6, lower=5,
          boxes=[box("V2", "R", 0, 3), box("S", "B", 1, 4), box("S", "G", 2, 4),
                 box("S", "W", 3, 4), box("S", "G", 4, 4), box("V2", "R", 5, 3),
                 box("S", "Y", 1, 3, ice=6), box("S", "B", 4, 3, ice=7),
@@ -291,10 +295,10 @@ LEVELS = [
                 box("H2", "G", 0, 0), box("L3D", "G", 2, 0), box("S", "W", 5, 0)],
          # One chamber per column: each top-row box meets its own color first.
          dividers=[1, 2, 3, 4, 5],
-         layers=[[("R", 10), ("W", 4), ("Y", None)], [("B", 4), ("Y", None)],
-                 [("G", 20), ("Y", None)], [("W", 4), ("Y", None)],
-                 [("G", 14), ("Y", None)], [("R", 10), ("B", 4), ("Y", None)]]),
-    dict(n=23, slots=2, width=7, lower=4,
+         layers=[[("R", 21), ("W", 9), ("Y", None)], [("B", 9), ("Y", None)],
+                 [("G", 42), ("Y", None)], [("W", 9), ("Y", None)],
+                 [("G", 30), ("Y", None)], [("R", 21), ("B", 9), ("Y", None)]]),
+    dict(n=23, width=7, lower=4,
          boxes=[box("S", "R", 0, 3), box("S", "B", 1, 3), box("S", "B", 2, 3),
                 box("V3", "Y", 3, 1, ice=9),
                 box("S", "Y", 4, 3), box("S", "G", 5, 3), box("S", "G", 6, 3),
@@ -304,7 +308,7 @@ LEVELS = [
          dividers=[1, 2, 3, 4, 6],
          layers=[[("R", None)], [("Y", None)], [("B", None)], [("Y", None)],
                  [("G", None)], [("R", None), ("G", None)]]),
-    dict(n=24, slots=2, width=6, lower=6,
+    dict(n=24, width=6, lower=6,
          boxes=[box("S", "R", 0, 5), box("H2", "Y", 2, 5, ice=5), box("S", "B", 4, 5),
                 box("S", "G", 0, 4, ice=3), box("S", "G", 5, 4, ice=4),
                 box("V3", "Y", 4, 1), box("H2", "B", 2, 3),
@@ -312,7 +316,7 @@ LEVELS = [
                 box("T4", "G", 1, 0), box("H2", "R", 3, 0)],
          dividers=[2, 4],
          layers=[[("B", None), ("R", None), ("G", None)], [("Y", None)], [("B", None), ("G", None)]]),
-    dict(n=25, slots=2, width=6, lower=6,
+    dict(n=25, width=6, lower=6,
          boxes=[box("V3", "Y", 1, 1, axis="V"), box("V3", "R", 5, 0, axis="V"),
                 box("T4", "G", 2, 4), box("S", "U", 5, 5), box("S", "Y", 4, 4),
                 box("H2", "G", 2, 2, ice=4), box("Q", "U", 3, 0, ice=5),
@@ -321,8 +325,8 @@ LEVELS = [
          # ball of its color: whichever box of that color arrives first, the rest still fit.
          upper_outside_columns=[2], dividers=[1, 2, 3, 5],
          layers=[[("G", None)], [("Y", None), ("G", None)], [],
-                 [("U", 25), ("G", None)], [("R", None), ("U", None)]]),
-    dict(n=26, width=5, lower=3,
+                 [("U", 49), ("G", None)], [("R", None), ("U", None)]]),
+    dict(n=26, width=5, lower=3, fill_layers=2,
          boxes=[box("R6", "R", 1, 0), box("S", "B", 0, 0), box("S", "B", 0, 1), box("S", "B", 4, 0)],
          layers=[[("R", None), ("B", None)]]),
     # Nested boxes: an inner tray of one color framed by the outer color.
@@ -428,9 +432,9 @@ def capacity(offsets, slots, dense):
     return slots * slots * len(offsets) + slots * seam * seams + seam * seam * corners
 
 
-def scaled_prefill(prefill, offsets, slots, dense):
+def scaled_prefill(prefill, offsets, slots, dense, layers=1):
     # Prefill is authored against the 16-per-cell layout; keep the same share.
-    return round(prefill * capacity(offsets, slots, dense) / capacity(offsets, 4, dense))
+    return round(prefill * capacity(offsets, slots, dense) * layers / capacity(offsets, 4, dense))
 
 
 def upper_outside(level, upper):
@@ -597,6 +601,7 @@ def build_level(level, colors, shapes):
     n, width, lower = (level[key] for key in ("n", "width", "lower"))
     dense = bool(level.get("dense", DEFAULT_DENSE))
     slots = level.get("slots", DEFAULT_SLOTS)
+    fill_layers = level.get("fill_layers", DEFAULT_FILL_LAYERS)
     lower_outside = set(level.get("lower_outside", ()))
     occupied = set()
     needed = Counter()
@@ -608,8 +613,8 @@ def build_level(level, colors, shapes):
             if cell in occupied or cell in lower_outside or not (0 <= cell[0] < width and 0 <= cell[1] < lower):
                 raise ValueError(f"Level {n}: invalid or overlapping box cell {cell}")
             occupied.add(cell)
-        full = capacity(offsets, slots, dense)
-        prefill = scaled_prefill(prefill, offsets, slots, dense)
+        full = capacity(offsets, slots, dense) * fill_layers
+        prefill = scaled_prefill(prefill, offsets, slots, dense, fill_layers)
         if not 0 <= prefill < full:
             raise ValueError(f"Level {n}: invalid prefill on {shape}")
         if axis == "H" and not any(y + dy == lower - 1 for _, dy in offsets):
@@ -645,7 +650,7 @@ MonoBehaviour:
   hopperMicroRows: 0
   macroCellSize: 1
   denseBoxFill: {int(dense)}
-  fillLayers: 1
+  fillLayers: {fill_layers}
   boxSlotsPerSide: {slots}
   reservoirDividerColumns: {level.get('dividers', [])}
   lowerGridMask:
@@ -656,7 +661,7 @@ MonoBehaviour:
     body += mask_lines(upper_outside(level, upper), width, upper)
     body += "  boxes:\n"
     for shape, color, x, y, ice, prefill, axis, inner in level["boxes"]:
-        prefill = scaled_prefill(prefill, shapes[shape][1], slots, dense)
+        prefill = scaled_prefill(prefill, shapes[shape][1], slots, dense, fill_layers)
         ids[color] += 1
         body += f"""  - id: {color}_{ids[color]}
     shape: {reference(shapes[shape][0])}
