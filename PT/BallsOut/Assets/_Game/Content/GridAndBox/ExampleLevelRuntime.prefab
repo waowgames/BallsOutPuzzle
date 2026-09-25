@@ -183,6 +183,7 @@ MonoBehaviour:
   prefabs: {fileID: 11400000, guid: d009a1089fa2363419994c6699d43320, type: 2}
   simulationTick: 0.08
   boxStepDuration: 0.08
+  sinkReachRows: 2
   waitForLevelStart: 1
   drawDebugGizmos: 0
 --- !u!1 &4313654927492054657

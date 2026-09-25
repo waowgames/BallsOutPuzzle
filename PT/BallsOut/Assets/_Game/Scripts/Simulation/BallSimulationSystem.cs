@@ -31,7 +31,7 @@ namespace BallsOut
             this.grid = grid;
             this.collection = collection;
             this.visualHeight = visualHeight;
-            this.sinkReachRows = Mathf.Max(0, sinkReachRows);
+            this.sinkReachRows = Mathf.Clamp(sinkReachRows, 0, 3);
             firstBallRow = grid.Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution;
             this.advanceBoxSystems = advanceBoxSystems;
             this.hasPendingBoxWork = hasPendingBoxWork;

@@ -13,7 +13,7 @@ namespace BallsOut
         [SerializeField, Min(0.02f)] private float boxStepDuration = 0.08f;
         [Tooltip("Lowest ball rows above a box from which a matching ball flies straight in, past the balls under it. " +
             "Other balls never move for it. 0 = off.")]
-        [SerializeField, Min(0)] private int sinkReachRows = 2;
+        [SerializeField, Range(0, 3)] private int sinkReachRows = 2;
         [SerializeField] private bool waitForLevelStart;
         [SerializeField] private bool drawDebugGizmos = true;
         private Transform content;
@@ -107,7 +107,7 @@ namespace BallsOut
             Completion.OnBoxCompleted += ForwardBoxCompleted;
             Completion.OnBoxRemoved += ForwardBoxRemoved;
             Completion.OnBoxCompleted += CrackIce;
-            Collection = new BallCollectionSystem(Balls, Fill, Completion);
+            Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
             Collection.OnBallCollected += ForwardBallCollected;
             Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows);
             Movement = new BoxMovementSystem(Board, Balls, boxStepDuration);
