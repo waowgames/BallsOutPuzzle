@@ -32,7 +32,8 @@ namespace BallsOut
         {
             int layerSize = box.FillSlots.Length;
             Vector3 position = box.FillSlots[index % layerSize];
-            position.y += index / layerSize * box.FillSpacing.y;
+            // Lift the bottom layer so balls sit on top of the box instead of sinking halfway into it.
+            position.y += box.FillBallDiameter * 0.35f + index / layerSize * box.FillSpacing.y;
             return position;
         }
 
