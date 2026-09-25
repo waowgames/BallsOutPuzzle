@@ -32,6 +32,11 @@ namespace BallsOut
             grabOffset = board.Root.InverseTransformPoint(worldPoint) - selected.transform.localPosition;
             releaseRequested = false;
             selected.IsInTransit = true;
+            if (!selected.HasPlayerInteracted)
+            {
+                selected.MarkPlayerInteraction();
+                board.NotifyBoxStateChanged();
+            }
             return true;
         }
 

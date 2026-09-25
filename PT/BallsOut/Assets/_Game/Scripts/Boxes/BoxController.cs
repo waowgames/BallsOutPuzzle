@@ -16,6 +16,7 @@ namespace BallsOut
         public int Capacity { get; private set; }
         public bool IsCompleting { get; internal set; }
         public bool IsRemoved { get; internal set; }
+        public bool HasPlayerInteracted { get; private set; }
         public int IceCount { get; private set; }
         public bool IsFrozen => IceCount > 0;
         public bool CanMove => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && CurrentFill < Capacity;
@@ -47,6 +48,7 @@ namespace BallsOut
             Id = spawn.id;
             Shape = spawn.shape;
             Color = spawn.color;
+            HasPlayerInteracted = false;
             int resolution = Mathf.Clamp(slotsPerSide, 1, LevelDefinition.MicroResolution);
             int slotsPerLayer = Shape.FillSlotsPerLayer(denseFill, resolution);
             Capacity = slotsPerLayer * fillLayers;
@@ -193,6 +195,7 @@ namespace BallsOut
         }
 
         internal void SetOrigin(Vector2Int origin) { Origin = origin; IsPlaced = true; }
+        internal void MarkPlayerInteraction() => HasPlayerInteracted = true;
         internal void CreateInitialFill(BallPool pool)
         {
             for (int index = 0; index < CurrentFill; index++)
@@ -209,7 +212,7 @@ namespace BallsOut
             }
         }
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
-        public bool CanCollect(BallColorDefinition color) => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
+        public bool CanCollect(BallColorDefinition color) => HasPlayerInteracted && IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && Color == color && CurrentFill < Capacity;
         // Returns true when this step breaks the ice and frees the box.
         internal bool CrackIce()
         {
