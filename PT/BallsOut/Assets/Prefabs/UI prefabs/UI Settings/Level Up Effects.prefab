@@ -853,8 +853,8 @@ MonoBehaviour:
   - {fileID: 4297166769819470389}
   - {fileID: 1997605810586158533}
   - {fileID: 1749188427181474037}
-  starsDelay: 0.3
-  starInterval: 0.28
+  starsDelay: 0.15
+  starInterval: 0.14
   fireworks:
   - {fileID: 6565214848952759069}
   - {fileID: 4573488873840328371}

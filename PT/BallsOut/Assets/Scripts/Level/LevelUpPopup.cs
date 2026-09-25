@@ -27,8 +27,8 @@ public sealed class LevelUpPopup : UIPopup
     [SerializeField, Min(0f)] private float popupDelay = 0.9f;
     [SerializeField] private UIPanelTransition panelTransition;
     [SerializeField] private RectTransform[] stars = System.Array.Empty<RectTransform>();
-    [SerializeField, Min(0f)] private float starsDelay = 0.3f;
-    [SerializeField, Min(0f)] private float starInterval = 0.28f;
+    [SerializeField, Min(0f)] private float starsDelay = 0.15f;
+    [SerializeField, Min(0f)] private float starInterval = 0.14f;
     [SerializeField] private UIFireworkBurst[] fireworks = System.Array.Empty<UIFireworkBurst>();
 
     // Viewport spots for the confetti blasts (cycled when count > length).
@@ -85,7 +85,8 @@ public sealed class LevelUpPopup : UIPopup
         if (getButton == null)
             return;
 
-        getButton.interactable = true;
+        // Unlocked once the last star has popped in (see Celebrate).
+        getButton.interactable = celebration == null;
         getButton.onClick.RemoveListener(HandleCollectClicked);
         getButton.onClick.AddListener(HandleCollectClicked);
     }
@@ -138,7 +139,13 @@ public sealed class LevelUpPopup : UIPopup
             if (star != null)
             {
                 star.DOKill();
-                star.DOScale(starScales[i], 0.35f).SetEase(Ease.OutBack, 2.2f).SetUpdate(true);
+                Tween pop = star.DOScale(starScales[i], 0.25f).SetEase(Ease.OutBack, 2.2f).SetUpdate(true);
+                if (i == stars.Length - 1)
+                    pop.OnComplete(UnlockGetButton);
+            }
+            else if (i == stars.Length - 1)
+            {
+                UnlockGetButton();
             }
 
             // Spread the fireworks across the star sequence (first star ... last star).
@@ -152,7 +159,16 @@ public sealed class LevelUpPopup : UIPopup
             yield return new WaitForSecondsRealtime(starInterval);
         }
 
+        if (stars.Length == 0)
+            UnlockGetButton();
+
         celebration = null;
+    }
+
+    private void UnlockGetButton()
+    {
+        if (getButton != null && !rewardClaimed)
+            getButton.interactable = true;
     }
 
     private void SpawnConfetti(Vector2 viewportSpot)
