@@ -10,6 +10,8 @@ namespace BallsOut
         private readonly BallCollectionSystem collection;
         private readonly List<BallState> moving = new List<BallState>();
         private readonly float visualHeight;
+        private readonly int sinkReachRows;
+        private readonly int firstBallRow;
         private bool chooseLeft = true;
         private BallState slidRight;
         private int observedRevision = -1;
@@ -24,11 +26,13 @@ namespace BallsOut
         public event Action<bool> OnStabilityChanged;
 
         public BallSimulationSystem(BallMicroGrid grid, BallCollectionSystem collection, float tickInterval, float visualHeight,
-            Action<float> advanceBoxSystems, Func<bool> hasPendingBoxWork)
+            Action<float> advanceBoxSystems, Func<bool> hasPendingBoxWork, int sinkReachRows = 0)
         {
             this.grid = grid;
             this.collection = collection;
             this.visualHeight = visualHeight;
+            this.sinkReachRows = Mathf.Max(0, sinkReachRows);
+            firstBallRow = grid.Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution;
             this.advanceBoxSystems = advanceBoxSystems;
             this.hasPendingBoxWork = hasPendingBoxWork;
             TickInterval = Mathf.Max(0.02f, tickInterval);
@@ -65,7 +69,7 @@ namespace BallsOut
             slidRight = null;
             // Bottom-up in-place traversal: destinations are in rows already visited,
             // so each ball is processed once without a second buffer or allocations.
-            for (int y = grid.Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution; y < grid.Height; y++)
+            for (int y = firstBallRow; y < grid.Height; y++)
                 for (int x = 0; x < grid.Width; x++)
                 {
                     BallState ball = grid.Get(new Vector2Int(x, y));
@@ -92,7 +96,7 @@ namespace BallsOut
                     bool canRight = CanEnter(ball, right) && !DefersTo(ball, right);
                     if (!canLeft && !canRight)
                     {
-                        if (TrySlideOffWall(ball, left, right)) changed = true;
+                        if (TrySlideOffWall(ball, left, right) || TryPull(ball)) changed = true;
                         continue;
                     }
                     Vector2Int target = canLeft && canRight ? (PrefersRight(right) ? right : left) : canLeft ? left : right;
@@ -135,6 +139,16 @@ namespace BallsOut
             if (target == toRight) slidRight = ball;
             Enter(ball, target);
             return true;
+        }
+
+        // A box reaches a few rows into the pile resting on it: a matching ball in the
+        // lowest sinkReachRows, directly above the box, flies straight in, so one wrong
+        // colour at the bottom no longer seals the box off. Nothing else is displaced;
+        // the pile above follows down by ordinary falling.
+        private bool TryPull(BallState ball)
+        {
+            if (sinkReachRows <= 0 || ball.Cell.y - firstBallRow >= sinkReachRows) return false;
+            return collection.TryCollect(ball, new Vector2Int(ball.Cell.x, firstBallRow - 1));
         }
 
         private bool LeadsDown(Vector2Int cell)

@@ -16,6 +16,8 @@ namespace BallsOut
         [Min(0.01f)] public float macroCellSize = 1f;
         public bool denseBoxFill;
         [Min(1)] public int fillLayers = FillLayers;
+        [Tooltip("Balls per box cell edge, per layer: 4 = 16 balls per cell, 3 = 9, 2 = 4. Lower values need fewer reservoir balls, so the board stays compact.")]
+        [Range(1, MicroResolution)] public int boxSlotsPerSide = MicroResolution;
         [Tooltip("Macro-column boundaries that separate reservoir chambers. The outlet below stays open.")]
         public List<int> reservoirDividerColumns = new List<int>();
         public CellMask lowerGridMask = new CellMask();
@@ -25,6 +27,9 @@ namespace BallsOut
         [Tooltip("Editor dense-field authoring palette; runtime uses the explicit balls list.")]
         public List<BallColorDefinition> palette = new List<BallColorDefinition>();
         public int FillLayerCount => fillLayers > 0 ? fillLayers : FillLayers;
+        public int BoxSlotsPerSide => boxSlotsPerSide > 0 ? Mathf.Min(boxSlotsPerSide, MicroResolution) : MicroResolution;
+        public int SlotsPerLayer(BoxShapeDefinition shape) => shape.FillSlotsPerLayer(denseBoxFill, BoxSlotsPerSide);
+        public int BoxCapacity(BoxShapeDefinition shape) => SlotsPerLayer(shape) * FillLayerCount;
         public int TotalHeight => lowerGridHeight + ballAreaMacroHeight;
         public int HopperStartRow => ballAreaMacroHeight * MicroResolution - hopperMicroRows;
         public float BallRowSpacing => macroCellSize * 0.24f * 0.8660254f;

@@ -6,6 +6,7 @@ The source videos/images are visual references; the layouts use Balls Out's grid
 
 from collections import Counter
 from pathlib import Path
+import math
 import re
 import uuid
 
@@ -15,6 +16,14 @@ CONTENT = ROOT / "_Game" / "Content" / "GridAndBox"
 OUTPUT = Path(__file__).resolve().parent
 MATERIALS = ROOT / "_ART" / "GridAndBox" / "Materials"
 NAMESPACE = uuid.UUID("76e91398-e9d0-40f6-a5e2-c44503689ca0")
+# Balls per box cell edge (LevelDefinition.boxSlotsPerSide): 4 -> 16 per cell, 3 -> 9, 2 -> 4.
+DEFAULT_SLOTS = 3
+# The reservoir is sized so balls fill at most this share of it; the rest is room to flow.
+# A packed reservoir cannot move at all, which traps colours behind each other.
+MAX_RESERVOIR_FILL = 0.75
+# Dense fill also packs the seams between cells, so a full box is covered wall to wall
+# instead of showing empty gutters between its cells.
+DEFAULT_DENSE = True
 
 
 def guid(name):
@@ -109,62 +118,64 @@ def box(shape, color, x, y, ice=0, fill=0):
 
 
 LEVELS = [
-    dict(n=1, width=4, lower=4, upper=4, dense=True,
+    dict(n=1, width=4, lower=4, dense=True,
          boxes=[box("Q", "B", 0, 0, fill=37), box("Q", "R", 2, 0)],
          dividers=[2], chamber_colors=["B", "R"],
          art=["BBRR", "BBRR", "BBRR"]),
-    dict(n=2, width=5, lower=6, upper=2,
+    dict(n=2, width=5, lower=6,
          boxes=[box("L3A", "R", 0, 2), box("L3B", "B", 3, 1), box("T4", "G", 1, 0)],
          art=["BBBBB", "GGRRR"]),
-    dict(n=3, width=5, lower=6, upper=2,
+    dict(n=3, width=5, lower=6,
          boxes=[box("V2", "R", 2, 3), box("H3", "Y", 0, 1),
                 box("H3", "G", 0, 0), box("V2", "B", 4, 0)],
          art=["GGGGG", "YYYBB", "BBBRR", "RRRRR"]),
-    dict(n=4, width=6, lower=6, upper=4,
+    dict(n=4, width=6, lower=6,
          boxes=[box("Q", "R", 0, 0), box("Q", "R", 0, 2),
                 box("Q", "Y", 2, 0), box("Q", "Y", 2, 2),
                 box("Q", "B", 4, 0), box("Q", "G", 4, 2)],
          art=["RRRRRR", "BBBBBB", "GGGYYY"]),
-    dict(n=5, width=7, lower=3, upper=6,
-         boxes=[box("V3", "P", 1, 0), box("V3", "R", 2, 0),
-                box("V3", "B", 3, 0), box("V3", "U", 4, 0),
-                box("V3", "Y", 5, 0), box("V3", "C", 6, 0)],
-         upper_outside=[(0, y) for y in range(6)] + [(6, y) for y in range(6)],
-         dividers=[2, 3, 4, 5], chamber_colors=["C", "Y", "RU", "B", "P"],
-         art=["0CYRBP0", "0CYRBP0", "0CYUBP0", "0CYUBP0"]),
-    dict(n=6, width=4, lower=7, upper=5,
+    # V3 boxes fill the lower grid's height, so they can never pass each other:
+    # chambers follow the box order and the puzzle is shifting them into place.
+    dict(n=5, width=7, lower=3,
+         boxes=[box("V3", "C", 0, 0), box("V3", "Y", 1, 0),
+                box("V3", "R", 2, 0), box("V3", "U", 3, 0),
+                box("V3", "B", 4, 0), box("V3", "P", 5, 0)],
+         upper_outside_columns=[0],
+         dividers=[2, 3, 4, 5, 6], chamber_colors=["C", "Y", "R", "U", "B", "P"],
+         art=["0CYRUBP"]),
+    dict(n=6, width=4, lower=7,
          boxes=[box("L3A", "Y", 0, 4), box("H2", "B", 2, 4),
                 box("H3", "R", 1, 3), box("V2", "Y", 0, 1),
                 box("S", "B", 1, 2), box("S", "B", 2, 2), box("S", "Y", 3, 2),
                 box("S", "Y", 1, 1), box("S", "Y", 2, 1),
                 box("V2", "B", 3, 0), box("H3", "R", 0, 0)],
          art=["RRRR", "YYYY", "BBBB", "YYYY"]),
-    dict(n=7, width=6, lower=6, upper=4,
+    dict(n=7, width=6, lower=6,
          boxes=[box("Q", "R", 4, 4), box("L3D", "R", 4, 2),
                 box("H3", "R", 1, 0), box("T4", "B", 1, 2),
                 box("L3A", "B", 0, 3), box("L3B", "B", 4, 0),
                 box("H3", "B", 0, 1)],
          art=["BBBBBB", "BBRRBB", "BRRBBB", "BBBBBB"]),
-    dict(n=8, width=6, lower=4, upper=3, dense=True,
+    dict(n=8, width=6, lower=4, dense=True,
          boxes=[box("Q", "B", 0, 2, fill=75), box("Q", "B", 4, 2),
                 box("H2", "R", 0, 0, ice=1), box("H2", "R", 2, 0, ice=2),
                 box("H2", "B", 4, 0, ice=3), box("H2", "B", 2, 1, ice=4)],
          art=["RRRRRR", "RRRRRB", "RBBBBB"]),
-    dict(n=9, width=6, lower=5, upper=4,
+    dict(n=9, width=6, lower=5,
          boxes=[box("H2", "W", 0, 3), box("H2", "W", 4, 3),
                 box("L4A", "Y", 0, 0), box("L4B", "Y", 4, 0),
                 box("V2", "Y", 1, 0), box("V2", "Y", 4, 0),
                 box("S", "C", 2, 0), box("S", "C", 3, 0),
                 box("S", "C", 2, 1), box("S", "C", 3, 1)],
          art=["WWYYWW", "WWYYWW", "CCYYCC", "CCYYCC"]),
-    dict(n=10, width=7, lower=6, upper=3,
+    dict(n=10, width=7, lower=6,
          boxes=[box("S", "R", 0, y) for y in range(1, 5)] + [box("S", "B", 0, 0)] +
                [box("S", "B", 2, y, ice=3 if y == 4 else 0) for y in range(5)] +
                [box("S", "G", 4, y, ice=6 if y == 4 else 0) for y in range(5)] +
                [box("S", "Y", 6, y, ice=10 if y == 4 else 0) for y in range(5)],
          lower_outside=[(x, y) for x in (1, 3, 5) for y in range(5)],
          art=["RYYYYYY", "RYYYYYY", "RBGBGBG"]),
-    dict(n=11, width=6, lower=7, upper=6,
+    dict(n=11, slots=2, width=6, lower=7,
          boxes=[box("S", "Y", 0, 6, ice=8), box("H2", "Y", 1, 6),
                 box("H2", "G", 3, 6), box("S", "G", 5, 6, ice=8),
                 box("S", "G", 0, 5, ice=8), box("H2", "G", 1, 5),
@@ -176,7 +187,7 @@ LEVELS = [
                 box("H2", "B", 4, 1, ice=8), box("H2", "B", 0, 0),
                 box("H2", "R", 2, 0, ice=5), box("H2", "B", 4, 0)],
          art=["YYYYYY", "YYGGGY", "GGGGGG", "RRRRRR", "RBBBBR", "BBBBBB"]),
-    dict(n=12, width=8, lower=5, upper=4,
+    dict(n=12, slots=2, width=8, lower=5,
          boxes=[box("H2", "B", x, 4) for x in (0, 2, 4, 6)] +
                [box("H2", "Y", 0, 3), box("S", "G", 2, 3),
                 box("H2", "Y", 3, 3), box("S", "G", 5, 3),
@@ -185,7 +196,7 @@ LEVELS = [
                 box("R8", "R", 2, 0)],
          lower_outside=[(x, y) for x in (0, 1, 6, 7) for y in (0, 1)],
          art=["RRRRRRRR", "GGGGGGGG", "YBBYYBBY", "YBBYYBBY"]),
-    dict(n=13, width=5, lower=8, upper=7,
+    dict(n=13, slots=2, width=5, lower=8,
          boxes=[box("Q", "R", 0, 0), box("Q", "R", 3, 0),
                 box("V2", "B", 2, 0), box("H3", "B", 0, 2),
                 box("H2", "R", 3, 2), box("H3", "R", 0, 3),
@@ -196,7 +207,7 @@ LEVELS = [
                 box("S", "Y", 2, 5), box("S", "R", 3, 5),
                 box("V3", "Y", 4, 5), box("V2", "B", 2, 6)],
          art=["YYYYY", "RYYYY", "RYBYY", "YYBYY", "RRBRR", "YYYYY"]),
-    dict(n=14, width=6, lower=10, upper=7,
+    dict(n=14, slots=2, width=6, lower=10,
          boxes=[box("Q", "G", 1, 6, ice=8), box("Q", "R", 3, 6, ice=10),
                 box("Q", "B", 1, 3, ice=4), box("Q", "Y", 3, 3, ice=6),
                 box("S", "G", 0, 9), box("S", "R", 5, 9),
@@ -210,7 +221,7 @@ LEVELS = [
                 box("S", "Y", 0, 1), box("S", "B", 5, 1)] +
                [box("S", "Y" if x % 2 == 0 else "B", x, 0) for x in range(6)],
          art=["GGGRRR", "GGGRRR", "BBYYYY", "YYYYBB", "YBBYYY", "BBYYYY", "YYYYBB"]),
-    dict(n=15, width=6, lower=9, upper=9,
+    dict(n=15, slots=2, width=6, lower=9,
          boxes=[box("Q", "B", 0, 7, ice=4), box("Q", "Y", 1, 5, ice=6),
                 box("Q", "G", 3, 3, ice=7), box("Q", "R", 4, 0, ice=8),
                 box("V2", "R", 2, 7), box("V2", "G", 3, 7), box("V2", "Y", 5, 7),
@@ -299,9 +310,43 @@ def picture_color(number, x, y, width, height, fallback):
     return fallback
 
 
+def capacity(offsets, slots, dense):
+    """Mirror of BoxShapeDefinition.FillSlotsPerLayer."""
+    cell_set = set(offsets)
+    seam = slots // 2 if dense else 0
+    seams = sum((dx + 1, dy) in cell_set for dx, dy in offsets) + \
+            sum((dx, dy + 1) in cell_set for dx, dy in offsets)
+    corners = sum((dx + 1, dy) in cell_set and (dx, dy + 1) in cell_set and
+                  (dx + 1, dy + 1) in cell_set for dx, dy in offsets)
+    return slots * slots * len(offsets) + slots * seam * seams + seam * seam * corners
+
+
+def scaled_prefill(prefill, offsets, slots, dense):
+    # Prefill is authored against the 16-per-cell layout; keep the same share.
+    return round(prefill * capacity(offsets, slots, dense) / capacity(offsets, 4, dense))
+
+
+def upper_outside(level, upper):
+    return {(x, y) for x in level.get("upper_outside_columns", ()) for y in range(upper)}
+
+
+def reservoir_height(level, needed):
+    """Smallest reservoir, in macro rows, that keeps every chamber under MAX_RESERVOIR_FILL."""
+    outside_columns = set(level.get("upper_outside_columns", ()))
+    boundaries = [0] + level.get("dividers", []) + [level["width"]]
+    palettes = level.get("chamber_colors") or ["".join(needed)]
+    rows = 2
+    for chamber, palette in enumerate(palettes):
+        first, last = boundaries[chamber:chamber + 2]
+        columns = 4 * sum(x not in outside_columns for x in range(first, last))
+        quota = sum(needed.get(color, 0) for color in palette)
+        rows = max(rows, math.ceil(quota / (columns * MAX_RESERVOIR_FILL) / 4))
+    return rows
+
+
 def make_balls(level, needed):
     width, lower, upper = level["width"], level["lower"], level["upper"]
-    outside = set(level.get("upper_outside", ()))
+    outside = upper_outside(level, upper)
     art = level["art"]
     if any(len(row) != width for row in art):
         raise ValueError(f"Level {level['n']}: artwork row width differs from grid")
@@ -365,8 +410,9 @@ def make_balls(level, needed):
 
 
 def build_level(level, colors, shapes):
-    n, width, lower, upper = (level[key] for key in ("n", "width", "lower", "upper"))
-    dense = bool(level.get("dense", False))
+    n, width, lower = (level[key] for key in ("n", "width", "lower"))
+    dense = bool(level.get("dense", DEFAULT_DENSE))
+    slots = level.get("slots", DEFAULT_SLOTS)
     lower_outside = set(level.get("lower_outside", ()))
     occupied = set()
     needed = Counter()
@@ -378,15 +424,12 @@ def build_level(level, colors, shapes):
             if cell in occupied or cell in lower_outside or not (0 <= cell[0] < width and 0 <= cell[1] < lower):
                 raise ValueError(f"Level {n}: invalid or overlapping box cell {cell}")
             occupied.add(cell)
-        cell_set = set(offsets)
-        seams = sum((dx + 1, dy) in cell_set for dx, dy in offsets) + \
-                sum((dx, dy + 1) in cell_set for dx, dy in offsets)
-        corners = sum((dx + 1, dy) in cell_set and (dx, dy + 1) in cell_set and
-                      (dx + 1, dy + 1) in cell_set for dx, dy in offsets)
-        capacity = 16 * len(offsets) + (8 * seams + 4 * corners if dense else 0)
-        if not 0 <= prefill < capacity:
+        full = capacity(offsets, slots, dense)
+        prefill = scaled_prefill(prefill, offsets, slots, dense)
+        if not 0 <= prefill < full:
             raise ValueError(f"Level {n}: invalid prefill on {shape}")
-        needed[color] += capacity - prefill
+        needed[color] += full - prefill
+    upper = level["upper"] = reservoir_height(level, needed)
     balls = make_balls(level, needed)
     path = OUTPUT / f"Level_{n:02d}_Reference.asset"
     body = f"""%YAML 1.1
@@ -412,15 +455,17 @@ MonoBehaviour:
   macroCellSize: 1
   denseBoxFill: {int(dense)}
   fillLayers: 1
+  boxSlotsPerSide: {slots}
   reservoirDividerColumns: {level.get('dividers', [])}
   lowerGridMask:
     defaultKind: 1
 """
     body += mask_lines(lower_outside, width, lower)
     body += "  ballAreaMask:\n    defaultKind: 1\n"
-    body += mask_lines(level.get("upper_outside", ()), width, upper)
+    body += mask_lines(upper_outside(level, upper), width, upper)
     body += "  boxes:\n"
     for shape, color, x, y, ice, prefill in level["boxes"]:
+        prefill = scaled_prefill(prefill, shapes[shape][1], slots, dense)
         ids[color] += 1
         body += f"""  - id: {color}_{ids[color]}
     shape: {reference(shapes[shape][0])}
@@ -440,7 +485,7 @@ MonoBehaviour:
 """
     body += "  palette:\n" + "".join(f"  - {reference(colors[color])}\n" for color in needed)
     write_asset(path, body)
-    return path, len(level["boxes"]), len(balls)
+    return path, len(level["boxes"]), len(balls), upper
 
 
 def main():
@@ -458,11 +503,11 @@ def main():
     prefix, suffix = text.split("  levels:\n", 1)
     _, after = suffix.split("  enableLooping:", 1)
     text = prefix + "  levels:\n" + "".join(
-        f"  - {reference(asset_guid(path))}\n" for path, _, _ in results)
+        f"  - {reference(asset_guid(path))}\n" for path, *_ in results)
     text += "  enableLooping:" + after
     config.write_text(text, encoding="utf-8", newline="\n")
-    for path, boxes, balls in results:
-        print(f"{path.name}: {boxes} boxes, {balls} balls")
+    for path, boxes, balls, upper in results:
+        print(f"{path.name}: {boxes} boxes, {balls} balls, reservoir {upper} rows")
 
 
 if __name__ == "__main__":

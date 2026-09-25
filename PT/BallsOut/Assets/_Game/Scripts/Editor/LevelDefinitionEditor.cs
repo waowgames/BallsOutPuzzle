@@ -86,7 +86,7 @@ namespace BallsOut.Editor
                 if (box?.color == null || box.shape == null) { Debug.LogError("Assign every box shape and color first.", level); return; }
                 int index = colors.IndexOf(box.color);
                 if (index < 0) { index = colors.Count; colors.Add(box.color); counts.Add(0); }
-                int count = box.shape.FillSlotsPerLayer(level.denseBoxFill) * level.FillLayerCount - box.initialFillCount;
+                int count = level.BoxCapacity(box.shape) - box.initialFillCount;
                 counts[index] += count;
                 total += count;
             }

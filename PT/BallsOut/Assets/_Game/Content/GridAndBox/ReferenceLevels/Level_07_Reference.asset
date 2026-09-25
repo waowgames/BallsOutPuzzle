@@ -19,8 +19,9 @@ MonoBehaviour:
   ballAreaMacroHeight: 4
   hopperMicroRows: 0
   macroCellSize: 1
-  denseBoxFill: 0
+  denseBoxFill: 1
   fillLayers: 1
+  boxSlotsPerSide: 3
   reservoirDividerColumns: []
   lowerGridMask:
     defaultKind: 1
@@ -290,11 +291,11 @@ MonoBehaviour:
     cell: {x: 2, y: 26}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 3, y: 26}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 4, y: 26}
     specialType: 0
     keyId: ''
@@ -302,7 +303,7 @@ MonoBehaviour:
     cell: {x: 5, y: 26}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 6, y: 26}
     specialType: 0
     keyId: ''
@@ -378,11 +379,11 @@ MonoBehaviour:
     cell: {x: 0, y: 27}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 1, y: 27}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 2, y: 27}
     specialType: 0
     keyId: ''
@@ -402,11 +403,11 @@ MonoBehaviour:
     cell: {x: 6, y: 27}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 7, y: 27}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 8, y: 27}
     specialType: 0
     keyId: ''
@@ -438,7 +439,7 @@ MonoBehaviour:
     cell: {x: 15, y: 27}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 16, y: 27}
     specialType: 0
     keyId: ''
@@ -470,11 +471,11 @@ MonoBehaviour:
     cell: {x: 23, y: 27}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 0, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 1, y: 28}
     specialType: 0
     keyId: ''
@@ -506,7 +507,7 @@ MonoBehaviour:
     cell: {x: 8, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 9, y: 28}
     specialType: 0
     keyId: ''
@@ -522,27 +523,27 @@ MonoBehaviour:
     cell: {x: 12, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 13, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 14, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 15, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 16, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 17, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 18, y: 28}
     specialType: 0
     keyId: ''
@@ -566,7 +567,7 @@ MonoBehaviour:
     cell: {x: 23, y: 28}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 0, y: 29}
     specialType: 0
     keyId: ''
@@ -602,7 +603,7 @@ MonoBehaviour:
     cell: {x: 8, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 9, y: 29}
     specialType: 0
     keyId: ''
@@ -610,19 +611,19 @@ MonoBehaviour:
     cell: {x: 10, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 11, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 12, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 13, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 14, y: 29}
     specialType: 0
     keyId: ''
@@ -638,15 +639,15 @@ MonoBehaviour:
     cell: {x: 17, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 18, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 19, y: 29}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 20, y: 29}
     specialType: 0
     keyId: ''
@@ -702,15 +703,15 @@ MonoBehaviour:
     cell: {x: 9, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 10, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 11, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 12, y: 30}
     specialType: 0
     keyId: ''
@@ -738,19 +739,19 @@ MonoBehaviour:
     cell: {x: 18, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 19, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 20, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 21, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 22, y: 30}
     specialType: 0
     keyId: ''
@@ -758,39 +759,39 @@ MonoBehaviour:
     cell: {x: 23, y: 30}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 0, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 1, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 2, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 3, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 4, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 5, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 6, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 7, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 8, y: 31}
     specialType: 0
     keyId: ''
@@ -798,11 +799,11 @@ MonoBehaviour:
     cell: {x: 9, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 10, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 11, y: 31}
     specialType: 0
     keyId: ''
@@ -842,47 +843,47 @@ MonoBehaviour:
     cell: {x: 20, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 21, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 22, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 23, y: 31}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 0, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 1, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 2, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 3, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 4, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 5, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 6, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 7, y: 32}
     specialType: 0
     keyId: ''
@@ -894,7 +895,7 @@ MonoBehaviour:
     cell: {x: 9, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 10, y: 32}
     specialType: 0
     keyId: ''
@@ -942,43 +943,43 @@ MonoBehaviour:
     cell: {x: 21, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 22, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
+  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
     cell: {x: 23, y: 32}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 0, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 1, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 2, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 3, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 4, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 5, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 6, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 7, y: 33}
     specialType: 0
     keyId: ''
@@ -1030,15 +1031,15 @@ MonoBehaviour:
     cell: {x: 19, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 20, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 21, y: 33}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 22, y: 33}
     specialType: 0
     keyId: ''
@@ -1050,19 +1051,19 @@ MonoBehaviour:
     cell: {x: 0, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 1, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 2, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 3, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 4, y: 34}
     specialType: 0
     keyId: ''
@@ -1070,492 +1071,56 @@ MonoBehaviour:
     cell: {x: 5, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 6, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 7, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 8, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 9, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 10, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 11, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 12, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 13, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 14, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 15, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 16, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 17, y: 34}
     specialType: 0
     keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
+  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
     cell: {x: 18, y: 34}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 19, y: 34}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 20, y: 34}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 21, y: 34}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 22, y: 34}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 23, y: 34}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 0, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 1, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 2, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 3, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 4, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 5, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 6, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 7, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 8, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 9, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 10, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 11, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 12, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 13, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 14, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 15, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 16, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 17, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 18, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 19, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 20, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 21, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 22, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 23, y: 35}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 0, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 1, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 2, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 3, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 4, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 5, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 6, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 7, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 8, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 9, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 10, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 11, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 12, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 13, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 14, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 15, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 16, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 17, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 18, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 19, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 20, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 21, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 22, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 23, y: 36}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 0, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 1, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 2, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 3, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 4, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 5, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 6, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 7, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 8, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 9, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 10, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 11, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}
-    cell: {x: 12, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 13, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 14, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 15, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 16, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 17, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 18, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 19, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 20, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 21, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 22, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 23, y: 37}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 0, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 1, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 2, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 3, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 4, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 5, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 6, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 7, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 8, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 9, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 10, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 11, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 12, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 13, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 14, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 15, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 16, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 17, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 18, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 19, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 20, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 21, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 22, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 23, y: 38}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 0, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 1, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 2, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 3, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 4, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 5, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 6, y: 39}
-    specialType: 0
-    keyId: ''
-  - color: {fileID: 11400000, guid: 237743e2efbd56d0be3cfba803810368, type: 2}
-    cell: {x: 7, y: 39}
     specialType: 0
     keyId: ''
   palette:

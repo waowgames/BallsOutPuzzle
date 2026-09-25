@@ -21,6 +21,9 @@ namespace BallsOut
         public bool CanMove => IsPlaced && !IsFrozen && !IsCompleting && !IsRemoved && CurrentFill < Capacity;
         public Transform FillRoot { get; private set; }
         public Vector3 FillSpacing { get; private set; }
+        public float FillBallDiameter { get; private set; }
+        // Usable interior width of one box cell, in cells.
+        private const float FillInterior = 0.76f;
         public BoxCompletionAnimation CompletionAnimation { get; private set; }
         private BoxFillLabel fillLabel;
         private IceBoxVisual ice;
@@ -38,23 +41,30 @@ namespace BallsOut
         internal int PendingFillAnimations;
         public event Action<BoxController> OnBoxFillChanged;
 
-        internal void Initialize(BoxSpawnData spawn, PrefabRegistry registry, float cellSize, bool denseFill, int fillLayers)
+        internal void Initialize(BoxSpawnData spawn, PrefabRegistry registry, float cellSize, bool denseFill, int fillLayers,
+            int slotsPerSide = LevelDefinition.MicroResolution)
         {
             Id = spawn.id;
             Shape = spawn.shape;
             Color = spawn.color;
-            Capacity = Shape.FillSlotsPerLayer(denseFill) * fillLayers;
+            int resolution = Mathf.Clamp(slotsPerSide, 1, LevelDefinition.MicroResolution);
+            int slotsPerLayer = Shape.FillSlotsPerLayer(denseFill, resolution);
+            Capacity = slotsPerLayer * fillLayers;
             CurrentFill = spawn.initialFillCount;
             CollectedBalls = new List<BallState>(Capacity);
             FillRoot = new GameObject("Fill").transform;
             FillRoot.SetParent(transform, false);
             FillRoot.localPosition = (registry != null ? registry.fillOffset : new Vector3(0f, 0.085f, 0f)) * cellSize;
-            int resolution = LevelDefinition.MicroResolution;
-            int seam = denseFill ? 2 : 0;
+            int seam = BoxShapeDefinition.FillSeam(denseFill, resolution);
             int stride = resolution + seam;
-            float slotSpacing = cellSize * (denseFill ? 0.168f : 0.68f / resolution);
+            // Slots span the whole interior (walls stand ~0.12 cells in), so a full box reads as
+            // packed wall to wall; fewer slots per cell simply means larger balls.
+            bool seamed = seam != 0 && slotsPerLayer != Shape.CellCount * resolution * resolution;
+            float slotSpacing = cellSize * (seamed ? Mathf.Min(FillInterior / resolution, 1.008f / stride) : FillInterior / resolution);
             FillSpacing = new Vector3(slotSpacing, cellSize / LevelDefinition.MicroResolution * 0.9f, slotSpacing);
-            FillSlots = new Vector3[Shape.FillSlotsPerLayer(denseFill)];
+            // Slight overlap hides the gaps of a square grid and reads as a heap.
+            FillBallDiameter = slotSpacing * 1.08f;
+            FillSlots = new Vector3[slotsPerLayer];
             var cells = new HashSet<Vector2Int>(Shape.Cells);
             int slot = 0;
             foreach (Vector2Int cell in Shape.Cells)
@@ -77,10 +87,13 @@ namespace BallsOut
                     for (int column = 0; column < resolution + (right ? seam : 0); column++)
                     {
                         if (row >= resolution && column >= resolution && !diagonal) continue;
+                        // Stable per-slot jitter, like the reservoir pile, so the fill is not a rigid grid.
+                        int x = startColumn + column, z = startRow + row;
+                        float noise = Mathf.Sin((cell.x * stride + column) * 12.9898f + (cell.y * stride + row) * 78.233f);
                         FillSlots[slot++] = new Vector3(
-                            startX + (startColumn + column) * slotSpacing,
-                            0f,
-                            startZ + (startRow + row) * slotSpacing);
+                            startX + (x + noise * 0.06f) * slotSpacing,
+                            Mathf.Abs(noise) * 0.12f * slotSpacing,
+                            startZ + (z - noise * 0.06f) * slotSpacing);
                     }
             }
             // The game camera looks down with screen up along local +Z.
@@ -190,7 +203,7 @@ namespace BallsOut
                 {
                     ball.Visual.SetParent(FillRoot, false);
                     ball.Visual.localPosition = BoxFillSystem.GetSlotPosition(this, index);
-                    ball.Visual.localScale = Vector3.one * FillSpacing.x;
+                    ball.Visual.localScale = Vector3.one * FillBallDiameter;
                 }
                 CollectedBalls.Add(ball);
             }

@@ -11,6 +11,9 @@ namespace BallsOut
         [SerializeField] private PrefabRegistry prefabs;
         [SerializeField, Min(0.02f)] private float simulationTick = 0.08f;
         [SerializeField, Min(0.02f)] private float boxStepDuration = 0.08f;
+        [Tooltip("Lowest ball rows above a box from which a matching ball flies straight in, past the balls under it. " +
+            "Other balls never move for it. 0 = off.")]
+        [SerializeField, Min(0)] private int sinkReachRows = 2;
         [SerializeField] private bool waitForLevelStart;
         [SerializeField] private bool drawDebugGizmos = true;
         private Transform content;
@@ -83,7 +86,7 @@ namespace BallsOut
                 var root = new GameObject("Box " + spawn.id);
                 root.transform.SetParent(content, false);
                 var box = root.AddComponent<BoxController>();
-                box.Initialize(spawn, prefabs, Board.CellSize, level.denseBoxFill, level.FillLayerCount);
+                box.Initialize(spawn, prefabs, Board.CellSize, level.denseBoxFill, level.FillLayerCount, level.BoxSlotsPerSide);
                 box.CreateInitialFill(pool);
                 box.runtimeCellSize = Board.CellSize;
                 Board.TryPlace(box, spawn.startingMacroOrigin, Balls);
@@ -106,7 +109,7 @@ namespace BallsOut
             Completion.OnBoxCompleted += CrackIce;
             Collection = new BallCollectionSystem(Balls, Fill, Completion);
             Collection.OnBallCollected += ForwardBallCollected;
-            Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork);
+            Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows);
             Movement = new BoxMovementSystem(Board, Balls, boxStepDuration);
             dragInput = GetComponent<BoardDragInput>();
             dragInput.Initialize(Board, Movement);

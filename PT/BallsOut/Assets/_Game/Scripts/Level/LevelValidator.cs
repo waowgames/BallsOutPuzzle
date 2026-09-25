@@ -48,7 +48,7 @@ namespace BallsOut
                 { errors.Add($"Box {i}: assign a nonempty shape and color."); continue; }
                 if (string.IsNullOrWhiteSpace(box.id) || !ids.Add(box.id)) errors.Add($"Box {i}: ID must be nonempty and unique.");
                 if (box.startsLocked) errors.Add($"Box {i}: locks require Phase 13; turn off startsLocked.");
-                long capacity = (long)box.shape.FillSlotsPerLayer(level.denseBoxFill) * level.FillLayerCount;
+                long capacity = level.BoxCapacity(box.shape);
                 if (box.initialFillCount < 0 || box.initialFillCount >= capacity)
                     errors.Add($"Box {i}: initial fill must be between 0 and capacity - 1.");
                 AddCount(capacities, box.color, capacity - box.initialFillCount);

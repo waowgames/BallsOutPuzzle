@@ -32,7 +32,7 @@ namespace BallsOut
         {
             int layerSize = box.FillSlots.Length;
             Vector3 position = box.FillSlots[index % layerSize];
-            position.y = index / layerSize * box.FillSpacing.y;
+            position.y += index / layerSize * box.FillSpacing.y;
             return position;
         }
 
@@ -49,8 +49,7 @@ namespace BallsOut
                 ball.Visual.SetParent(box.FillRoot, true);
                 start = ball.Visual.localPosition;
                 startScale = ball.Visual.localScale;
-                float diameter = box.FillSpacing.x;
-                endScale = Vector3.one * diameter;
+                endScale = Vector3.one * box.FillBallDiameter;
             }
             box.CollectedBalls.Add(ball);
             box.PendingFillAnimations++;
