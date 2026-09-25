@@ -105,9 +105,23 @@ namespace BallsOut
             return hit;
         }
 
-        private bool Begin(Vector2 point) =>
-            (UIManager.Instance == null || !UIManager.Instance.HasActivePopup) &&
-            Project(point, out var world) && movement.Begin(world);
+        private bool Begin(Vector2 point)
+        {
+            if (UIManager.Instance != null && UIManager.Instance.HasActivePopup) return false;
+            if (!Project(point, out var world)) return false;
+            Ray ray = inputCamera.ScreenPointToRay(point);
+            RaycastHit[] hits = Physics.RaycastAll(ray);
+            BoxController candidate = null;
+            float nearest = float.PositiveInfinity;
+            foreach (RaycastHit hit in hits)
+            {
+                BoxController box = hit.collider.GetComponentInParent<BoxController>();
+                if (box == null || hit.distance >= nearest) continue;
+                candidate = box;
+                nearest = hit.distance;
+            }
+            return candidate != null && movement.Begin(world, candidate);
+        }
         private void Move(Vector2 point) { if (Project(point, out var world)) movement.Drag(world); }
         private void OnDisable()
         {

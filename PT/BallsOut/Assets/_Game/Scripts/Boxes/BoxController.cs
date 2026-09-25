@@ -104,9 +104,10 @@ namespace BallsOut
                 int rowOrder = a.z.CompareTo(b.z);
                 return rowOrder != 0 ? rowOrder : a.x.CompareTo(b.x);
             });
+            GameObject visual;
             if (registry != null && registry.TryGetBox(Shape, out var entry) && entry.prefab != null)
             {
-                GameObject visual = Instantiate(entry.prefab, transform);
+                visual = Instantiate(entry.prefab, transform);
                 visual.transform.localPosition = entry.localOffset;
                 visual.transform.localRotation = Quaternion.identity;
                 visual.transform.localScale = entry.localScale == Vector3.zero ? Vector3.one : entry.localScale;
@@ -118,19 +119,32 @@ namespace BallsOut
             }
             else
             {
-                GameObject visual = BoxShapeVisual.Create(Shape, Color.boxMaterial, transform, cellSize, registry, out Vector3 fillOffset);
+                visual = BoxShapeVisual.Create(Shape, Color.boxMaterial, transform, cellSize, registry, out Vector3 fillOffset);
                 FillRoot.localPosition += fillOffset;
                 fillLabel = BoxFillLabel.Create(this, visual, cellSize);
                 fillLabel.SetFill(CurrentFill, Capacity);
             }
             if (registry != null && registry.shadowMaterial != null) CreateShadow(registry, cellSize);
             IceCount = Mathf.Max(0, spawn.iceCount);
-            // Hit proxies follow the data footprint, never mesh bounds.
+            // Keep the pick volume level with the visible box, including its raised rim.
+            MeshFilter boxMesh = visual.GetComponentInChildren<MeshFilter>();
+            float hitBottom = 0f;
+            float hitTop = cellSize * 0.4f;
+            if (boxMesh != null && boxMesh.sharedMesh != null)
+            {
+                Bounds meshBounds = boxMesh.sharedMesh.bounds;
+                hitBottom = transform.InverseTransformPoint(boxMesh.transform.TransformPoint(
+                    new Vector3(0f, meshBounds.min.y, 0f))).y;
+                hitTop = transform.InverseTransformPoint(boxMesh.transform.TransformPoint(
+                    new Vector3(0f, meshBounds.max.y, 0f))).y;
+                if (hitTop < hitBottom) (hitBottom, hitTop) = (hitTop, hitBottom);
+            }
+            float hitHeight = Mathf.Max(0.01f, hitTop - hitBottom);
             foreach (Vector2Int cell in Shape.Cells)
             {
                 var hit = gameObject.AddComponent<BoxCollider>();
-                hit.center = new Vector3(cell.x * cellSize, cellSize * 0.2f, cell.y * cellSize);
-                hit.size = new Vector3(cellSize * 0.95f, cellSize * 0.4f, cellSize * 0.95f);
+                hit.center = new Vector3(cell.x * cellSize, (hitBottom + hitTop) * 0.5f, cell.y * cellSize);
+                hit.size = new Vector3(cellSize * 0.95f, hitHeight, cellSize * 0.95f);
             }
             // Colliders stay on the root; only the art and its fill pulse.
             Vector3 center = Vector3.zero;

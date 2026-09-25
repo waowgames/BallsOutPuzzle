@@ -24,10 +24,10 @@ namespace BallsOut
             this.snapDuration = Mathf.Max(0.02f, snapDuration);
         }
 
-        public bool Begin(Vector3 worldPoint)
+        public bool Begin(Vector3 worldPoint, BoxController candidate)
         {
             if (selected != null) return false;
-            selected = board.GetBox(board.WorldToCell(worldPoint));
+            selected = candidate;
             if (selected == null || !selected.CanMove) { selected = null; return false; }
             grabOffset = board.Root.InverseTransformPoint(worldPoint) - selected.transform.localPosition;
             releaseRequested = false;
