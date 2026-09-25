@@ -4,6 +4,8 @@ namespace BallsOut
 {
     public sealed class BallMicroGrid
     {
+        // Ball radius plus a wall's half-thickness, in macro cells.
+        private const float WallClearance = 0.15f;
         private readonly BallState[] occupants;
         private readonly bool[] mask;
         private readonly int[] visualReservations;
@@ -69,17 +71,40 @@ namespace BallsOut
             float pitch = Board.CellSize * 0.24f;
             int row = cell.y - Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution;
             float noise = Mathf.Sin(cell.x * 12.9898f + row * 78.233f);
-            float x = Board.Definition.BallColumnX(cell.x, row) + noise * 0.025f * pitch;
-            Vector2Int macro = ToMacro(cell);
-            // Keep spheres clear of the vertical edges of reservoir cutouts as well.
-            if (Board.GetCell(macro + Vector2Int.left) != CellKind.Usable)
-                x = Mathf.Max(x, macro.x * Board.CellSize + Board.CellSize * 0.13f);
-            if (Board.GetCell(macro + Vector2Int.right) != CellKind.Usable)
-                x = Mathf.Min(x, (macro.x + 1) * Board.CellSize - Board.CellSize * 0.13f);
+            float x = ChamberX(cell, row) + noise * 0.025f * pitch;
             return new Vector3(
                 x,
                 Mathf.Abs(noise) * Board.CellSize * 0.025f,
                 Board.Definition.BallRowZ(row) + noise * 0.025f * pitch);
+        }
+
+        // The lattice pitch ignores macro cells, so a chamber between walls (cutout edges or
+        // dividers) can hold columns that straddle them. Each chamber's lattice is shifted
+        // inside its walls, and squeezed when the chamber is narrower than the lattice.
+        private float ChamberX(Vector2Int cell, int row)
+        {
+            LevelDefinition level = Board.Definition;
+            const int r = LevelDefinition.MicroResolution;
+            Vector2Int macro = ToMacro(cell);
+            int left = macro.x, right = macro.x + 1;
+            while (!IsWall(left, macro.y)) left--;
+            while (!IsWall(right, macro.y)) right++;
+            float first = level.BallColumnX(left * r, 0);
+            float last = level.BallColumnX(right * r - 1, 1);
+            float min = (left + WallClearance) * Board.CellSize;
+            float max = (right - WallClearance) * Board.CellSize;
+            float x = level.BallColumnX(cell.x, row);
+            if (last - first > max - min)
+                return (min + max) * 0.5f + (x - (first + last) * 0.5f) * (max - min) / (last - first);
+            return x + Mathf.Max(0f, min - first) + Mathf.Min(0f, max - last);
+        }
+
+        private bool IsWall(int boundary, int macroRow)
+        {
+            var dividers = Board.Definition.reservoirDividerColumns;
+            return Board.GetCell(new Vector2Int(boundary - 1, macroRow)) != CellKind.Usable ||
+                Board.GetCell(new Vector2Int(boundary, macroRow)) != CellKind.Usable ||
+                dividers != null && dividers.Contains(boundary);
         }
 
         public static void DownNeighbors(Vector2Int cell, out Vector2Int down, out Vector2Int left, out Vector2Int right)

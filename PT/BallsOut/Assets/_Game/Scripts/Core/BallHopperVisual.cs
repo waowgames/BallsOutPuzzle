@@ -82,12 +82,14 @@ namespace BallsOut
             BuildLowerFrame();
             BuildReservoir();
             if (level.hopperMicroRows > 0) BuildHopper();
-            BoardRimMesh.Append(rimEdges, level.macroCellSize, vertices, normals, triangles);
+            BoardRimMesh.Append(rimEdges, BoardRimMesh.Frame, level.macroCellSize, vertices, normals, triangles);
             // The divider is swept on its own so its ends tuck into the side rails instead of rerouting them.
             rimEdges.Clear();
             BuildDivider();
+            BoardRimMesh.Append(rimEdges, BoardRimMesh.Bar, level.macroCellSize, vertices, normals, triangles);
+            rimEdges.Clear();
             BuildReservoirDividers();
-            BoardRimMesh.Append(rimEdges, level.macroCellSize, vertices, normals, triangles);
+            BoardRimMesh.Append(rimEdges, BoardRimMesh.Slat, level.macroCellSize, vertices, normals, triangles);
             generatedMesh = new Mesh { name = "Level Board Surface", hideFlags = HideFlags.DontSave };
             if (vertices.Count > 65535) generatedMesh.indexFormat = IndexFormat.UInt32;
             generatedMesh.SetVertices(vertices);
@@ -229,9 +231,9 @@ namespace BallsOut
         {
             float s = level.macroCellSize;
             float z = level.DepotBottom;
-            // Ends stop on the side rails' centerline so each cap hides inside them as a clean T.
-            float endExtension = 0.19f * s;
-            // The rail faces the grid, so its rounded body sits on the reservoir side of the seam.
+            // Ends stop mid-frame so each cap hides inside it as a clean T.
+            float endExtension = 0.15f * s;
+            // The bar's lip faces the grid, so its body sits on the reservoir side of the seam.
             for (int x = 0; x < level.macroGridWidth; x++)
             {
                 if (!Lower(x, level.lowerGridHeight - 1) || !Depot(x, 0)) continue;
@@ -247,10 +249,11 @@ namespace BallsOut
         {
             if (level.reservoirDividerColumns == null) return;
             float size = level.macroCellSize;
+            // Centred on the column boundary; both ends run into the mid-line of the bar and top frame.
             foreach (int column in level.reservoirDividerColumns)
             {
                 float x = column * size;
-                Rail(P(x, level.DepotBottom), P(x, level.DepotTop));
+                Rail(P(x, level.DepotBottom + 0.15f * size), P(x, level.DepotTop + 0.15f * size));
             }
         }
 
