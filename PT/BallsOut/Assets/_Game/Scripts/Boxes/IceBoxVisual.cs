@@ -32,15 +32,14 @@ namespace BallsOut
         private static readonly int FlashId = Shader.PropertyToID("_Flash");
         private static readonly int RangeId = Shader.PropertyToID("_Range");
 
-        // Palette sampled from the reference ice blocks.
-        private static readonly Color TopLow = new Color32(0x4F, 0xB8, 0xEC, 0xFF);
-        private static readonly Color TopHigh = new Color32(0x86, 0xD6, 0xF7, 0xFF);
-        private static readonly Color RimLight = new Color32(0xD8, 0xF6, 0xFF, 0xFF);
-        private static readonly Color RimShade = new Color32(0x2F, 0x8F, 0xD6, 0xFF);
-        private static readonly Color WallTop = new Color32(0x45, 0xA8, 0xE6, 0xFF);
-        private static readonly Color WallBottom = new Color32(0x1E, 0x6F, 0xC0, 0xFF);
-        private static readonly Color CrackShade = new Color32(0x2A, 0x7F, 0xC8, 0xFF);
-        private static readonly Color ShardColor = new Color32(0xA8, 0xE6, 0xFB, 0xFF);
+        private static readonly Color TopLow = new Color32(0x27, 0x89, 0xC9, 0xFF);
+        private static readonly Color TopHigh = new Color32(0x4D, 0xAD, 0xDD, 0xFF);
+        private static readonly Color RimLight = new Color32(0xA7, 0xDE, 0xF2, 0xFF);
+        private static readonly Color RimShade = new Color32(0x18, 0x69, 0xA8, 0xFF);
+        private static readonly Color WallTop = new Color32(0x2A, 0x84, 0xBD, 0xFF);
+        private static readonly Color WallBottom = new Color32(0x14, 0x53, 0x88, 0xFF);
+        private static readonly Color CrackShade = new Color32(0x12, 0x55, 0x91, 0xFF);
+        private static readonly Color ShardColor = new Color32(0x86, 0xCD, 0xEC, 0xFF);
         private static readonly Vector2 LightDirection = new Vector2(-0.35f, 1f).normalized;
         private static Material material;
         private static Material labelMaterial;
@@ -112,13 +111,11 @@ namespace BallsOut
             cells = new HashSet<Vector2Int>(cellList);
             random = new System.Random(StableHash(box.Id));
 
-            // Match the height of the box art it replaces, plus a little.
-            float artTop = size * 0.4f;
-            foreach (Renderer renderer in box.GetComponentsInChildren<Renderer>(true))
-                if (renderer.gameObject.name != "Soft Shadow")
-                    artTop = Mathf.Max(artTop, box.transform.InverseTransformPoint(renderer.bounds.max).y);
-            bottom = size * 0.01f;
-            top = artTop + size * 0.03f;
+            // BoxController has already sized its colliders to the box art. Use the
+            // same base so the ice wall ends above the floor instead of sinking into it.
+            BoxCollider boxCollider = box.GetComponent<BoxCollider>();
+            bottom = boxCollider.center.y - boxCollider.size.y * 0.5f;
+            top = boxCollider.center.y + boxCollider.size.y * 0.5f + size * 0.03f;
 
             Vector3 centroid = Vector3.zero;
             footprintMin = Vector2.positiveInfinity;
@@ -328,7 +325,7 @@ namespace BallsOut
                     Color color = Color.Lerp(TopLow, TopHigh, Mathf.SmoothStep(0f, 1f, v * 0.85f + 0.1f));
                     float frost = Mathf.PerlinNoise(p.x * 4.3f + 11f, p.y * 4.3f + 7f) * 0.6f +
                                   Mathf.PerlinNoise(p.x * 11f + 3f, p.y * 11f + 19f) * 0.4f;
-                    color += new Color(1f, 1f, 1f, 0f) * ((frost - 0.5f) * 0.07f);
+                    color += new Color(1f, 1f, 1f, 0f) * ((frost - 0.5f) * 0.045f);
 
                     // Polish: short diagonal glints, a wide soft one next to a thin sharp one.
                     float along = p.x * 0.8f + p.y;
@@ -338,8 +335,8 @@ namespace BallsOut
                     float thin = 1f - Mathf.Clamp01(Mathf.Abs(band - 0.45f) / 0.022f);
                     float segments = Mathf.Clamp01((Mathf.PerlinNoise(across + 5f, Mathf.Floor(along / 0.95f) * 3.1f) - 0.42f) * 5f);
                     float inner = Mathf.Clamp01((depth - BevelWidth) / 0.06f);
-                    float glint = (wide * wide * 0.5f + thin * 0.65f) * segments * inner;
-                    color = Color.Lerp(color, Color.white, glint);
+                    float glint = (wide * wide * 0.35f + thin * 0.45f) * segments * inner;
+                    color = Color.Lerp(color, RimLight, glint);
 
                     // Bevel: rim lit from the upper left, shaded toward the lower right.
                     Vector2 normal = new Vector2(Distance(p + new Vector2(e, 0f)) - Distance(p - new Vector2(e, 0f)),
@@ -351,7 +348,7 @@ namespace BallsOut
                     color = Color.Lerp(rim, color, bevel);
                     // Thin bright seam where the bevel meets the face.
                     float seam = 1f - Mathf.Clamp01(Mathf.Abs(depth - BevelWidth) / 0.018f);
-                    color = Color.Lerp(color, RimLight, seam * 0.35f);
+                    color = Color.Lerp(color, RimLight, seam * 0.25f);
 
                     // Cracks: a darker groove under a bright fracture line.
                     if (crackStage > 0)
