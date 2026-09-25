@@ -119,7 +119,7 @@ namespace BallsOut
 
         public void Release()
         {
-            if (selected == null) return;
+            if (selected == null || releaseRequested) return;
             releaseRequested = true;
             snapStart = selected.transform.localPosition;
             snapElapsed = 0f;
@@ -127,7 +127,10 @@ namespace BallsOut
 
         public void Advance(float deltaTime)
         {
-            if (selected == null || !releaseRequested) return;
+            if (selected == null) return;
+            // A box filled mid-drag lets go on its own so its completion can play.
+            if (selected.IsCompleting) Release();
+            if (!releaseRequested) return;
             snapElapsed += deltaTime;
             float t = Mathf.Clamp01(snapElapsed / snapDuration);
             selected.transform.localPosition = Vector3.Lerp(snapStart, board.CellToLocal(selected.Origin), t);
