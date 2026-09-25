@@ -61,15 +61,15 @@ namespace BallsOut
             return null;
         }
 
-        // Nested box: a lower tray standing on the outer floor, inset past the outer wall
-        // so a band of the outer color frames it on every side.
+        // Nested box: a lower tray standing on the outer floor. Its outside is tucked into the outer
+        // wall (inner face at 0.105) so the tray spans the fill area; the outer rim top frames it.
         private static readonly Dictionary<BoxShapeDefinition, Mesh> InnerMeshes = new Dictionary<BoxShapeDefinition, Mesh>();
         private static readonly Vector2[] InnerProfile =
         {
-            new Vector2(0.165f, 0.055f), new Vector2(0.145f, 0.075f),
-            new Vector2(0.145f, 0.225f), new Vector2(0.165f, 0.245f),
-            new Vector2(0.195f, 0.245f), new Vector2(0.215f, 0.225f),
-            new Vector2(0.215f, 0.105f), new Vector2(0.235f, 0.085f)
+            new Vector2(0.11f, 0.055f), new Vector2(0.095f, 0.075f),
+            new Vector2(0.095f, 0.225f), new Vector2(0.11f, 0.245f),
+            new Vector2(0.13f, 0.245f), new Vector2(0.145f, 0.225f),
+            new Vector2(0.145f, 0.105f), new Vector2(0.16f, 0.085f)
         };
 
         // Returns a pivot on the footprint centre so the tray can shrink away about its middle.
