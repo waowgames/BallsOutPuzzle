@@ -69,6 +69,7 @@ namespace BallsOut
             FillBallDiameter = slotSpacing * 1.08f;
             FillSlots = new Vector3[slotsPerLayer];
             var cells = new HashSet<Vector2Int>(Shape.Cells);
+            float cellOffset = -(resolution - 1) * slotSpacing * 0.5f;
             int slot = 0;
             foreach (Vector2Int cell in Shape.Cells)
             {
@@ -90,20 +91,23 @@ namespace BallsOut
                     for (int column = 0; column < resolution + (right ? seam : 0); column++)
                     {
                         if (row >= resolution && column >= resolution && !diagonal) continue;
-                        // Stable per-slot jitter, like the reservoir pile, so the fill is not a rigid grid.
-                        int x = startColumn + column, z = startRow + row;
-                        float noise = Mathf.Sin((cell.x * stride + column) * 12.9898f + (cell.y * stride + row) * 78.233f);
-                        FillSlots[slot++] = new Vector3(
-                            startX + (x + noise * 0.06f) * slotSpacing,
-                            Mathf.Abs(noise) * 0.12f * slotSpacing,
-                            startZ + (z - noise * 0.06f) * slotSpacing);
+                        // Seamed fill anchors every cell on its own centre: stride slots span one cell, so
+                        // rows and columns line up across the whole shape (L arms included) as one clean
+                        // grid. Unseamed runs pack contiguously instead.
+                        FillSlots[slot++] = seamed
+                            ? new Vector3(cell.x * cellSize + cellOffset + column * slotSpacing, 0f,
+                                cell.y * cellSize + cellOffset + row * slotSpacing + 0.01f * cellSize)
+                            : new Vector3(startX + (startColumn + column) * slotSpacing, 0f,
+                                startZ + (startRow + row) * slotSpacing);
                     }
             }
-            // The game camera looks down with screen up along local +Z.
+            // The game camera looks down with screen up along local +Z: fill row by row, left to right.
+            // Half-slot tolerance keeps rows from differently centred runs together.
+            float rowTolerance = slotSpacing * 0.5f;
             Array.Sort(FillSlots, (a, b) =>
             {
-                int rowOrder = a.z.CompareTo(b.z);
-                return rowOrder != 0 ? rowOrder : a.x.CompareTo(b.x);
+                if (Mathf.Abs(a.z - b.z) > rowTolerance) return a.z.CompareTo(b.z);
+                return a.x.CompareTo(b.x);
             });
             GameObject visual;
             if (registry != null && registry.TryGetBox(Shape, out var entry) && entry.prefab != null)
