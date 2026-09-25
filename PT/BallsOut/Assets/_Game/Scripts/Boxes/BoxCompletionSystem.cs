@@ -10,6 +10,7 @@ namespace BallsOut
         {
             public BoxController box;
             public bool started;
+            public float waited;
             public float elapsed;
             public float duration;
         }
@@ -18,16 +19,18 @@ namespace BallsOut
         private readonly BoxFillSystem fill;
         private readonly List<Completion> pending;
         private readonly float defaultDuration;
+        private readonly float startDelay;
         public int RemainingBoxes { get; private set; }
         public bool IsAnimating => pending.Count != 0;
         public event Action<BoxController> OnBoxCompleted;
         public event Action<BoxController> OnBoxRemoved;
 
-        public BoxCompletionSystem(BoardGrid board, BoxFillSystem fill, int boxCount, float defaultDuration)
+        public BoxCompletionSystem(BoardGrid board, BoxFillSystem fill, int boxCount, float defaultDuration, float startDelay)
         {
             this.board = board;
             this.fill = fill;
             this.defaultDuration = Mathf.Max(0f, defaultDuration);
+            this.startDelay = Mathf.Max(0f, startDelay);
             RemainingBoxes = boxCount;
             pending = new List<Completion>(boxCount);
         }
@@ -47,6 +50,13 @@ namespace BallsOut
                 Completion entry = pending[i];
                 BoxController box = entry.box;
                 if (box.PendingFillAnimations != 0 || box.IsInTransit) continue;
+                // Full boxes linger briefly so the player sees them filled before they vanish.
+                if (entry.waited < startDelay)
+                {
+                    entry.waited += deltaTime;
+                    pending[i] = entry;
+                    continue;
+                }
                 if (!entry.started)
                 {
                     entry.started = true;

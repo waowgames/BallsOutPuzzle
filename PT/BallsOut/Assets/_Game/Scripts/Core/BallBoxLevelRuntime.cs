@@ -103,7 +103,8 @@ namespace BallsOut
                 if (ball.Visual != null) ball.Visual.localPosition = Balls.CellToLocal(ball.Cell) + Vector3.up * height;
             }
             Fill = new BoxFillSystem(pool, prefabs != null ? prefabs.fillDuration : 0.26f, Balls.Count);
-            Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 0.25f);
+            Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 0.25f,
+                prefabs != null ? prefabs.completionDelay : 0.3f);
             Completion.OnBoxCompleted += ForwardBoxCompleted;
             Completion.OnBoxRemoved += ForwardBoxRemoved;
             Completion.OnBoxCompleted += CrackIce;
