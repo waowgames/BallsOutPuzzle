@@ -80,6 +80,12 @@ namespace BallsOut
         private Vector2 footprintMax;
         private Texture2D texture;
         private Color32[] pixels;
+        // Crack-free top (alpha holds the distance) and accumulated crack strength,
+        // so a new crack stage only repaints the pixels its fractures touch.
+        private Color[] basePixels;
+        private float[] crackShade;
+        private float[] crackCore;
+        private int bakedCrackStage;
         private Transform body;
         private Mesh bodyMesh;
         private MeshRenderer bodyRenderer;
@@ -144,6 +150,9 @@ namespace BallsOut
                 filterMode = FilterMode.Bilinear
             };
             pixels = new Color32[texture.width * texture.height];
+            basePixels = new Color[pixels.Length];
+            crackShade = new float[pixels.Length];
+            crackCore = new float[pixels.Length];
             properties = new MaterialPropertyBlock();
             properties.SetTexture(MainTexId, texture);
             properties.SetFloat(RangeId, DistanceRange);
@@ -171,7 +180,8 @@ namespace BallsOut
             CreateLabel();
             crackStage = CrackStageFor(count);
             label.text = count.ToString();
-            BakeTop();
+            BakeBase();
+            BakeCracks();
         }
 
         private static MeshRenderer SetupRenderer(MeshRenderer renderer)
@@ -201,7 +211,7 @@ namespace BallsOut
             int stage = CrackStageFor(count);
             if (stage == crackStage) return;
             crackStage = stage;
-            BakeTop();
+            BakeCracks();
             SpawnShards(3 + cellList.Count, 0.55f, 0.6f);
         }
 
@@ -306,7 +316,7 @@ namespace BallsOut
 
         // ---- Baked top face: colour in RGB, signed distance in alpha ----
 
-        private void BakeTop()
+        private void BakeBase()
         {
             int width = texture.width;
             int height = texture.height;
@@ -350,30 +360,72 @@ namespace BallsOut
                     float seam = 1f - Mathf.Clamp01(Mathf.Abs(depth - BevelWidth) / 0.018f);
                     color = Color.Lerp(color, RimLight, seam * 0.25f);
 
-                    // Cracks: a darker groove under a bright fracture line.
-                    if (crackStage > 0)
-                    {
-                        float shade = 0f, core = 0f;
-                        var shaded = p + new Vector2(-0.008f, -0.012f);
-                        foreach (Crack crack in cracks)
-                        {
-                            if (crack.stage > crackStage) continue;
-                            SegmentDistance(p, crack, out float distance, out float crackWidth);
-                            core = Mathf.Max(core, 1f - Mathf.Clamp01((distance - crackWidth * 0.35f) / (crackWidth * 0.5f)));
-                            SegmentDistance(shaded, crack, out distance, out crackWidth);
-                            shade = Mathf.Max(shade, 1f - Mathf.Clamp01((distance - crackWidth * 0.8f) / (crackWidth * 0.6f)));
-                        }
-                        float mask = Mathf.Clamp01(depth / 0.05f);
-                        color = Color.Lerp(color, CrackShade, shade * 0.55f * mask);
-                        color = Color.Lerp(color, Color.white, core * 0.95f * mask);
-                    }
-
                     color.a = Mathf.Clamp01(0.5f - d / (2f * DistanceRange));
+                    basePixels[y * width + x] = color;
                     pixels[y * width + x] = color;
+                }
+        }
+
+        // Cracks: a darker groove under a bright fracture line. Stages only add
+        // cracks, so each call folds in the new ones and repaints just their area.
+        private void BakeCracks()
+        {
+            int width = texture.width;
+            int height = texture.height;
+            if (crackStage < bakedCrackStage)
+            {
+                System.Array.Clear(crackShade, 0, crackShade.Length);
+                System.Array.Clear(crackCore, 0, crackCore.Length);
+                bakedCrackStage = 0;
+                for (int i = 0; i < pixels.Length; i++) pixels[i] = basePixels[i];
+            }
+
+            int xMin = width, yMin = height, xMax = -1, yMax = -1;
+            foreach (Crack crack in cracks)
+            {
+                if (crack.stage <= bakedCrackStage || crack.stage > crackStage) continue;
+                // Shade reaches 1.4 widths around the segment shifted by the groove offset.
+                float reach = Mathf.Max(crack.widthA, crack.widthB) * 1.4f;
+                int x0 = Mathf.Max(0, Mathf.FloorToInt(PixelX(Mathf.Min(crack.a.x, crack.b.x) - reach)));
+                int x1 = Mathf.Min(width - 1, Mathf.CeilToInt(PixelX(Mathf.Max(crack.a.x, crack.b.x) + reach + 0.008f)));
+                int y0 = Mathf.Max(0, Mathf.FloorToInt(PixelY(Mathf.Min(crack.a.y, crack.b.y) - reach)));
+                int y1 = Mathf.Min(height - 1, Mathf.CeilToInt(PixelY(Mathf.Max(crack.a.y, crack.b.y) + reach + 0.012f)));
+                if (x0 > x1 || y0 > y1) continue;
+                xMin = Mathf.Min(xMin, x0); xMax = Mathf.Max(xMax, x1);
+                yMin = Mathf.Min(yMin, y0); yMax = Mathf.Max(yMax, y1);
+                for (int y = y0; y <= y1; y++)
+                    for (int x = x0; x <= x1; x++)
+                    {
+                        var p = new Vector2(bounds.xMin + (x + 0.5f) / width * bounds.width,
+                            bounds.yMin + (y + 0.5f) / height * bounds.height);
+                        int i = y * width + x;
+                        SegmentDistance(p, crack, out float distance, out float crackWidth);
+                        crackCore[i] = Mathf.Max(crackCore[i], 1f - Mathf.Clamp01((distance - crackWidth * 0.35f) / (crackWidth * 0.5f)));
+                        SegmentDistance(p + new Vector2(-0.008f, -0.012f), crack, out distance, out crackWidth);
+                        crackShade[i] = Mathf.Max(crackShade[i], 1f - Mathf.Clamp01((distance - crackWidth * 0.8f) / (crackWidth * 0.6f)));
+                    }
+            }
+            bakedCrackStage = crackStage;
+
+            for (int y = yMin; y <= yMax; y++)
+                for (int x = xMin; x <= xMax; x++)
+                {
+                    int i = y * width + x;
+                    Color color = basePixels[i];
+                    float alpha = color.a;
+                    // Alpha encodes the distance; this recovers Clamp01(depth / 0.05).
+                    float mask = Mathf.Clamp01((alpha - 0.5f) * (2f * DistanceRange / 0.05f));
+                    color = Color.Lerp(color, CrackShade, crackShade[i] * 0.55f * mask);
+                    color = Color.Lerp(color, Color.white, crackCore[i] * 0.95f * mask);
+                    color.a = alpha;
+                    pixels[i] = color;
                 }
             texture.SetPixels32(pixels);
             texture.Apply(false);
         }
+
+        private float PixelX(float cellX) => (cellX - bounds.xMin) / bounds.width * texture.width - 0.5f;
+        private float PixelY(float cellY) => (cellY - bounds.yMin) / bounds.height * texture.height - 0.5f;
 
         private static void SegmentDistance(Vector2 p, Crack crack, out float distance, out float width)
         {
