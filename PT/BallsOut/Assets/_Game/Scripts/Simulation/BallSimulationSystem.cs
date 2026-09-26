@@ -9,6 +9,7 @@ namespace BallsOut
         private readonly BallMicroGrid grid;
         private readonly BallCollectionSystem collection;
         private readonly BallFeederSystem feeder;
+        private readonly BallConveyorSystem conveyor;
         private readonly Action<BallState, Vector3> launch;
         private readonly List<BallState> moving = new List<BallState>();
         private readonly float visualHeight;
@@ -28,11 +29,13 @@ namespace BallsOut
         public event Action<bool> OnStabilityChanged;
 
         public BallSimulationSystem(BallMicroGrid grid, BallCollectionSystem collection, float tickInterval, float visualHeight,
-            Action<float> advanceBoxSystems, Func<bool> hasPendingBoxWork, int sinkReachRows = 0, BallFeederSystem feeder = null)
+            Action<float> advanceBoxSystems, Func<bool> hasPendingBoxWork, int sinkReachRows = 0, BallFeederSystem feeder = null,
+            BallConveyorSystem conveyor = null)
         {
             this.grid = grid;
             this.collection = collection;
             this.feeder = feeder;
+            this.conveyor = conveyor;
             launch = Launch;
             this.visualHeight = visualHeight;
             this.sinkReachRows = Mathf.Clamp(sinkReachRows, 0, 3);
@@ -107,8 +110,9 @@ namespace BallsOut
                     Enter(ball, target);
                     changed = true;
                 }
-            // Tubes top up the row the pile has just left.
+            // Tubes and the conveyor's gate top up the row the pile has just left.
             if (feeder != null && feeder.Feed(launch)) changed = true;
+            if (conveyor != null && conveyor.Feed(launch)) changed = true;
             SetStable(!changed);
         }
 
@@ -176,7 +180,7 @@ namespace BallsOut
             moving.Add(ball);
         }
 
-        // A ball dropped from a feeder tube falls from its place in the tube to its reservoir site.
+        // A ball dropped from a feeder tube or the conveyor falls from where it waited to its reservoir site.
         private void Launch(BallState ball, Vector3 from)
         {
             ball.PreviousMacro = BallMicroGrid.ToMacro(ball.Cell);
@@ -189,6 +193,7 @@ namespace BallsOut
         private void Interpolate(float amount)
         {
             feeder?.Render(amount);
+            conveyor?.Render(amount);
             foreach (var ball in moving)
                 if (ball.Visual != null)
                     ball.Visual.localPosition = Vector3.LerpUnclamped(ball.AnimationStart, ball.AnimationEnd, amount);

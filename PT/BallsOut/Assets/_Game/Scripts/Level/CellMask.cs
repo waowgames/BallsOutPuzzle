@@ -58,6 +58,17 @@ namespace BallsOut
     }
 
     [Serializable]
+    public sealed class BallConveyorData
+    {
+        [Tooltip("Macro column of the reservoir's top edge the conveyor's gate pours into.")]
+        public int column;
+        [Tooltip("One-cell-wide runs of track stacked over the reservoir, joined by U-turns.")]
+        [Range(1, 4)] public int runs = 3;
+        [Tooltip("Balls on the belt, first out first: each segment carries its count of one color.")]
+        public List<FeederSegment> queue = new List<FeederSegment>();
+    }
+
+    [Serializable]
     public sealed class BoxSpawnData
     {
         public string id;

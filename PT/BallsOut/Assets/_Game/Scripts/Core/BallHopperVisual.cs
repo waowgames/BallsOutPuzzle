@@ -9,6 +9,8 @@ namespace BallsOut
     public sealed class BallHopperVisual : MonoBehaviour
     {
         private const int FrameFloorMaterial = 0;
+        // BoardRimMesh's flat rail top.
+        private const int RimTopMaterial = 2;
         private const int DepotFloorMaterial = 4;
         private const float NeckRadius = 0.42f;
         private const int NeckSteps = 10;
@@ -82,6 +84,7 @@ namespace BallsOut
             BuildLowerFrame();
             BuildReservoir();
             if (level.hopperMicroRows > 0) BuildHopper();
+            if (level.HasConveyor) BuildConveyor();
             BoardRimMesh.Append(rimEdges, BoardRimMesh.Frame, level.macroCellSize, vertices, normals, triangles);
             // The divider is swept on its own so its ends tuck into the side rails instead of rerouting them.
             rimEdges.Clear();
@@ -89,6 +92,7 @@ namespace BallsOut
             BoardRimMesh.Append(rimEdges, BoardRimMesh.Bar, level.macroCellSize, vertices, normals, triangles);
             rimEdges.Clear();
             BuildReservoirDividers();
+            if (level.HasConveyor) BuildConveyorSlats();
             BoardRimMesh.Append(rimEdges, BoardRimMesh.Slat, level.macroCellSize, vertices, normals, triangles);
             generatedMesh = new Mesh { name = "Level Board Surface", hideFlags = HideFlags.DontSave };
             if (vertices.Count > 65535) generatedMesh.indexFormat = IndexFormat.UInt32;
@@ -179,7 +183,7 @@ namespace BallsOut
                         if (left < shoulderLeft) Rail(P(left, top), P(Mathf.Min(right, shoulderLeft), top));
                         if (right > shoulderRight) Rail(P(Mathf.Max(left, shoulderRight), top), P(right, top));
                     }
-                    else if (!Depot(x, y + 1))
+                    else if (!Depot(x, y + 1) && !(level.HasConveyor && y == level.ballAreaMacroHeight - 1))
                     {
                         if (y == level.ballAreaMacroHeight - 1 && level.HasFeederAt(x)) BuildFeeder(left, right, top);
                         else Rail(P(left, top), P(right, top));
@@ -196,6 +200,63 @@ namespace BallsOut
             Rail(P(left, bottom), P(left, top));
             Rail(P(left, top), P(right, top));
             Rail(P(right, top), P(right, bottom));
+        }
+
+        // The conveyor continues the reservoir upwards as one plate: its runs over the full width, and
+        // a one-column chute through the top frame over the end of the highest run.
+        private void BuildConveyor()
+        {
+            float s = level.macroCellSize;
+            float width = level.macroGridWidth * s, bottom = level.DepotTop;
+            float top = ConveyorTrack.Top(level), chute = ConveyorTrack.ChuteTop(level);
+            bool left = ConveyorTrack.ChuteLeft(level);
+            float chuteLeft = ConveyorTrack.ChuteColumn(level) * s;
+            Floor(DepotFloorMaterial, 0f, width, bottom, top, level.DepotFloorHeight);
+            Floor(DepotFloorMaterial, chuteLeft, chuteLeft + s, top, chute, level.DepotFloorHeight);
+            // Clockwise like the reservoir rails, whose side walls end where these begin.
+            Rail(P(0f, bottom), P(0f, left ? chute : top));
+            if (left)
+            {
+                Rail(P(0f, chute), P(s, chute));
+                Rail(P(s, chute), P(s, top));
+                Rail(P(s, top), P(width, top));
+            }
+            else
+            {
+                Rail(P(0f, top), P(width - s, top));
+                Rail(P(width - s, top), P(width - s, chute));
+                Rail(P(width - s, chute), P(width, chute));
+            }
+            Rail(P(width, left ? top : chute), P(width, bottom));
+            // The pocket the lowest run leaves beside the gate is decked over flush with the frame top.
+            int column = level.conveyor.column;
+            float pocketLeft = ConveyorTrack.FirstLeft(level) ? (column + 1) * s : 0f;
+            float pocketRight = ConveyorTrack.FirstLeft(level) ? width : column * s;
+            float z = ConveyorTrack.Base(level);
+            if (pocketRight > pocketLeft) Floor(RimTopMaterial, pocketLeft, pocketRight, z, z + s, BoardRimMesh.RimHeight * s);
+        }
+
+        // Slats: one over the reservoir with the gate left open, one between each pair of runs that
+        // leaves a U-turn at the wall its lower run heads for, and one closing off the pocket the
+        // lowest run leaves beside the gate. Wall ends tuck under the side frames.
+        private void BuildConveyorSlats()
+        {
+            float s = level.macroCellSize;
+            int width = level.macroGridWidth, column = level.conveyor.column, runs = ConveyorTrack.Runs(level);
+            float tuck = 0.15f * s, z = ConveyorTrack.Base(level);
+            if (column > 0) Rail(P(-tuck, z), P(column * s, z));
+            if (column < width - 1) Rail(P((column + 1) * s, z), P(width * s + tuck, z));
+            float pocketTop = z + s + (runs == 1 ? tuck : 0f);
+            if (ConveyorTrack.FirstLeft(level) && column < width - 1)
+                Rail(P((column + 1) * s, pocketTop), P((column + 1) * s, z));
+            else if (!ConveyorTrack.FirstLeft(level) && column > 0)
+                Rail(P(column * s, z), P(column * s, pocketTop));
+            for (int run = 0; run < runs - 1; run++)
+            {
+                float y = z + (run + 1) * s;
+                if (ConveyorTrack.HeadsLeft(level, run)) Rail(P(s, y), P(width * s + tuck, y));
+                else Rail(P(-tuck, y), P((width - 1) * s, y));
+            }
         }
 
         private float Center => level.macroGridWidth * level.macroCellSize * 0.5f;
@@ -269,8 +330,10 @@ namespace BallsOut
             {
                 float x = column * size;
                 // Beside a tube mouth there is no top rail to tuck under; the slat ends at the lattice top.
+                // Under a conveyor it meets the slat that walls the belt off from the reservoir.
                 bool mouth = level.HasFeederAt(column - 1) || level.HasFeederAt(column);
-                Rail(P(x, level.DepotBottom + 0.15f * size), P(x, level.DepotTop + (mouth ? 0f : 0.15f * size)));
+                float top = level.HasConveyor ? ConveyorTrack.Base(level) : level.DepotTop + (mouth ? 0f : 0.15f * size);
+                Rail(P(x, level.DepotBottom + 0.15f * size), P(x, top));
             }
         }
 

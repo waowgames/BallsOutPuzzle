@@ -53,7 +53,10 @@ namespace BallsOut
                 foreach (FeederSegment segment in feeder.queue)
                     for (int i = 0; i < segment.count; i++) tube.queue.Add(segment.color);
                 Remaining += tube.queue.Count;
-                tube.counter = CreateCounter(parent, level, feeder.column);
+                // Centred on the flat top of the cap rail, which starts just outside the tube's top edge.
+                tube.counter = CreateCounter(parent, level.macroCellSize, "Feeder Counter " + feeder.column,
+                    new Vector3((feeder.column + 0.5f) * level.macroCellSize, level.macroCellSize * 0.36f,
+                        level.FeederTop + level.macroCellSize * 0.13f));
                 CreateGlass(parent, level, feeder.column);
                 Restack(tube);
                 for (int i = 0; i < tube.visuals.Count; i++)
@@ -211,15 +214,13 @@ namespace BallsOut
             return mesh;
         }
 
-        // World-space label on the tube's cap rail; no canvas or per-frame updates.
-        private static TextMeshPro CreateCounter(Transform parent, LevelDefinition level, int column)
+        // World-space label lying on a cap rail; no canvas or per-frame updates. The conveyor's chute uses it too.
+        internal static TextMeshPro CreateCounter(Transform parent, float s, string name, Vector3 position)
         {
             if (TMP_Settings.defaultFontAsset == null) return null;
-            float s = level.macroCellSize;
-            var label = new GameObject("Feeder Counter " + column);
+            var label = new GameObject(name);
             label.transform.SetParent(parent, false);
-            // Centred on the flat top of the cap rail, which starts just outside the tube's top edge.
-            label.transform.localPosition = new Vector3((column + 0.5f) * s, s * 0.36f, level.FeederTop + s * 0.13f);
+            label.transform.localPosition = position;
             label.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             TextMeshPro text = label.AddComponent<TextMeshPro>();
             MeshRenderer renderer = text.GetComponent<MeshRenderer>();

@@ -26,6 +26,8 @@ namespace BallsOut
         public List<BallSpawnData> balls = new List<BallSpawnData>();
         [Tooltip("Tubes on the reservoir's top edge. Each drops its queue into the top row below it whenever a site there is free.")]
         public List<BallFeederData> feeders = new List<BallFeederData>();
+        [Tooltip("Conveyor over the reservoir: its queue rides a serpentine track down to a one-column gate. Empty queue = no conveyor.")]
+        public BallConveyorData conveyor = new BallConveyorData();
         [Tooltip("Chained box pairs. A box drags its partner along once the chain between them is taut.")]
         public List<BoxLinkData> links = new List<BoxLinkData>();
         [Tooltip("Editor dense-field authoring palette; runtime uses the explicit balls list.")]
@@ -43,8 +45,10 @@ namespace BallsOut
         public const int FeederRows = 8;
         public bool HasFeeders => feeders != null && feeders.Count > 0;
         public float FeederTop => BallRowZ(ballAreaMacroHeight * MicroResolution + FeederRows - 0.5f);
-        // Highest point of the board art: the tube caps and their counters when there are tubes.
-        public float BoardTop => HasFeeders ? FeederTop + macroCellSize * 0.3f : DepotTop;
+        public bool HasConveyor => conveyor != null && conveyor.queue != null && conveyor.queue.Count > 0;
+        // Highest point of the board art: the tube caps or the conveyor's chute, with their counters.
+        public float BoardTop => HasConveyor ? ConveyorTrack.ChuteTop(this) + macroCellSize * 0.3f
+            : HasFeeders ? FeederTop + macroCellSize * 0.3f : DepotTop;
 
         public bool HasFeederAt(int column)
         {

@@ -40,7 +40,7 @@ namespace BallsOut
             var ids = new HashSet<string>(StringComparer.Ordinal);
             var capacities = new Dictionary<BallColorDefinition, long>();
             var ballCounts = new Dictionary<BallColorDefinition, long>();
-            if (level.boxes.Count == 0 || level.balls.Count == 0 && !level.HasFeeders) errors.Add("A playable level must contain boxes and balls.");
+            if (level.boxes.Count == 0 || level.balls.Count == 0 && !level.HasFeeders && !level.HasConveyor) errors.Add("A playable level must contain boxes and balls.");
             for (int i = 0; i < level.boxes.Count; i++)
             {
                 BoxSpawnData box = level.boxes[i];
@@ -88,6 +88,7 @@ namespace BallsOut
                 if (ball.specialType != BallSpecialType.Normal) errors.Add($"Ball {i}: key balls require Phase 13.");
             }
             ValidateFeeders(level, ballCounts, errors);
+            ValidateConveyor(level, ballCounts, errors);
             var colors = new HashSet<BallColorDefinition>(capacities.Keys);
             colors.UnionWith(ballCounts.Keys);
             var colorIds = new Dictionary<string, BallColorDefinition>(StringComparer.Ordinal);
@@ -233,6 +234,30 @@ namespace BallsOut
                     { errors.Add($"Feeder {i}: every segment needs a color and a positive count."); continue; }
                     AddCount(ballCounts, segment.color, segment.count);
                 }
+            }
+        }
+
+        // The conveyor's track spans the reservoir's whole top edge and replaces its top rail, so every
+        // top cell must be usable and nothing else may sit on that edge.
+        private static void ValidateConveyor(LevelDefinition level, Dictionary<BallColorDefinition, long> ballCounts, List<string> errors)
+        {
+            if (!level.HasConveyor) return;
+            BallConveyorData conveyor = level.conveyor;
+            if (level.hopperMicroRows > 0) errors.Add("A conveyor cannot be combined with a funnel.");
+            if (level.HasFeeders) errors.Add("A conveyor cannot be combined with feeder tubes.");
+            if (level.macroGridWidth < 3) errors.Add("A conveyor needs a board at least 3 columns wide.");
+            if (conveyor.runs < 1 || conveyor.runs > 4) errors.Add("Conveyor: use 1 to 4 runs.");
+            if (conveyor.column < 0 || conveyor.column >= level.macroGridWidth)
+                errors.Add($"Conveyor: gate column {conveyor.column} is outside the board.");
+            for (int x = 0; x < level.macroGridWidth; x++)
+                if (level.ballAreaMask.Get(new Vector2Int(x, level.ballAreaMacroHeight - 1),
+                        level.macroGridWidth, level.ballAreaMacroHeight) != CellKind.Usable)
+                { errors.Add("Conveyor: every cell of the reservoir's top row must be usable."); break; }
+            foreach (FeederSegment segment in conveyor.queue)
+            {
+                if (segment == null || segment.color == null || segment.count <= 0)
+                { errors.Add("Conveyor: every segment needs a color and a positive count."); continue; }
+                AddCount(ballCounts, segment.color, segment.count);
             }
         }
 

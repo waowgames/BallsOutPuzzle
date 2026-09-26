@@ -62,6 +62,7 @@ namespace BallsOut
 
         private const int ArcSteps = 8;
         private const float Height = 0.3f;
+        internal const float RimHeight = Height;
 
         // The board plate: a lit inner lip, a flat top and a rounded outer shoulder over a dark side.
         internal static readonly Style Frame = CreateFrame();

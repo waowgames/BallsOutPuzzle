@@ -121,6 +121,15 @@ class Level:
                 for guid, count in re.findall(r"color: \{fileID: \d+, guid: (\w+), type: 2\}\n      count: (\d+)", chunk):
                     queue.extend([self.color_index(colors[guid])] * int(count))
                 self.feeders.append((int(chunk.split("\n", 1)[0]), bytes(queue)))
+        # The conveyor's gate drops balls exactly like a tube over its column (BallConveyorSystem.Feed).
+        block = re.search(r"^  conveyor:\n(.*?)(?=^  \w|\Z)", text, re.M | re.S)
+        if block:
+            queue = []
+            for guid, count in re.findall(r"color: \{fileID: \d+, guid: (\w+), type: 2\}\n      count: (\d+)",
+                                          block.group(1)):
+                queue.extend([self.color_index(colors[guid])] * int(count))
+            if queue:
+                self.feeders.append((int(re.search(r"column: (\d+)", block.group(1)).group(1)), bytes(queue)))
 
     def color_index(self, name):
         if name not in self.color_names:
