@@ -31,43 +31,85 @@ namespace BallsOut
         internal static bool ChuteLeft(LevelDefinition level) => HeadsLeft(level, Runs(level) - 1);
         internal static int ChuteColumn(LevelDefinition level) => ChuteLeft(level) ? 0 : level.macroGridWidth - 1;
 
-        // Rest positions of the balls on the belt, head (at the gate) first. Each lane is walked on its
-        // own, so the outer lane of a bend holds more balls than the inner one, as a loose pile would.
-        internal static List<Vector3> Sites(LevelDefinition level, float height)
+        // Side-by-side lanes packed like a pile: lanes sit closer than the pitch, and every other
+        // lane runs half a pitch behind, so neighbours nest diagonally.
+        internal const float LaneSpacing = Pitch * 0.87f;
+
+        // The belt's lanes as paths from the gate to the top of the chute. A ball keeps its lane and
+        // glides along it, so the belt only ever moves forward; through a bend the outer lane is longer,
+        // so a row fans out there instead of squeezing its inner balls together.
+        internal sealed class Belt
         {
-            var points = new List<Vector2>();
-            var normals = new List<Vector2>();
-            Centerline(level, points, normals);
-            var along = new float[points.Count];
-            for (int i = 1; i < points.Count; i++) along[i] = along[i - 1] + (points[i] - points[i - 1]).magnitude;
-            float spacing = Pitch * level.macroCellSize;
-            float end = along[along.Length - 1] - spacing * 0.5f;
-            var sites = new List<(float key, int lane, Vector2 position)>();
-            for (int lane = 0; lane < Lanes; lane++)
+            private readonly Vector2[][] points;
+            private readonly float[][] along;
+            private readonly float height;
+            internal float Spacing { get; }
+
+            internal Belt(LevelDefinition level, float height)
             {
-                float offset = (lane - (Lanes - 1) * 0.5f) * spacing;
-                Vector2 previous = points[0] + normals[0] * offset;
-                float walked = 0f, next = spacing * 0.5f;
-                for (int i = 1; i < points.Count; i++)
+                this.height = height;
+                Spacing = Pitch * level.macroCellSize;
+                var center = new List<Vector2>();
+                var normals = new List<Vector2>();
+                Centerline(level, center, normals);
+                points = new Vector2[Lanes][];
+                along = new float[Lanes][];
+                for (int lane = 0; lane < Lanes; lane++)
                 {
-                    Vector2 point = points[i] + normals[i] * offset;
-                    float segment = (point - previous).magnitude;
-                    while (segment > 0f && walked + segment >= next)
+                    float offset = (lane - (Lanes - 1) * 0.5f) * LaneSpacing * level.macroCellSize;
+                    points[lane] = new Vector2[center.Count];
+                    along[lane] = new float[center.Count];
+                    for (int i = 0; i < center.Count; i++)
                     {
-                        float t = (next - walked) / segment;
-                        float key = Mathf.Lerp(along[i - 1], along[i], t);
-                        if (key > end) break;
-                        sites.Add((key, lane, Vector2.Lerp(previous, point, t)));
-                        next += spacing;
+                        points[lane][i] = center[i] + normals[i] * offset;
+                        if (i > 0) along[lane][i] = along[lane][i - 1] + (points[lane][i] - points[lane][i - 1]).magnitude;
                     }
-                    walked += segment;
-                    previous = point;
                 }
             }
-            sites.Sort((a, b) => a.key != b.key ? a.key.CompareTo(b.key) : a.lane.CompareTo(b.lane));
-            var result = new List<Vector3>(sites.Count);
-            foreach (var site in sites) result.Add(new Vector3(site.position.x, height, site.position.y));
-            return result;
+
+            // Distance along its lane of the ball `row` rows back from the gate.
+            internal float Distance(int lane, int row) => (row + 0.5f + (lane & 1) * 0.5f) * Spacing;
+
+            // Rows that fit on every lane before the chute's cap.
+            internal int Rows
+            {
+                get
+                {
+                    int rows = int.MaxValue;
+                    for (int lane = 0; lane < Lanes; lane++)
+                    {
+                        float length = along[lane][along[lane].Length - 1] - Spacing * 0.5f;
+                        int fit = 0;
+                        while (Distance(lane, fit) <= length) fit++;
+                        rows = Mathf.Min(rows, fit);
+                    }
+                    return rows;
+                }
+            }
+
+            // Point on a lane; past the chute's end it carries straight on, where new balls come in from.
+            internal Vector3 Point(int lane, float distance)
+            {
+                Vector2[] path = points[lane];
+                float[] length = along[lane];
+                int last = path.Length - 1;
+                Vector2 point;
+                if (distance >= length[last])
+                    point = path[last] + (path[last] - path[last - 1]).normalized * (distance - length[last]);
+                else
+                {
+                    int low = 0, high = last;
+                    while (high - low > 1)
+                    {
+                        int mid = (low + high) / 2;
+                        if (length[mid] <= distance) low = mid;
+                        else high = mid;
+                    }
+                    float span = length[high] - length[low];
+                    point = Vector2.Lerp(path[low], path[high], span > 0f ? (Mathf.Max(0f, distance) - length[low]) / span : 0f);
+                }
+                return new Vector3(point.x, height, point.y);
+            }
         }
 
         // The belt's centre line from the gate back to the top of the chute, with left normals.
