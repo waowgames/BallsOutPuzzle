@@ -8,6 +8,8 @@ namespace BallsOut
         private readonly CellKind[] cells;
         private readonly BoxController[] boxes;
         private readonly BoxController[] transit;
+        // Cells under a standing obstacle block; boxes cannot enter them until it crumbles.
+        private readonly bool[] obstructed;
         public LevelDefinition Definition { get; }
         public Transform Root { get; }
         public int Width => Definition.macroGridWidth;
@@ -23,6 +25,7 @@ namespace BallsOut
             cells = new CellKind[Width * Height];
             boxes = new BoxController[cells.Length];
             transit = new BoxController[cells.Length];
+            obstructed = new bool[cells.Length];
             for (int y = 0; y < Height; y++)
                 for (int x = 0; x < Width; x++)
                     cells[y * Width + x] = definition.GetCell(new Vector2Int(x, y));
@@ -30,6 +33,7 @@ namespace BallsOut
 
         public bool Contains(Vector2Int cell) => cell.x >= 0 && cell.y >= 0 && cell.x < Width && cell.y < Height;
         public CellKind GetCell(Vector2Int cell) => Contains(cell) ? cells[cell.y * Width + cell.x] : CellKind.Outside;
+        public bool IsObstructed(Vector2Int cell) => Contains(cell) && obstructed[cell.y * Width + cell.x];
         public BoxController GetBox(Vector2Int cell) => Contains(cell) ? boxes[cell.y * Width + cell.x] ?? transit[cell.y * Width + cell.x] : null;
         public Vector3 CellToLocal(Vector2Int cell) => new Vector3((cell.x + 0.5f) * CellSize, 0f, (cell.y + 0.5f) * CellSize);
         public Vector3 CellToWorld(Vector2Int cell) => Root.TransformPoint(CellToLocal(cell));
@@ -44,7 +48,7 @@ namespace BallsOut
             foreach (Vector2Int offset in box.Shape.Cells)
             {
                 Vector2Int cell = origin + offset;
-                if (cell.y >= Definition.lowerGridHeight || GetCell(cell) != CellKind.Usable) return false;
+                if (cell.y >= Definition.lowerGridHeight || GetCell(cell) != CellKind.Usable || IsObstructed(cell)) return false;
                 BoxController occupant = GetBox(cell);
                 if (occupant != null && occupant != box) return false;
                 if (balls != null && balls.HasBalls(cell)) return false;
@@ -76,6 +80,13 @@ namespace BallsOut
             box.IsInTransit = false;
             Revision++;
             OnOccupancyChanged?.Invoke();
+        }
+
+        internal void SetObstructed(RectInt area, bool value)
+        {
+            for (int y = area.yMin; y < area.yMax; y++)
+                for (int x = area.xMin; x < area.xMax; x++)
+                    if (Contains(new Vector2Int(x, y))) obstructed[y * Width + x] = value;
         }
 
         // Box state that changes legality without moving anything (e.g. ice breaking).

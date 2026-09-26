@@ -69,6 +69,17 @@ namespace BallsOut
     }
 
     [Serializable]
+    public sealed class BoardObstacleData
+    {
+        [Tooltip("Lower-left cell of the stone block, in lower-grid macro coordinates.")]
+        public Vector2Int origin;
+        [Tooltip("Cells the block covers along x and y. Boxes cannot enter them while it stands.")]
+        public Vector2Int size = Vector2Int.one;
+        [Tooltip("Completed boxes it takes to crumble the block and free its cells.")]
+        [Min(1)] public int count = 1;
+    }
+
+    [Serializable]
     public sealed class BoxSpawnData
     {
         public string id;

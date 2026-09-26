@@ -108,6 +108,14 @@ class Level:
             b["keys"] = sum(other["key"] == b["lock"] for other in self.boxes) if b["lock"] else 0
             b["key_target"] = next((i for i, other in enumerate(self.boxes)
                                     if b["key"] and other["lock"] == b["key"]), -1)
+        # Stone obstacles: (cells, count). A block stands until `count` boxes have completed.
+        self.obstacles = []
+        block = re.search(r"^  obstacles:\n(.*?)(?=^  \w|\Z)", text, re.M | re.S)
+        if block:
+            for ox, oy, w, h, count in re.findall(r"origin: \{x: (\d+), y: (\d+)\}\n    size: \{x: (\d+), y: (\d+)\}\n"
+                                                  r"    count: (\d+)", block.group(1)):
+                cells = {(int(ox) + dx, int(oy) + dy) for dx in range(int(w)) for dy in range(int(h))}
+                self.obstacles.append((cells, int(count)))
         self.balls = {}
         ball_text = text.split("\n  balls:\n", 1)[1].split("\n  palette:", 1)[0]
         for guid, x, y in re.findall(r"color: \{fileID: \d+, guid: (\w+), type: 2\}\n    cell: \{x: (\d+), y: (\d+)\}",
@@ -355,11 +363,21 @@ class Game:
             balls[dest] = color
             balls[c] = 0
 
+    def standing(self, s):
+        """Cells under obstacles that have not crumbled yet (the empty-board distance table ignores them)."""
+        if not self.level.obstacles or not hasattr(s, "boxes"):
+            return ()
+        completed = sum(not b[ALIVE] for b in s.boxes)
+        return set().union(*(cells for cells, count in self.level.obstacles if completed < count))
+
     def can_place(self, s, i, x, y):
         width, lower = self.level.width, self.level.lower
+        blocked = self.standing(s)
         for dx, dy in self.box_cells[i]:
             cx, cy = x + dx, y + dy
             if cy < 0 or cy >= lower or (cx, cy) not in self.level.usable:
+                return False
+            if (cx, cy) in blocked:
                 return False
             other = s.occ[cy * width + cx]
             if other >= 0 and other != i:

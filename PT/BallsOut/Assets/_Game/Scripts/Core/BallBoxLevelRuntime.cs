@@ -25,6 +25,7 @@ namespace BallsOut
         public BallMicroGrid Balls { get; private set; }
         public BallFeederSystem Feeder { get; private set; }
         public BallConveyorSystem Conveyor { get; private set; }
+        public BoardObstacleSystem Obstacles { get; private set; }
         public BallSimulationSystem Simulation { get; private set; }
         public BoxMovementSystem Movement { get; private set; }
         public BallCollectionSystem Collection { get; private set; }
@@ -45,6 +46,9 @@ namespace BallsOut
         public event Action<BoxController> OnBoxUnlocked;
         // The completed box's chain snapped, freeing its partner.
         public event Action<BoxController> OnChainBroken;
+        // A completed box chipped this stone block; OnObstacleCleared follows when it crumbled.
+        public event Action<BoardObstacle> OnObstacleCracked;
+        public event Action<BoardObstacle> OnObstacleCleared;
         public event Action<LevelDefinition> OnLevelWon;
 
         private void OnEnable()
@@ -110,6 +114,9 @@ namespace BallsOut
                     if (other.KeyId == box.LockId) keys++;
                 box.SetupLock(keys, Board.CellSize);
             }
+            Obstacles = new BoardObstacleSystem(Board, prefabs);
+            Obstacles.OnObstacleCracked += ForwardObstacleCracked;
+            Obstacles.OnObstacleCleared += ForwardObstacleCleared;
             if (level.links != null)
                 foreach (BoxLinkData link in level.links)
                 {
@@ -136,6 +143,7 @@ namespace BallsOut
             Completion.OnBoxCompleted += CrackIce;
             Completion.OnBoxCompleted += SendKey;
             Completion.OnBoxCompleted += BreakChain;
+            Completion.OnBoxCompleted += ChipObstacles;
             Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
             Collection.OnBallCollected += ForwardBallCollected;
             Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows, Feeder,
@@ -222,6 +230,9 @@ namespace BallsOut
             OnChainBroken?.Invoke(completed);
         }
 
+        // Every completed box chips one off each standing stone block.
+        private void ChipObstacles(BoxController completed) => Obstacles?.Chip();
+
         private BoxController FindBox(string id)
         {
             foreach (BoxController box in boxes)
@@ -246,6 +257,8 @@ namespace BallsOut
         private void ForwardBoxCompleted(BoxController box) => OnBoxCompleted?.Invoke(box);
         private void ForwardBoxRemoved(BoxController box) => OnBoxRemoved?.Invoke(box);
         private void ForwardInnerLayerCompleted(BoxController box) => OnInnerLayerCompleted?.Invoke(box);
+        private void ForwardObstacleCracked(BoardObstacle obstacle) => OnObstacleCracked?.Invoke(obstacle);
+        private void ForwardObstacleCleared(BoardObstacle obstacle) => OnObstacleCleared?.Invoke(obstacle);
 
         private void Clear()
         {
@@ -261,6 +274,12 @@ namespace BallsOut
                 Completion.OnBoxCompleted -= CrackIce;
                 Completion.OnBoxCompleted -= SendKey;
                 Completion.OnBoxCompleted -= BreakChain;
+                Completion.OnBoxCompleted -= ChipObstacles;
+            }
+            if (Obstacles != null)
+            {
+                Obstacles.OnObstacleCracked -= ForwardObstacleCracked;
+                Obstacles.OnObstacleCleared -= ForwardObstacleCleared;
             }
             Fill?.Clear(boxes);
             foreach (var box in boxes) if (box != null) box.OnBoxFillChanged -= ForwardFillChanged;
@@ -275,6 +294,7 @@ namespace BallsOut
             Balls = null;
             Feeder = null;
             Conveyor = null;
+            Obstacles = null;
             Simulation = null;
             Movement = null;
             Collection = null;

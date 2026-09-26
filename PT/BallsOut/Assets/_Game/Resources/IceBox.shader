@@ -6,6 +6,8 @@ Shader "Balls Out/Ice Box"
         _Color ("Tint", Color) = (1,1,1,1)
         _Range ("Distance range (cells)", Float) = 0.3
         _Flash ("White flash", Range(0, 1)) = 0
+        // Off for soft particles (dust) that must not hide what is drawn after them.
+        [Enum(Off, 0, On, 1)] _ZWrite ("Depth write", Float) = 1
     }
     SubShader
     {
@@ -15,7 +17,7 @@ Shader "Balls Out/Ice Box"
         {
             Tags { "LightMode"="SRPDefaultUnlit" }
             Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite On
+            ZWrite [_ZWrite]
             Cull Off
             HLSLPROGRAM
             #pragma vertex Vert

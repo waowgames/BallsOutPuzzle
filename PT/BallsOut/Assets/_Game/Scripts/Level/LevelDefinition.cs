@@ -28,6 +28,9 @@ namespace BallsOut
         public List<BallFeederData> feeders = new List<BallFeederData>();
         [Tooltip("Conveyor over the reservoir: its queue rides a serpentine track down to a one-column gate. Empty queue = no conveyor.")]
         public BallConveyorData conveyor = new BallConveyorData();
+        [Tooltip("Stone blocks over lower-grid cells. Boxes cannot pass them; every completed box chips one off " +
+            "their count, and at zero they crumble and free their cells.")]
+        public List<BoardObstacleData> obstacles = new List<BoardObstacleData>();
         [Tooltip("Chained box pairs. A box drags its partner along once the chain between them is taut.")]
         public List<BoxLinkData> links = new List<BoxLinkData>();
         [Tooltip("Editor dense-field authoring palette; runtime uses the explicit balls list.")]
@@ -45,6 +48,7 @@ namespace BallsOut
         public const int FeederRows = 8;
         public bool HasFeeders => feeders != null && feeders.Count > 0;
         public float FeederTop => BallRowZ(ballAreaMacroHeight * MicroResolution + FeederRows - 0.5f);
+        public bool HasObstacles => obstacles != null && obstacles.Count > 0;
         public bool HasConveyor => conveyor != null && conveyor.queue != null && conveyor.queue.Count > 0;
         // Highest point of the board art: the tube caps or the conveyor's chute, with their counters.
         public float BoardTop => HasConveyor ? ConveyorTrack.ChuteTop(this) + macroCellSize * 0.3f

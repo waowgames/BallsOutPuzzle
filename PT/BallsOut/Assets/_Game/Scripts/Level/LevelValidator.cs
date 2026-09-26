@@ -75,6 +75,7 @@ namespace BallsOut
             ValidateIce(level, errors);
             ValidateLocks(level, errors);
             ValidateLinks(level, errors);
+            ValidateObstacles(level, occupied, errors);
             occupied.Clear();
             for (int i = 0; i < level.balls.Count; i++)
             {
@@ -208,6 +209,31 @@ namespace BallsOut
                     a.startingMacroOrigin.y + aBottom - b.startingMacroOrigin.y - bTop) - 1;
                 if (gapX > link.length || gapY > link.length)
                     errors.Add($"Link {i}: '{link.boxA}' and '{link.boxB}' start further apart than the chain reaches.");
+            }
+        }
+
+        // Stone blocks sit on usable lower-grid cells clear of every box and of each other. Each completed
+        // box lowers every block by one, so a count above the box total could never reach zero.
+        private static void ValidateObstacles(LevelDefinition level, HashSet<Vector2Int> boxCells, List<string> errors)
+        {
+            if (level.obstacles == null) return;
+            var covered = new HashSet<Vector2Int>();
+            for (int i = 0; i < level.obstacles.Count; i++)
+            {
+                BoardObstacleData obstacle = level.obstacles[i];
+                if (obstacle == null) { errors.Add($"Obstacle {i}: missing data."); continue; }
+                if (obstacle.size.x < 1 || obstacle.size.y < 1) { errors.Add($"Obstacle {i}: size must be at least 1x1."); continue; }
+                if (obstacle.count < 1 || obstacle.count > level.boxes.Count)
+                    errors.Add($"Obstacle {i}: count must be between 1 and the number of boxes ({level.boxes.Count}).");
+                for (int y = 0; y < obstacle.size.y; y++)
+                    for (int x = 0; x < obstacle.size.x; x++)
+                    {
+                        Vector2Int cell = obstacle.origin + new Vector2Int(x, y);
+                        if (cell.y >= level.lowerGridHeight || level.GetCell(cell) != CellKind.Usable)
+                            errors.Add($"Obstacle {i}: cell {cell} must be usable lower-grid space.");
+                        else if (boxCells.Contains(cell)) errors.Add($"Obstacle {i}: cell {cell} is under a box.");
+                        else if (!covered.Add(cell)) errors.Add($"Obstacle {i}: overlaps another obstacle at {cell}.");
+                    }
             }
         }
 
