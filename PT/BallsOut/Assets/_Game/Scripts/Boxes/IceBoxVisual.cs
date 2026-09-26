@@ -51,6 +51,14 @@ namespace BallsOut
             public int stage;
         }
 
+        // Quarter circle rounding one outline corner; `toward` points from the
+        // centre to the sharp vertex it replaces.
+        private struct Arc
+        {
+            public Vector2 center, toward;
+            public bool convex;
+        }
+
         private struct Shard
         {
             public Vector3 position, velocity, spin, rotation;
@@ -66,9 +74,8 @@ namespace BallsOut
         private readonly List<int> triangles = new List<int>();
         private readonly List<Crack> cracks = new List<Crack>();
         private readonly List<Shard> shards = new List<Shard>();
-        private readonly List<Vector4> rects = new List<Vector4>();
-        private readonly List<Vector2> fillets = new List<Vector2>();
-        private readonly List<Vector2> filletSigns = new List<Vector2>();
+        private readonly List<Vector4> segments = new List<Vector4>();
+        private readonly List<Arc> arcs = new List<Arc>();
         private HashSet<Vector2Int> cells;
         private IReadOnlyList<Vector2Int> cellList;
         private float cellSize;
@@ -255,16 +262,22 @@ namespace BallsOut
 
         // ---- Footprint signed distance (cells; negative inside) ----
 
+        // The outline is the cell union inset by Inset: straight edges trimmed at
+        // each corner, plus a quarter arc per convex corner and a fillet per concave one.
         private void BuildOutline()
         {
-            // Each cell reaches into its neighbours' centres so seams never read as edges.
+            Vector2Int[] directions = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
             foreach (Vector2Int cell in cellList)
-                rects.Add(new Vector4(
-                    cell.x - (cells.Contains(cell + Vector2Int.left) ? 1f : 0.5f - Inset),
-                    cell.y - (cells.Contains(cell + Vector2Int.down) ? 1f : 0.5f - Inset),
-                    cell.x + (cells.Contains(cell + Vector2Int.right) ? 1f : 0.5f - Inset),
-                    cell.y + (cells.Contains(cell + Vector2Int.up) ? 1f : 0.5f - Inset)));
-            // Inner (concave) corners get a matching fillet so L shapes stay soft.
+                foreach (Vector2Int d in directions)
+                {
+                    if (cells.Contains(cell + d)) continue;
+                    var t = new Vector2Int(-d.y, d.x);
+                    Vector2 middle = cell + (Vector2)d * (0.5f - Inset);
+                    Vector2 a = middle - (Vector2)t * EdgeExtent(cell, d, -t);
+                    Vector2 b = middle + (Vector2)t * EdgeExtent(cell, d, t);
+                    segments.Add(new Vector4(a.x, a.y, b.x, b.y));
+                }
+
             var corners = new HashSet<Vector2Int>();
             foreach (Vector2Int cell in cellList)
                 for (int dx = 0; dx <= 1; dx++)
@@ -272,46 +285,80 @@ namespace BallsOut
                         corners.Add(cell + new Vector2Int(dx, dy));
             foreach (Vector2Int corner in corners)
             {
-                // Corner (x, y) sits between cells x-1..x and y-1..y.
-                int missing = 0;
-                Vector2 sign = Vector2.zero;
-                for (int dx = -1; dx <= 0; dx++)
-                    for (int dy = -1; dy <= 0; dy++)
-                        if (!cells.Contains(corner + new Vector2Int(dx, dy)))
+                // Corner (x, y) sits between cells x-1..x and y-1..y; q points from it to one of them.
+                Vector2 point = new Vector2(corner.x - 0.5f, corner.y - 0.5f);
+                for (int qx = -1; qx <= 1; qx += 2)
+                    for (int qy = -1; qy <= 1; qy += 2)
+                    {
+                        bool self = cells.Contains(CornerCell(corner, qx, qy));
+                        bool sideX = cells.Contains(CornerCell(corner, -qx, qy));
+                        bool sideY = cells.Contains(CornerCell(corner, qx, -qy));
+                        bool opposite = cells.Contains(CornerCell(corner, -qx, -qy));
+                        var q = new Vector2(qx, qy);
+                        if (self && !sideX && !sideY)
                         {
-                            missing++;
-                            sign = new Vector2(dx == 0 ? 1f : -1f, dy == 0 ? 1f : -1f);
+                            Vector2 vertex = point + q * Inset;
+                            arcs.Add(new Arc { center = vertex + q * CornerRadius, toward = -q, convex = true });
                         }
-                if (missing != 1) continue;
-                // Both edges meeting here are inset away from the missing cell.
-                fillets.Add(new Vector2(corner.x - 0.5f, corner.y - 0.5f) - sign * Inset);
-                filletSigns.Add(sign);
+                        else if (!self && sideX && sideY && opposite)
+                        {
+                            // Both edges meeting here are inset away from the missing cell.
+                            Vector2 vertex = point - q * Inset;
+                            arcs.Add(new Arc { center = vertex + q * CornerRadius, toward = -q, convex = false });
+                        }
+                    }
             }
+        }
+
+        private static Vector2Int CornerCell(Vector2Int corner, int qx, int qy) =>
+            corner + new Vector2Int(qx > 0 ? 0 : -1, qy > 0 ? 0 : -1);
+
+        // How far the edge on side d of the cell runs along t, stopping where its corner arc begins.
+        private float EdgeExtent(Vector2Int cell, Vector2Int d, Vector2Int t)
+        {
+            if (!cells.Contains(cell + t)) return 0.5f - Inset - CornerRadius;
+            if (cells.Contains(cell + t + d)) return 0.5f + Inset - CornerRadius;
+            return 0.5f;
+        }
+
+        private bool InsideOutline(Vector2 p)
+        {
+            var cell = new Vector2Int(Mathf.FloorToInt(p.x + 0.5f), Mathf.FloorToInt(p.y + 0.5f));
+            if (!cells.Contains(cell)) return false;
+            Vector2 local = p - cell;
+            const float limit = 0.5f - Inset;
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    if ((dx == 0 && dy == 0) || cells.Contains(cell + new Vector2Int(dx, dy))) continue;
+                    if ((dx == 0 || local.x * dx > limit) && (dy == 0 || local.y * dy > limit)) return false;
+                }
+            return true;
         }
 
         private float Distance(Vector2 p)
         {
             float d = float.MaxValue;
-            foreach (Vector4 r in rects)
+            foreach (Vector4 s in segments)
             {
-                Vector2 center = new Vector2(r.x + r.z, r.y + r.w) * 0.5f;
-                Vector2 half = new Vector2(r.z - r.x, r.w - r.y) * 0.5f;
-                Vector2 q = new Vector2(Mathf.Abs(p.x - center.x), Mathf.Abs(p.y - center.y)) - half + Vector2.one * CornerRadius;
-                float box = new Vector2(Mathf.Max(q.x, 0f), Mathf.Max(q.y, 0f)).magnitude +
-                    Mathf.Min(Mathf.Max(q.x, q.y), 0f) - CornerRadius;
-                d = Mathf.Min(d, box);
+                var a = new Vector2(s.x, s.y);
+                Vector2 ab = new Vector2(s.z, s.w) - a;
+                float t = Mathf.Clamp01(Vector2.Dot(p - a, ab) / Mathf.Max(ab.sqrMagnitude, 1e-6f));
+                d = Mathf.Min(d, (p - (a + ab * t)).magnitude);
             }
-            for (int i = 0; i < fillets.Count; i++)
+            bool inside = InsideOutline(p);
+            foreach (Arc arc in arcs)
             {
-                Vector2 corner = fillets[i];
-                Vector2 sign = filletSigns[i];
-                Vector2 squareCenter = corner + sign * (CornerRadius * 0.5f);
-                Vector2 q = new Vector2(Mathf.Abs(p.x - squareCenter.x), Mathf.Abs(p.y - squareCenter.y)) - Vector2.one * (CornerRadius * 0.5f);
-                float square = new Vector2(Mathf.Max(q.x, 0f), Mathf.Max(q.y, 0f)).magnitude + Mathf.Min(Mathf.Max(q.x, q.y), 0f);
-                float hole = CornerRadius - (p - (corner + sign * CornerRadius)).magnitude;
-                d = Mathf.Min(d, Mathf.Max(square, hole));
+                Vector2 rel = p - arc.center;
+                float u = rel.x * arc.toward.x;
+                float v = rel.y * arc.toward.y;
+                if (u < 0f || v < 0f) continue;
+                float r = rel.magnitude;
+                d = Mathf.Min(d, Mathf.Abs(r - CornerRadius));
+                // Between the arc and the sharp vertex: shaved off (convex) or filled in (concave).
+                if (u <= CornerRadius && v <= CornerRadius && r > CornerRadius) inside = !arc.convex;
             }
-            return d;
+            return inside ? -d : d;
         }
 
         // ---- Baked top face: colour in RGB, signed distance in alpha ----
