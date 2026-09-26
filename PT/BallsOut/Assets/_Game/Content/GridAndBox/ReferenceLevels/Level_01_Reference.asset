@@ -36,6 +36,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 0, y: 0}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 36
   - id: R_1
@@ -44,6 +45,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 2, y: 0}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 0
   balls:

@@ -48,8 +48,12 @@ namespace BallsOut
         public BoxShapeDefinition shape;
         public BallColorDefinition color;
         public Vector2Int startingMacroOrigin;
+        [Tooltip("Padlocked: the box cannot move or collect until every box carrying its key has completed.")]
         public bool startsLocked;
+        [Tooltip("Name of this box's padlock. Key boxes with a matching keyId open it.")]
         public string lockId;
+        [Tooltip("Optional key: completing this box sends a key to the padlocked box whose lockId matches.")]
+        public string keyId;
         [Tooltip("0 = no ice. Frozen boxes cannot move or collect; each other completed box lowers the count by one.")]
         [Min(0)] public int iceCount;
         [Tooltip("Balls already held by this box when the level starts (counted against the inner layer when there is one).")]

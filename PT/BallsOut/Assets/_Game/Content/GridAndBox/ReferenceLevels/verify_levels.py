@@ -1,7 +1,7 @@
 """Solvability and dead-end check for the generated reference levels.
 
 Run from the project Assets directory:
-    python _Game/Content/GridAndBox/ReferenceLevels/verify_levels.py [first] [last] [--probes N]
+    python _Game/Content/GridAndBox/ReferenceLevels/verify_levels.py [first] [last] [--probes N] [--budget STATES]
 
 The ball flow is a line-by-line port of BallSimulationSystem / BallCollectionSystem
 (sinkReachRows = 2, flat reservoirs). A player action is one box step (or a tap that
@@ -94,10 +94,20 @@ class Level:
             fill = int(re.search(r"initialFillCount: (\d+)", chunk).group(1))
             axis = re.search(r"moveAxis: (\d+)", chunk)
             inner = re.search(r"innerColor: \{fileID: \d+, guid: (\w+)", chunk)
+            locked = re.search(r"startsLocked: 1", chunk) is not None
+            lock = re.search(r"lockId: '([^']*)'", chunk)
+            key = re.search(r"keyId: '([^']*)'", chunk)
             layer_colors = [self.color_index(colors[inner.group(1)]), color] if inner else [color]
             self.boxes.append(dict(id=chunk.split("\n", 1)[0], cells=shape, colors=layer_colors, x=x, y=y, ice=ice,
                                    fill=fill, cap=capacity(shape, slots, dense) * layers,
-                                   axis=int(axis.group(1)) if axis else 0))
+                                   axis=int(axis.group(1)) if axis else 0,
+                                   lock=lock.group(1) if locked and lock and lock.group(1) else None,
+                                   key=key.group(1) if key and key.group(1) else None))
+        # Padlocks: how many key boxes each one waits for, and where each key goes.
+        for b in self.boxes:
+            b["keys"] = sum(other["key"] == b["lock"] for other in self.boxes) if b["lock"] else 0
+            b["key_target"] = next((i for i, other in enumerate(self.boxes)
+                                    if b["key"] and other["lock"] == b["key"]), -1)
         self.balls = {}
         ball_text = text.split("\n  balls:\n", 1)[1].split("\n  palette:", 1)[0]
         for guid, x, y in re.findall(r"color: \{fileID: \d+, guid: (\w+), type: 2\}\n    cell: \{x: (\d+), y: (\d+)\}",
@@ -169,8 +179,9 @@ class State:
         return (self.balls, tuple(tuple(b) for b in self.boxes))
 
 
-# box record: [x, y, alive, woke, fill, ice, layer]; nested boxes collect colors[layer] in turn
-X, Y, ALIVE, WOKE, FILL, ICE, LAYER = range(7)
+# box record: [x, y, alive, woke, fill, ice, layer, keys]; nested boxes collect colors[layer] in turn,
+# padlocked boxes wait until keys (key boxes still to complete) reaches 0
+X, Y, ALIVE, WOKE, FILL, ICE, LAYER, KEYS = range(8)
 
 
 class Game:
@@ -181,6 +192,7 @@ class Game:
         self.box_colors = [b["colors"] for b in level.boxes]
         self.box_cap = [b["cap"] for b in level.boxes]
         self.box_axis = [b["axis"] for b in level.boxes]
+        self.key_target = [b["key_target"] for b in level.boxes]
         self.distances = {}
 
     def initial(self):
@@ -189,7 +201,7 @@ class Game:
         for (x, y), color in self.level.balls.items():
             balls[y * self.board.W + x] = color
         s.balls = bytes(balls)
-        s.boxes = [[b["x"], b["y"], True, False, b["fill"], b["ice"], 0] for b in self.level.boxes]
+        s.boxes = [[b["x"], b["y"], True, False, b["fill"], b["ice"], 0, b["keys"]] for b in self.level.boxes]
         s.occ = [-1] * (self.level.width * self.level.lower)
         for i, b in enumerate(self.level.boxes):
             for dx, dy in b["cells"]:
@@ -200,7 +212,7 @@ class Game:
 
     def can_collect(self, s, i, color):
         b = s.boxes[i]
-        return (b[ALIVE] and b[WOKE] and b[ICE] == 0 and b[FILL] < self.box_cap[i]
+        return (b[ALIVE] and b[WOKE] and b[ICE] == 0 and b[KEYS] == 0 and b[FILL] < self.box_cap[i]
                 and self.box_colors[i][b[LAYER]] == color)
 
     def collect(self, s, balls, cell, i):
@@ -220,6 +232,9 @@ class Game:
             for other in s.boxes:
                 if other[ALIVE] and other[ICE] > 0:
                     other[ICE] -= 1
+            # The key flies to its padlock (the game animates this; the search settles after it).
+            if self.key_target[i] >= 0:
+                s.boxes[self.key_target[i]][KEYS] -= 1
 
     def box_at(self, s, index):
         macro = self.board.macro_of.get(index)
@@ -233,7 +248,7 @@ class Game:
         top = (self.level.lower - 1) * width
         for mx in range(width):
             i = s.occ[top + mx]
-            if i < 0 or not (s.boxes[i][WOKE] and s.boxes[i][ICE] == 0):
+            if i < 0 or not (s.boxes[i][WOKE] and s.boxes[i][ICE] == 0 and s.boxes[i][KEYS] == 0):
                 continue
             color = self.box_colors[i][s.boxes[i][LAYER]]
             for row, lo, hi in ((0, mx * R - 1, mx * R + R), (1, mx * R, mx * R + R - 1)):
@@ -325,7 +340,7 @@ class Game:
         """Yield (label, next_state) for every player action from a settled state."""
         width, lower = self.level.width, self.level.lower
         for i, b in enumerate(s.boxes):
-            if not b[ALIVE] or b[ICE] > 0:
+            if not b[ALIVE] or b[ICE] > 0 or b[KEYS] > 0:
                 continue
             if not b[WOKE] and any(b[Y] + dy == lower - 1 for _, dy in self.box_cells[i]):
                 n = s.copy()
@@ -353,7 +368,7 @@ class Game:
         """Would box i, awake at origin (x, y), take a ball from the resting pile?"""
         board, W, lower = self.board, self.board.W, self.level.lower
         b = s.boxes[i]
-        if b[ICE] > 0:
+        if b[ICE] > 0 or b[KEYS] > 0:
             return False
         color = self.box_colors[i][b[LAYER]]
         for dx, dy in self.box_cells[i]:
@@ -372,7 +387,7 @@ class Game:
         without passing under a matching ball, or a tap on a sleeping top-row box."""
         width, lower = self.level.width, self.level.lower
         for i, b in enumerate(s.boxes):
-            if not b[ALIVE] or b[ICE] > 0:
+            if not b[ALIVE] or b[ICE] > 0 or b[KEYS] > 0:
                 continue
             if not b[WOKE] and any(b[Y] + dy == lower - 1 for _, dy in self.box_cells[i]):
                 n = s.copy()
@@ -539,6 +554,10 @@ def main():
     if "--probes" in sys.argv:
         rounds = int(sys.argv[sys.argv.index("--probes") + 1])
         args = [a for a in args if a != str(rounds)]
+    budget = 240000
+    if "--budget" in sys.argv:
+        budget = int(sys.argv[sys.argv.index("--budget") + 1])
+        args = [a for a in args if a != str(budget)]
     first = int(args[0]) if args else 16
     last = int(args[1]) if len(args) > 1 else 99
     shapes, colors = load_catalog()
@@ -549,7 +568,7 @@ def main():
             continue
         game = Game(Level(path, shapes, colors))
         start = game.initial()
-        path_found, expanded, exhausted = game.solve_any(start)
+        path_found, expanded, exhausted = game.solve_any(start, budget)
         if path_found is None:
             failures += 1
             print(f"{path.stem}: {'UNSOLVABLE' if exhausted else 'no solution within limit'} ({expanded} states)")

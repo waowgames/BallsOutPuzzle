@@ -38,6 +38,9 @@ namespace BallsOut
         public event Action<BoxController> OnBoxRemoved;
         public event Action<BoxController> OnIceCracked;
         public event Action<BoxController> OnIceBroken;
+        // A key reached this padlocked box; OnBoxUnlocked follows when it was the last one.
+        public event Action<BoxController> OnKeyDelivered;
+        public event Action<BoxController> OnBoxUnlocked;
         public event Action<LevelDefinition> OnLevelWon;
 
         private void OnEnable()
@@ -95,6 +98,14 @@ namespace BallsOut
                 boxes.Add(box);
                 box.OnBoxFillChanged += ForwardFillChanged;
             }
+            foreach (BoxController box in boxes)
+            {
+                if (box.LockId == null) continue;
+                int keys = 0;
+                foreach (BoxController other in boxes)
+                    if (other.KeyId == box.LockId) keys++;
+                box.SetupLock(keys, Board.CellSize);
+            }
             float height = prefabs != null ? prefabs.ballHeight : Board.CellSize * 0.1f;
             foreach (var spawn in level.balls)
             {
@@ -110,6 +121,7 @@ namespace BallsOut
             Completion.OnBoxRemoved += ForwardBoxRemoved;
             Completion.OnInnerLayerCompleted += ForwardInnerLayerCompleted;
             Completion.OnBoxCompleted += CrackIce;
+            Completion.OnBoxCompleted += SendKey;
             Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
             Collection.OnBallCollected += ForwardBallCollected;
             Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows);
@@ -177,6 +189,28 @@ namespace BallsOut
             if (thawed) Board.NotifyBoxStateChanged();
         }
 
+        // A completed key box sends its key flying to the matching padlock.
+        private void SendKey(BoxController completed)
+        {
+            if (!completed.HasKey) return;
+            BoxController target = null;
+            foreach (BoxController box in boxes)
+                if (box.IsLocked && box.LockId == completed.KeyId) { target = box; break; }
+            completed.SendKey(target, content, DeliverKey);
+        }
+
+        private void DeliverKey(BoxController target)
+        {
+            // The level may have been reloaded while the key was in the air.
+            if (target == null || Board == null || !boxes.Contains(target)) return;
+            bool opened = target.ReceiveKey();
+            OnKeyDelivered?.Invoke(target);
+            if (!opened) return;
+            // Wakes the ball simulation so balls can drop into the freed box.
+            Board.NotifyBoxStateChanged();
+            OnBoxUnlocked?.Invoke(target);
+        }
+
         private void ForwardFillChanged(BoxController box) => OnBoxFillChanged?.Invoke(box);
         private void ForwardBallCollected(BallState ball, BoxController box) => OnBallCollected?.Invoke(ball, box);
         private void ForwardBoxCompleted(BoxController box) => OnBoxCompleted?.Invoke(box);
@@ -195,6 +229,7 @@ namespace BallsOut
                 Completion.OnBoxRemoved -= ForwardBoxRemoved;
                 Completion.OnInnerLayerCompleted -= ForwardInnerLayerCompleted;
                 Completion.OnBoxCompleted -= CrackIce;
+                Completion.OnBoxCompleted -= SendKey;
             }
             Fill?.Clear(boxes);
             foreach (var box in boxes) if (box != null) box.OnBoxFillChanged -= ForwardFillChanged;

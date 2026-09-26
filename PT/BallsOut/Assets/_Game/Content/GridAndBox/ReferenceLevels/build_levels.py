@@ -115,14 +115,17 @@ SHAPE_CELLS = {
     "L4B": [(1, 0), (1, 1), (1, 2), (0, 2)],
     "T4": [(1, 0), (0, 1), (1, 1), (2, 1)],
     "R6": [(x, y) for y in range(2) for x in range(3)],
+    "X5": [(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)],
+    "TD": [(0, 1), (1, 1), (2, 1), (1, 0)],
 }
 
 AXIS = {None: 0, "H": 1, "V": 2}
 
 
-def box(shape, color, x, y, ice=0, fill=0, axis=None, inner=None):
-    """axis: None (free), "H" or "V". inner: color a nested box collects before its own."""
-    return (shape, color, x, y, ice, fill, axis, inner)
+def box(shape, color, x, y, ice=0, fill=0, axis=None, inner=None, lock=None, key=None):
+    """axis: None (free), "H" or "V". inner: color a nested box collects before its own.
+    lock: padlock name; the box waits until every box with key=<that name> completes."""
+    return (shape, color, x, y, ice, fill, axis, inner, lock, key)
 
 
 LEVELS = [
@@ -326,10 +329,14 @@ LEVELS = [
          upper_outside_columns=[2], dividers=[1, 2, 3, 5],
          layers=[[("G", None)], [("Y", None), ("G", None)], [],
                  [("U", 49), ("G", None)], [("R", None), ("U", None)]]),
-    dict(n=26, width=5, lower=3, fill_layers=2,
-         boxes=[box("R6", "R", 1, 0), box("S", "B", 0, 0), box("S", "B", 0, 1), box("S", "B", 4, 0)],
-         layers=[[("R", None), ("B", None)]]),
-    # Nested boxes: an inner tray of one color framed by the outer color.
+    # Nested boxes: an inner tray of one color framed by the outer color. Level 26 introduces
+    # them with two big trays. Every layer has a colour of its own, the inner colours share the
+    # left chamber and the outer colours the right one: a ball pinned against a wall above
+    # another colour always sits over a layer that is not waiting on it.
+    dict(n=26, width=6, lower=4, fill_layers=2,
+         boxes=[box("R6", "R", 0, 2, inner="B"), box("R6", "Y", 3, 0, inner="G")],
+         dividers=[3],
+         layers=[[("B", None), ("G", None)], [("R", None), ("Y", None)]]),
     dict(n=27, width=6, lower=5,
          boxes=[box("Q", "Y", 0, 3), box("H2", "Y", 4, 3), box("H2", "Y", 0, 1),
                 box("H2", "U", 0, 0), box("Q", "Y", 2, 0, fill=2, inner="C"), box("Q", "G", 4, 0)],
@@ -346,6 +353,162 @@ LEVELS = [
          # never end up buried under a color only the nested box's outer layer takes.
          dividers=[3],
          layers=[[("Y", 24), ("R", None)], [("C", 16), ("G", None)]]),
+    # Levels 29-40. Mid-board sand and separate reservoirs in the reference become chambers
+    # of the top reservoir; ice-shelled obstacles become frozen boxes.
+    # H-shaped board: two towers joined by a three-cell bridge. The right tower is frozen
+    # until five boxes are done on the left. Every column pours from its own chamber, banded
+    # in the order its stack surfaces.
+    dict(n=29, width=7, lower=7,
+         boxes=[box("S", "U", 0, 6), box("V2", "R", 1, 5), box("S", "U", 2, 6),
+                box("V2", "Y", 0, 4), box("S", "U", 1, 4), box("V2", "B", 2, 4),
+                box("S", "R", 0, 3), box("S", "Y", 2, 3),
+                box("S", "B", 0, 2), box("S", "Y", 1, 2),
+                box("V2", "G", 0, 0), box("S", "R", 2, 1), box("S", "B", 1, 0), box("S", "G", 2, 0),
+                box("S", "G", 3, 3, ice=5),
+                box("T4", "Y", 4, 5, ice=5), box("S", "B", 4, 5), box("S", "B", 6, 5),
+                box("S", "Y", 4, 4), box("S", "G", 6, 4),
+                box("X5", "R", 4, 2, ice=5), box("S", "Y", 4, 2), box("S", "Y", 6, 2),
+                box("S", "R", 4, 1), box("H3", "G", 4, 0)],
+         lower_outside=[(3, y) for y in (0, 1, 5, 6)],
+         upper_outside_columns=[3], dividers=[1, 2, 3, 4, 5, 6],
+         layers=[[("U", 9), ("Y", 21), ("R", 9), ("B", 9), ("G", 21)],
+                 [("R", 21), ("U", 9), ("Y", 9), ("B", 9), ("G", 9)],
+                 [("U", 9), ("B", 21), ("Y", 9), ("R", 9), ("G", 9)],
+                 [],
+                 [("Y", 15), ("B", 9), ("Y", 9), ("Y", 9), ("R", 9), ("G", 11)],
+                 [("Y", 15), ("R", 57), ("G", 11)],
+                 [("Y", 15), ("B", 9), ("G", 9), ("Y", 9), ("G", 11)]]),
+    # A frozen red floor under a green plus. The plus drinks through its one top cell;
+    # the stacks beside it surface one by one, and each column's chamber is banded in that order.
+    dict(n=30, width=6, lower=5,
+         boxes=[box("H2", "B", 0, 4), box("X5", "G", 3, 2),
+                box("H2", "Y", 0, 3), box("S", "B", 2, 3),
+                box("H2", "B", 0, 2), box("S", "Y", 2, 2),
+                box("H2", "Y", 0, 1), box("S", "B", 2, 1), box("H2", "Y", 4, 1),
+                box("S", "R", 0, 0, ice=6), box("H2", "R", 1, 0, ice=8),
+                box("H2", "R", 3, 0, ice=8), box("S", "R", 5, 0, ice=6)],
+         # Red gets a chamber of its own: a ball pinned against a wall above frozen red could
+         # never come loose. The plus drinks only through its top cell, so its green gets a
+         # one-column chamber, and no other box is green: a green ball another box knocked out
+         # of that chamber could never reach the plus. The bar that surfaces after it takes the
+         # next column.
+         dividers=[2, 3, 4, 5],
+         layers=[[("B", 21), ("Y", 21), ("B", 21), ("Y", 21)], [("B", 9), ("Y", None), ("B", None)],
+                 [("R", None)], [("G", None)], [("Y", 21)]]),
+    # A shaft of small boxes between two frozen walls, one column wider than the reference so
+    # a box that is still waiting on a pinned ball can step aside.
+    dict(n=31, width=6, lower=7,
+         boxes=[box("V2", "G", 2, 5), box("S", "R", 3, 6), box("V2", "Y", 3, 4), box("S", "B", 2, 4),
+                box("Q", "G", 2, 2, fill=40), box("V2", "R", 2, 0), box("V2", "B", 3, 0),
+                box("V2", "B", 0, 5, ice=6), box("V2", "R", 1, 5, ice=6), box("V3", "Y", 0, 2, ice=6),
+                box("V3", "G", 1, 2, ice=6), box("H2", "R", 0, 0, ice=6),
+                box("V2", "R", 5, 5, ice=3), box("V2", "Y", 5, 3, ice=3), box("S", "B", 5, 2, ice=3),
+                box("V2", "B", 5, 0, ice=3)],
+         dividers=[2, 5],
+         layers=[[("B", 21), ("R", 21), ("Y", 33), ("G", None), ("R", 21)],
+                 [("G", 21), ("R", 9), ("Y", 21), ("B", 9), ("G", None), ("R", None), ("B", 21)],
+                 [("R", 21), ("Y", None), ("B", 9), ("B", None)]]),
+    # Sideways-only box along the top, a frozen L and a frozen square in the shaft.
+    dict(n=32, width=6, lower=7,
+         boxes=[box("V2", "U", 0, 5), box("Q", "U", 2, 5), box("H2", "C", 4, 6, axis="H"),
+                box("V2", "Y", 1, 4), box("S", "B", 4, 5), box("V3", "C", 5, 3),
+                box("L3A", "C", 0, 2, ice=6), box("H2", "Y", 2, 4), box("S", "B", 2, 3),
+                box("Q", "G", 3, 2, ice=12), box("V2", "P", 1, 1),
+                box("H2", "P", 2, 0), box("S", "G", 0, 0), box("H2", "G", 4, 0), box("V2", "B", 5, 1)],
+         dividers=[2, 4],
+         layers=[[("U", None), ("B", None)], [("Y", None), ("P", None)], [("C", None), ("G", None)]]),
+    # Six colours in three chambers; the open middle is the only room to manoeuvre.
+    dict(n=33, width=6, lower=6,
+         boxes=[box("H3", "O", 0, 5), box("H2", "C", 4, 5),
+                box("S", "R", 0, 4), box("L3A", "G", 1, 3), box("V3", "U", 5, 2),
+                box("V2", "G", 0, 2), box("S", "U", 1, 2), box("H3", "Y", 2, 2),
+                box("V2", "R", 0, 0), box("V2", "U", 1, 0), box("Q", "C", 2, 0), box("Q", "Y", 4, 0)],
+         dividers=[2, 4],
+         layers=[[("C", None), ("U", None)], [("R", None), ("Y", None)], [("G", None), ("O", None)]]),
+    # A ring of boxes around an empty well; half-filled sand blocks on either side.
+    dict(n=34, width=6, lower=7,
+         boxes=[box("H2", "Y", 1, 6), box("H2", "G", 3, 6),
+                box("H2", "Y", 0, 5), box("H2", "R", 2, 5), box("H2", "G", 4, 5),
+                box("Q", "G", 0, 3, fill=40), box("Q", "Y", 4, 3, fill=40),
+                box("L3A", "B", 0, 1), box("L3D", "B", 0, 0), box("H2", "G", 2, 0),
+                box("L3B", "R", 4, 1), box("L3C", "R", 4, 0)],
+         # Floor balls never slide sideways, so each half pours what its own column of boxes
+         # needs, in the order they surface: the top pairs, then the sand block below them.
+         dividers=[3],
+         layers=[[("Y", None), ("G", 29), ("G", 21), ("B", None)], [("G", 42), ("Y", 29), ("R", None)]]),
+    # Column-locked boxes and interlocking L shapes; orange has its own one-column chamber.
+    dict(n=35, width=6, lower=7,
+         boxes=[box("H2", "U", 3, 6), box("V2", "Y", 1, 4), box("V2", "O", 2, 4, axis="V"),
+                box("L3B", "G", 3, 4), box("H2", "Y", 1, 3), box("L4B", "B", 3, 1),
+                box("V2", "O", 0, 2), box("V2", "O", 2, 1, axis="V"), box("L3A", "G", 0, 0),
+                box("L3D", "U", 2, 0), box("V2", "Y", 5, 0)],
+         upper_outside_columns=[0], dividers=[3, 4],
+         layers=[[("B", None), ("G", None)], [("O", None)], [("U", None), ("Y", None)]]),
+    # Super hard: tees and bars interlocked across a board with its lower corners cut away.
+    # The yellow and blue bars start over each other's chambers and must cross the middle,
+    # and the middle column pours orange, red, then orange again.
+    dict(n=36, width=6, lower=6,
+         boxes=[box("H2", "B", 0, 5), box("S", "O", 2, 5), box("S", "R", 3, 5), box("H2", "Y", 4, 5),
+                box("T4", "Y", 0, 3), box("T4", "B", 3, 3, ice=3),
+                box("TD", "R", 1, 1), box("V2", "B", 0, 1), box("V2", "Y", 5, 1),
+                box("S", "R", 3, 1), box("S", "O", 4, 1),
+                box("H2", "Y", 1, 0), box("H2", "R", 3, 0)],
+         lower_outside=[(0, 0), (5, 0)],
+         dividers=[2, 3, 4],
+         layers=[[("Y", None)], [("O", 9), ("R", 40), ("O", None)], [("R", None)], [("B", None)]]),
+    # A frozen centre block; column-locked bars on both flanks.
+    dict(n=37, width=7, lower=7,
+         boxes=[box("L4A", "R", 1, 4), box("L3A", "P", 3, 5), box("S", "R", 5, 6),
+                box("V2", "U", 0, 2, axis="V"), box("Q", "G", 2, 2, ice=4), box("L3D", "C", 4, 2),
+                box("L3B", "P", 0, 0), box("H2", "C", 2, 0), box("Q", "U", 4, 0),
+                box("V2", "B", 6, 0, axis="V"), box("S", "Y", 5, 4)],
+         # One chamber per column, banded in the order boxes surface over it: the top row
+         # first, then the yellow single, the cyan L (drinking through its one top cell), the
+         # thawed square, and last the three pieces from the bottom row.
+         dividers=[1, 2, 3, 4, 5, 6],
+         layers=[[("U", 21), ("P", 16)], [("R", 22), ("P", None)], [("R", None), ("G", 24), ("C", 10)],
+                 [("P", 16), ("G", None), ("C", None)], [("P", 17), ("U", 24)],
+                 [("R", 9), ("Y", None), ("C", 33), ("U", None)], [("B", None)]]),
+    # Stacks of single cells around a big frozen square.
+    dict(n=38, width=6, lower=5, fill_layers=2,
+         boxes=[box("S", "G", 0, 4), box("Q", "B", 2, 3, ice=10),
+                box("S", "G", 0, 3), box("S", "R", 1, 3), box("H2", "R", 4, 3),
+                box("S", "R", 0, 2), box("S", "G", 1, 2), box("H2", "G", 4, 2),
+                box("S", "G", 0, 1), box("S", "R", 1, 1), box("H2", "Y", 2, 1), box("H2", "R", 4, 1),
+                box("S", "R", 0, 0), box("S", "G", 1, 0), box("H2", "Y", 2, 0), box("H2", "G", 4, 0)],
+         # One chamber per stack, banded in the order its boxes surface. The yellow bars wait
+         # under the frozen square until ten boxes are done, then trade places with it.
+         dividers=[1, 2, 4],
+         layers=[[("G", 36), ("R", 18), ("G", 18), ("R", 18)], [("R", 18), ("G", 18), ("R", 18), ("G", 18)],
+                 [("Y", None), ("B", None)], [("R", 42), ("G", 42), ("R", 42), ("G", 42)]]),
+    # Frozen shelves everywhere; the only way up is the open corner and the side pocket.
+    dict(n=39, width=7, lower=8,
+         boxes=[box("H2", "P", 0, 7, ice=4), box("H2", "R", 2, 7, ice=4),
+                box("H2", "B", 0, 6, ice=4), box("H2", "Y", 2, 6, ice=4),
+                box("H4", "R", 0, 5, ice=10),
+                box("S", "W", 0, 4), box("S", "K", 1, 4), box("V2", "B", 2, 3), box("V2", "B", 3, 3),
+                box("Q", "P", 4, 3), box("V2", "Y", 6, 3),
+                box("S", "K", 0, 3), box("S", "W", 1, 3),
+                box("S", "R", 0, 2, ice=7), box("H3", "K", 3, 2, ice=6),
+                box("H3", "Y", 3, 1, ice=6), box("S", "B", 0, 0, ice=6), box("H2", "W", 4, 0, ice=6)],
+         lower_outside=[(6, y) for y in (0, 1, 2, 5, 6, 7)],
+         # At first only the open corner reaches the reservoir, so its chamber pours for the
+         # boxes that can climb there; the frozen shelves' colours wait in the other two.
+         upper_outside_columns=[6], dividers=[2, 4],
+         layers=[[("P", 21), ("B", 21), ("R", 22), ("R", 9), ("B", 9), ("W", 21)],
+                 [("R", 21), ("Y", 21), ("R", None), ("K", 33), ("Y", None)],
+                 [("P", None), ("Y", 21), ("B", None), ("W", None), ("K", None)]]),
+    # Padlock: the big red box opens once all four key boxes (yellow, blue, green, pink) are done.
+    dict(n=40, width=6, lower=4, fill_layers=2,
+         boxes=[box("S", "R", 2, 3), box("H3", "Y", 3, 3, key="red"),
+                box("H3", "B", 0, 2, key="red"), box("S", "R", 3, 2),
+                box("V2", "G", 0, 0, key="red"), box("R8", "R", 1, 0, lock="red"),
+                box("V2", "P", 5, 0, key="red")],
+         # Each key colour pours from its own chamber over its own column; the red that only the
+         # padlocked box can finish sits apart in the middle, so no key ball is ever pinned
+         # beneath red. Pink rides on top of green: the green box can step aside to let it through.
+         dividers=[1, 2, 5],
+         layers=[[("G", None), ("P", None)], [("B", None)], [("R", None)], [("Y", None)]]),
 ]
 
 
@@ -355,6 +518,8 @@ def prepare_palette():
         "B": new_color("ReferenceBlue", (0.10, 0.38, 0.96)),
         "P": new_color("ReferencePink", (0.95, 0.19, 0.79)),
         "W": new_color("ReferenceWhite", (0.91, 0.96, 1.0)),
+        "O": new_color("ReferenceOrange", (1.0, 0.52, 0.08)),
+        "K": new_color("ReferenceBlack", (0.2, 0.2, 0.26)),
     }
     for key, name in (("G", "Emerald"), ("Y", "Saffron"),
                       ("C", "Aqua"), ("U", "Lilac")):
@@ -479,10 +644,16 @@ def reservoir_height(level, needed):
     boundaries = [0] + level.get("dividers", []) + [level["width"]]
     if "layers" in level:
         quotas = [sum(count for _, count in chamber) for chamber in resolve_layers(level, needed)]
+        floor_rows = 0
+        for color, first, last in level.get("floor", ()):
+            # A stripe must fit its own columns within the fill limit too.
+            share = sum(count for chamber in resolve_layers(level, needed) for band, count in chamber if band == color)
+            floor_rows = max(floor_rows, math.ceil(share / (4 * (last - first) * MAX_RESERVOIR_FILL) / 4))
     else:
         palettes = level.get("chamber_colors") or ["".join(needed)]
         quotas = [sum(needed.get(color, 0) for color in palette) for palette in palettes]
-    rows = 2
+        floor_rows = 0
+    rows = max(2, floor_rows)
     for chamber, quota in enumerate(quotas):
         first, last = boundaries[chamber:chamber + 2]
         columns = 4 * sum(x not in outside_columns for x in range(first, last))
@@ -503,10 +674,21 @@ def make_layered_balls(level, needed):
     if len(layers) != len(boundaries) - 1:
         raise ValueError(f"Level {level['n']}: layer list count differs from chamber count")
     balls = []
+    used = set()
+    # Floor stripes: side-by-side columns of one color each, poured before any layer.
+    for color, first, last in level.get("floor", ()):
+        sites = [(x, y) for y in range(lower * 4, (lower + upper) * 4) for x in range(first * 4, last * 4)
+                 if (x // 4, y // 4 - lower) not in outside]
+        for chamber in layers:
+            for index, (band, count) in enumerate(chamber):
+                if band == color:
+                    chamber[index] = (band, 0)
+                    balls.extend(zip(sites[:count], [color] * count))
+                    used.update(sites[:count])
     for chamber, bands in enumerate(layers):
         first, last = boundaries[chamber:chamber + 2]
         sites = [(x, y) for y in range(lower * 4, (lower + upper) * 4) for x in range(first * 4, last * 4)
-                 if (x // 4, y // 4 - lower) not in outside]
+                 if (x // 4, y // 4 - lower) not in outside and (x, y) not in used]
         colors = [color for color, count in bands for _ in range(count)]
         if len(colors) > len(sites):
             raise ValueError(f"Level {level['n']}: chamber {chamber} needs {len(colors)} balls, has {len(sites)} positions")
@@ -606,7 +788,11 @@ def build_level(level, colors, shapes):
     occupied = set()
     needed = Counter()
     ids = Counter()
-    for shape, color, x, y, ice, prefill, axis, inner in level["boxes"]:
+    locks = {entry[8] for entry in level["boxes"] if entry[8]}
+    keys = {entry[9] for entry in level["boxes"] if entry[9]}
+    if locks != keys:
+        raise ValueError(f"Level {n}: every lock needs a key box and every key a lock ({locks} vs {keys})")
+    for shape, color, x, y, ice, prefill, axis, inner, lock, key in level["boxes"]:
         offsets = shapes[shape][1]
         for dx, dy in offsets:
             cell = (x + dx, y + dy)
@@ -660,15 +846,16 @@ MonoBehaviour:
     body += "  ballAreaMask:\n    defaultKind: 1\n"
     body += mask_lines(upper_outside(level, upper), width, upper)
     body += "  boxes:\n"
-    for shape, color, x, y, ice, prefill, axis, inner in level["boxes"]:
+    for shape, color, x, y, ice, prefill, axis, inner, lock, key in level["boxes"]:
         prefill = scaled_prefill(prefill, shapes[shape][1], slots, dense, fill_layers)
         ids[color] += 1
         body += f"""  - id: {color}_{ids[color]}
     shape: {reference(shapes[shape][0])}
     color: {reference(colors[color])}
     startingMacroOrigin: {{x: {x}, y: {y}}}
-    startsLocked: 0
-    lockId: ''
+    startsLocked: {int(lock is not None)}
+    lockId: '{lock or ""}'
+    keyId: '{key or ""}'
     iceCount: {ice}
     initialFillCount: {prefill}
 """

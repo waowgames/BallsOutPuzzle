@@ -47,7 +47,6 @@ namespace BallsOut
                 if (box == null || box.shape == null || box.shape.CellCount == 0 || box.color == null)
                 { errors.Add($"Box {i}: assign a nonempty shape and color."); continue; }
                 if (string.IsNullOrWhiteSpace(box.id) || !ids.Add(box.id)) errors.Add($"Box {i}: ID must be nonempty and unique.");
-                if (box.startsLocked) errors.Add($"Box {i}: locks require Phase 13; turn off startsLocked.");
                 long capacity = level.BoxCapacity(box.shape);
                 if (box.initialFillCount < 0 || box.initialFillCount >= capacity)
                     errors.Add($"Box {i}: initial fill must be between 0 and capacity - 1.");
@@ -74,6 +73,7 @@ namespace BallsOut
                 if (reached.Count != shape.Count) errors.Add($"Box {i}: shape cells must be edge-connected.");
             }
             ValidateIce(level, errors);
+            ValidateLocks(level, errors);
             occupied.Clear();
             for (int i = 0; i < level.balls.Count; i++)
             {
@@ -125,6 +125,53 @@ namespace BallsOut
                     return;
                 }
                 completable++;
+            }
+        }
+
+        // Every padlock needs at least one key box, every key a padlock, and no chain of
+        // locked key boxes may loop back on itself (none of them could ever open).
+        private static void ValidateLocks(LevelDefinition level, List<string> errors)
+        {
+            var locks = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < level.boxes.Count; i++)
+            {
+                BoxSpawnData box = level.boxes[i];
+                if (box == null || !box.startsLocked) continue;
+                if (string.IsNullOrWhiteSpace(box.lockId)) errors.Add($"Box {i}: a locked box needs a lockId.");
+                else if (locks.ContainsKey(box.lockId)) errors.Add($"Box {i}: lockId '{box.lockId}' is already used by another box.");
+                else locks.Add(box.lockId, i);
+            }
+            var keys = new Dictionary<int, List<int>>();
+            for (int i = 0; i < level.boxes.Count; i++)
+            {
+                BoxSpawnData box = level.boxes[i];
+                if (box == null || string.IsNullOrEmpty(box.keyId)) continue;
+                if (!locks.TryGetValue(box.keyId, out int target))
+                    errors.Add($"Box {i}: keyId '{box.keyId}' matches no locked box.");
+                else if (target == i) errors.Add($"Box {i}: a box cannot carry the key to its own lock.");
+                else
+                {
+                    if (!keys.TryGetValue(target, out var list)) keys.Add(target, list = new List<int>());
+                    list.Add(i);
+                }
+            }
+            foreach (var pair in locks)
+                if (!keys.ContainsKey(pair.Value)) errors.Add($"Box {pair.Value}: lock '{pair.Key}' has no key box.");
+            // 0 = unvisited, 1 = on the current path, 2 = can open.
+            var state = new int[level.boxes.Count];
+            foreach (int start in locks.Values)
+                if (!Opens(start)) { errors.Add($"Box {start}: its lock waits on a key box that is itself waiting on this lock."); return; }
+
+            bool Opens(int box)
+            {
+                if (state[box] == 2) return true;
+                if (state[box] == 1) return false;
+                state[box] = 1;
+                if (keys.TryGetValue(box, out var sources))
+                    foreach (int source in sources)
+                        if (level.boxes[source].startsLocked && !Opens(source)) return false;
+                state[box] = 2;
+                return true;
             }
         }
 

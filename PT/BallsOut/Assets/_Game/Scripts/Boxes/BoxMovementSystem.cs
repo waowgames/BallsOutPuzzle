@@ -27,6 +27,8 @@ namespace BallsOut
         public bool Begin(Vector3 worldPoint, BoxController candidate)
         {
             if (selected != null) return false;
+            // A padlocked box stays put; the padlock shakes to say why.
+            if (candidate != null && candidate.IsLocked) candidate.NudgeLock();
             selected = candidate;
             if (selected == null || !selected.CanMove) { selected = null; return false; }
             grabOffset = board.Root.InverseTransformPoint(worldPoint) - selected.transform.localPosition;

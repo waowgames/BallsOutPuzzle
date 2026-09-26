@@ -36,6 +36,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 0, y: 3}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 0
   - id: Y_2
@@ -44,6 +45,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 4, y: 3}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 0
   - id: Y_3
@@ -52,6 +54,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 0, y: 1}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 0
   - id: U_1
@@ -60,6 +63,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 0, y: 0}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 0
   - id: Y_4
@@ -68,6 +72,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 2, y: 0}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 1
     innerColor: {fileID: 11400000, guid: 2170f616113341441b0e95888db0efa0, type: 2}
@@ -77,6 +82,7 @@ MonoBehaviour:
     startingMacroOrigin: {x: 4, y: 0}
     startsLocked: 0
     lockId: ''
+    keyId: ''
     iceCount: 0
     initialFillCount: 0
   balls:

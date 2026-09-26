@@ -25,7 +25,14 @@ namespace BallsOut
         public bool HasPlayerInteracted { get; private set; }
         public int IceCount { get; private set; }
         public bool IsFrozen => IceCount > 0;
-        public bool CanMove => IsPlaced && !IsFrozen && !IsCompleting && !IsSwappingLayer && !IsRemoved && CurrentFill < Capacity;
+        // Padlocked boxes wait for every key box naming their LockId to complete.
+        public string LockId { get; private set; }
+        public int KeysRemaining { get; private set; }
+        public bool IsLocked => KeysRemaining > 0;
+        // Completing this box sends a key to the padlock with this id.
+        public string KeyId { get; private set; }
+        public bool HasKey => key != null;
+        public bool CanMove => IsPlaced && !IsFrozen && !IsLocked && !IsCompleting && !IsSwappingLayer && !IsRemoved && CurrentFill < Capacity;
         public Transform FillRoot { get; private set; }
         public Vector3 FillSpacing { get; private set; }
         public float FillBallDiameter { get; private set; }
@@ -36,6 +43,9 @@ namespace BallsOut
         private GameObject axisArrow;
         internal Transform InnerArt { get; private set; }
         private IceBoxVisual ice;
+        private BoxLockVisual padlock;
+        private BoxKeyVisual key;
+        private float lidTop;
         private MeshRenderer shadow;
         // Collection pulse: a small damped spring, pivoting on the footprint centre.
         private const float PulseStiffness = 420f;
@@ -59,6 +69,9 @@ namespace BallsOut
             Color = spawn.color;
             InnerColor = spawn.innerColor;
             MoveAxis = spawn.moveAxis;
+            LockId = spawn.startsLocked && !string.IsNullOrEmpty(spawn.lockId) ? spawn.lockId : null;
+            KeyId = string.IsNullOrEmpty(spawn.keyId) ? null : spawn.keyId;
+            KeysRemaining = 0;
             IsSwappingLayer = false;
             HasPlayerInteracted = false;
             int resolution = Mathf.Clamp(slotsPerSide, 1, LevelDefinition.MicroResolution);
@@ -161,6 +174,9 @@ namespace BallsOut
                 if (hitTop < hitBottom) (hitBottom, hitTop) = (hitTop, hitBottom);
             }
             float hitHeight = Mathf.Max(0.01f, hitTop - hitBottom);
+            lidTop = hitTop;
+            // Created before the pulse rig so the key rides the collect pulse with the box.
+            if (KeyId != null) key = BoxKeyVisual.Create(this, cellSize, lidTop);
             foreach (Vector2Int cell in Shape.Cells)
             {
                 var hit = gameObject.AddComponent<BoxCollider>();
@@ -184,6 +200,38 @@ namespace BallsOut
                 ice = IceBoxVisual.Create(this, cellSize, IceCount);
                 SetArtVisible(false);
             }
+        }
+
+        // Called once every box exists, with the number of key boxes naming this lock.
+        internal void SetupLock(int keys, float cellSize)
+        {
+            if (LockId == null || keys <= 0) return;
+            KeysRemaining = keys;
+            // Stands on the ice when the box is frozen too; the ice block rises 0.03 cells above the lid.
+            padlock = BoxLockVisual.Create(this, cellSize, lidTop + cellSize * 0.04f, keys);
+        }
+
+        // One key has reached the padlock. Returns true when that opened it.
+        internal bool ReceiveKey()
+        {
+            if (!IsLocked || IsRemoved) return false;
+            KeysRemaining--;
+            if (padlock != null) padlock.SetCount(KeysRemaining);
+            return !IsLocked;
+        }
+
+        internal void NudgeLock()
+        {
+            if (padlock != null) padlock.Nudge();
+        }
+
+        // The completed box hands its key over; it flies on under `space` after the box is gone.
+        internal void SendKey(BoxController target, Transform space, Action<BoxController> onArrived)
+        {
+            if (key == null) return;
+            BoxKeyVisual flying = key;
+            key = null;
+            flying.Fly(target != null ? target.padlock : null, space, () => onArrived?.Invoke(target));
         }
 
         // A blurred footprint on the tiles; it rides the pulse and completion shrink with the art.
@@ -286,7 +334,7 @@ namespace BallsOut
             }
         }
         internal void ClearPlacement() { IsPlaced = false; IsRemoved = true; }
-        public bool CanCollect(BallColorDefinition color) => HasPlayerInteracted && IsPlaced && !IsFrozen && !IsCompleting && !IsSwappingLayer && !IsRemoved && ActiveColor == color && CurrentFill < Capacity;
+        public bool CanCollect(BallColorDefinition color) => HasPlayerInteracted && IsPlaced && !IsFrozen && !IsLocked && !IsCompleting && !IsSwappingLayer && !IsRemoved && ActiveColor == color && CurrentFill < Capacity;
         // Returns true when this step breaks the ice and frees the box.
         internal bool CrackIce()
         {
