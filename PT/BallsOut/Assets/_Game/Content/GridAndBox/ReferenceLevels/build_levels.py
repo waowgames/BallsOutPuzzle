@@ -501,16 +501,16 @@ LEVELS = [
                  [("R", 21), ("Y", 21), ("R", None), ("K", 33), ("Y", None)],
                  [("P", None), ("Y", 21), ("B", None), ("W", None), ("K", None)]]),
     # Padlock: the big red box opens once all four key boxes (yellow, blue, green, pink) are done.
-    dict(n=40, width=6, lower=4, fill_layers=2,
+    dict(n=40, width=6, lower=4,
          boxes=[box("S", "R", 2, 3), box("H3", "Y", 3, 3, key="red"),
                 box("H3", "B", 0, 2, key="red"), box("S", "R", 3, 2),
                 box("V2", "G", 0, 0, key="red"), box("R8", "R", 1, 0, lock="red"),
                 box("V2", "P", 5, 0, key="red")],
-         # Each key colour pours from its own chamber over its own column; the red that only the
-         # padlocked box can finish sits apart in the middle, so no key ball is ever pinned
-         # beneath red. Pink rides on top of green: the green box can step aside to let it through.
-         dividers=[1, 2, 5],
-         layers=[[("G", None), ("P", None)], [("B", None)], [("R", None)], [("Y", None)]]),
+         # Every colour pours from a chamber of its own. Stacked in one chamber, balls pinned
+         # against the wall stay above the colour beneath them, and a key box waiting on them
+         # blocks the rest of the board.
+         dividers=[1, 2, 4, 5],
+         layers=[[("G", None)], [("B", None)], [("R", None)], [("Y", None)], [("P", None)]]),
 ]
 
 
