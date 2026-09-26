@@ -24,6 +24,8 @@ namespace BallsOut
         public CellMask ballAreaMask = new CellMask();
         public List<BoxSpawnData> boxes = new List<BoxSpawnData>();
         public List<BallSpawnData> balls = new List<BallSpawnData>();
+        [Tooltip("Tubes on the reservoir's top edge. Each drops its queue into the top row below it whenever a site there is free.")]
+        public List<BallFeederData> feeders = new List<BallFeederData>();
         [Tooltip("Editor dense-field authoring palette; runtime uses the explicit balls list.")]
         public List<BallColorDefinition> palette = new List<BallColorDefinition>();
         public int FillLayerCount => fillLayers > 0 ? fillLayers : FillLayers;
@@ -35,6 +37,20 @@ namespace BallsOut
         public float BallRowSpacing => macroCellSize * 0.24f * 0.8660254f;
         public float DepotBottom => lowerGridHeight * macroCellSize;
         public float DepotTop => BallRowZ(ballAreaMacroHeight * MicroResolution - 0.5f);
+        // Feeder tubes continue the reservoir lattice for this many ball rows above its top edge.
+        public const int FeederRows = 8;
+        public bool HasFeeders => feeders != null && feeders.Count > 0;
+        public float FeederTop => BallRowZ(ballAreaMacroHeight * MicroResolution + FeederRows - 0.5f);
+        // Highest point of the board art: the tube caps and their counters when there are tubes.
+        public float BoardTop => HasFeeders ? FeederTop + macroCellSize * 0.3f : DepotTop;
+
+        public bool HasFeederAt(int column)
+        {
+            if (feeders == null) return false;
+            foreach (BallFeederData feeder in feeders)
+                if (feeder != null && feeder.column == column) return true;
+            return false;
+        }
         // Balls rest on this; the rails share the grid's base so the whole outline is one piece.
         public float DepotFloorHeight => macroCellSize * 0.13f;
 

@@ -12,10 +12,12 @@ namespace BallsOut
         internal Vector3 AnimationEnd;
         internal Vector2Int PreviousMacro;
 
-        public BallState(BallSpawnData spawn)
+        public BallState(BallSpawnData spawn) : this(spawn.color, spawn.cell) { }
+
+        public BallState(BallColorDefinition color, Vector2Int cell)
         {
-            Color = spawn.color;
-            Cell = spawn.cell;
+            Color = color;
+            Cell = cell;
         }
     }
 }

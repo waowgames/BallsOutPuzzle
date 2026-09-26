@@ -28,7 +28,7 @@ namespace BallsOut
             Camera camera = Camera.main;
             if (camera == null || !camera.orthographic) return;
             float width = board.Width * board.CellSize;
-            float top = board.Definition.DepotTop;
+            float top = board.Definition.BoardTop;
             Vector3 center = board.Root.TransformPoint(new Vector3(width * 0.5f, 0f, top * 0.5f));
             Vector3 delta = center - camera.transform.position;
             camera.transform.position += camera.transform.right * Vector3.Dot(delta, camera.transform.right) +

@@ -23,6 +23,7 @@ namespace BallsOut
         private readonly List<BoxController> boxes = new List<BoxController>();
         public BoardGrid Board { get; private set; }
         public BallMicroGrid Balls { get; private set; }
+        public BallFeederSystem Feeder { get; private set; }
         public BallSimulationSystem Simulation { get; private set; }
         public BoxMovementSystem Movement { get; private set; }
         public BallCollectionSystem Collection { get; private set; }
@@ -114,7 +115,8 @@ namespace BallsOut
                 ball.Visual = pool.Rent(ball.Color);
                 if (ball.Visual != null) ball.Visual.localPosition = Balls.CellToLocal(ball.Cell) + Vector3.up * height;
             }
-            Fill = new BoxFillSystem(pool, prefabs != null ? prefabs.fillDuration : 0.26f, Balls.Count);
+            Feeder = new BallFeederSystem(Balls, pool, content, height);
+            Fill = new BoxFillSystem(pool, prefabs != null ? prefabs.fillDuration : 0.26f, Balls.Count + Feeder.Remaining);
             Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 1.1f,
                 prefabs != null ? prefabs.completionDelay : 0.3f);
             Completion.OnBoxCompleted += ForwardBoxCompleted;
@@ -124,7 +126,7 @@ namespace BallsOut
             Completion.OnBoxCompleted += SendKey;
             Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
             Collection.OnBallCollected += ForwardBallCollected;
-            Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows);
+            Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows, Feeder);
             Movement = new BoxMovementSystem(Board, Balls, boxStepDuration);
             dragInput = GetComponent<BoardDragInput>();
             dragInput.Initialize(Board, Movement);
@@ -151,7 +153,7 @@ namespace BallsOut
             Simulation.Advance(Time.deltaTime);
             Fill.Render(Simulation.InterpolationTime);
             Completion.Render(Simulation.InterpolationTime);
-            if (Balls.Count == 0 && Completion.RemainingBoxes == 0 && !Fill.IsAnimating && !Simulation.IsAnimating)
+            if (Balls.Count == 0 && Feeder.Remaining == 0 && Completion.RemainingBoxes == 0 && !Fill.IsAnimating && !Simulation.IsAnimating)
             {
                 HasWon = true;
                 running = false;
@@ -242,6 +244,7 @@ namespace BallsOut
             }
             Board = null;
             Balls = null;
+            Feeder = null;
             Simulation = null;
             Movement = null;
             Collection = null;

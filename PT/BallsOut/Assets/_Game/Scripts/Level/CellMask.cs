@@ -42,6 +42,22 @@ namespace BallsOut
     }
 
     [Serializable]
+    public sealed class FeederSegment
+    {
+        public BallColorDefinition color;
+        [Min(1)] public int count = 1;
+    }
+
+    [Serializable]
+    public sealed class BallFeederData
+    {
+        [Tooltip("Macro column of the reservoir's top edge the tube pours into.")]
+        public int column;
+        [Tooltip("Queued balls, first out first: each segment drops its count of one color.")]
+        public List<FeederSegment> queue = new List<FeederSegment>();
+    }
+
+    [Serializable]
     public sealed class BoxSpawnData
     {
         public string id;

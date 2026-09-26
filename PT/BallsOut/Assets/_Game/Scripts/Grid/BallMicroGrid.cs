@@ -5,7 +5,7 @@ namespace BallsOut
     public sealed class BallMicroGrid
     {
         // Ball radius plus a wall's half-thickness, in macro cells.
-        private const float WallClearance = 0.15f;
+        internal const float WallClearance = 0.15f;
         private readonly BallState[] occupants;
         private readonly bool[] mask;
         private readonly int[] visualReservations;

@@ -360,7 +360,7 @@ LEVELS = [
     # H-shaped board: two towers joined by a three-cell bridge. The right tower is frozen
     # until five boxes are done on the left. Every column pours from its own chamber, banded
     # in the order its stack surfaces.
-    dict(n=29, width=7, lower=7,
+    dict(n=29, width=7, lower=7, difficulty=1,
          boxes=[box("S", "U", 0, 6), box("V2", "R", 1, 5), box("S", "U", 2, 6),
                 box("V2", "Y", 0, 4), box("S", "U", 1, 4), box("V2", "B", 2, 4),
                 box("S", "R", 0, 3), box("S", "Y", 2, 3),
@@ -428,7 +428,7 @@ LEVELS = [
          dividers=[2, 4],
          layers=[[("C", None), ("U", None)], [("R", None), ("Y", None)], [("G", None), ("O", None)]]),
     # A ring of boxes around an empty well; half-filled sand blocks on either side.
-    dict(n=34, width=6, lower=7,
+    dict(n=34, width=6, lower=7, difficulty=2,
          boxes=[box("H2", "Y", 1, 6), box("H2", "G", 3, 6),
                 box("H2", "Y", 0, 5), box("H2", "R", 2, 5), box("H2", "G", 4, 5),
                 box("Q", "G", 0, 3, fill=40), box("Q", "Y", 4, 3, fill=40),
@@ -511,6 +511,192 @@ LEVELS = [
          # blocks the rest of the board.
          dividers=[1, 2, 4, 5],
          layers=[[("G", None)], [("B", None)], [("R", None)], [("Y", None)], [("P", None)]]),
+    # Levels 41-56 follow the reference boards' mechanics and difficulty, not their exact layouts.
+    # Bands of two colours in one narrow chamber mix where they meet (balls pinned against a
+    # wall drop behind the next band), so most colours get a chamber of their own and the
+    # puzzle is getting each box under it in a workable order.
+    # The top row starts under the right chambers; the red square waits for the blue key bar.
+    dict(n=41, width=6, lower=5,
+         boxes=[box("S", "Y", 0, 4), box("S", "G", 1, 4), box("H2", "R", 2, 4), box("S", "P", 4, 4),
+                box("S", "B", 5, 4),
+                box("H2", "B", 0, 3, key="red"), box("S", "R", 3, 3), box("H2", "G", 4, 3),
+                box("V2", "P", 0, 1), box("S", "Y", 5, 2),
+                box("Q", "R", 1, 0, lock="red"), box("V2", "Y", 5, 0)],
+         dividers=[1, 2, 4, 5],
+         layers=[[("Y", None)], [("G", None)], [("R", None)], [("P", None)], [("B", None)]]),
+    # Tall and narrow: every single sits one column off its colour, and the pink bar at the
+    # bottom opens only after the pink key single is done. Green's bar only slides up and down.
+    dict(n=42, width=5, lower=7,
+         boxes=[box("S", "G", 0, 6), box("S", "R", 1, 6), box("S", "B", 3, 6), box("S", "Y", 4, 6),
+                box("S", "P", 0, 5, key="pink"), box("S", "Y", 2, 5), box("H2", "R", 3, 5),
+                box("S", "B", 0, 4), box("V2", "G", 1, 3, axis="V"), box("S", "P", 3, 4),
+                box("S", "R", 2, 3), box("S", "G", 4, 3),
+                box("S", "Y", 0, 2), box("H2", "B", 3, 2),
+                box("H2", "P", 0, 1, lock="pink"),
+                box("S", "Y", 3, 0), box("S", "G", 4, 0)],
+         # Yellow, blue and pink share the right-hand chamber in diagonal bands.
+         dividers=[1, 2], mix={2: "diagonal"},
+         layers=[[("R", None)], [("G", None)], [("Y", None), ("B", None), ("P", None)]]),
+    # Hard: a nested green bar that takes orange first, frozen singles and a frozen blue floor.
+    dict(n=43, width=6, lower=6, difficulty=1,
+         boxes=[box("S", "R", 0, 5), box("S", "B", 1, 5), box("S", "O", 2, 5), box("S", "G", 3, 5),
+                box("S", "Y", 4, 5), box("S", "O", 5, 5),
+                box("H2", "G", 0, 4, inner="O"), box("S", "Y", 2, 4, ice=3), box("H2", "R", 3, 4, ice=2),
+                box("S", "B", 5, 4),
+                box("V2", "O", 0, 2), box("S", "B", 1, 3), box("V2", "Y", 4, 2),
+                box("S", "Y", 1, 2), box("H2", "R", 2, 2), box("S", "G", 5, 2),
+                box("H3", "B", 0, 1, ice=6),
+                box("S", "G", 1, 0), box("H2", "R", 4, 0)],
+         dividers=[2, 3, 4, 5],
+         layers=[[("O", None)], [("R", None)], [("Y", None)], [("G", None)], [("B", None)]]),
+    # Hard: the big red block is padlocked behind two key boxes, with frozen cyan and green.
+    dict(n=44, width=7, lower=6, difficulty=1,
+         boxes=[box("S", "B", 0, 5), box("S", "G", 1, 5), box("S", "P", 2, 5), box("H2", "R", 3, 5),
+                box("S", "C", 5, 5), box("S", "Y", 6, 5),
+                box("H2", "Y", 0, 4, key="red"), box("S", "C", 2, 4, ice=4), box("S", "R", 3, 4),
+                box("H2", "G", 5, 4, key="red"),
+                box("S", "P", 0, 3), box("V2", "B", 1, 2), box("R6", "R", 3, 2, lock="red"), box("S", "P", 6, 3),
+                box("S", "Y", 2, 2),
+                box("H2", "C", 0, 1), box("H3", "G", 3, 1, ice=6), box("S", "B", 6, 1),
+                box("S", "Y", 2, 0), box("H2", "P", 5, 0)],
+         # Pink and blue pour in stripes on the left, yellow and cyan in a checkerboard on the right.
+         dividers=[2, 3, 5], mix={0: "stripes", 3: "checker"},
+         layers=[[("P", None), ("B", None)], [("G", None)], [("R", None)], [("Y", None), ("C", None)]]),
+    # Tees and L shapes; the blue tee at the bottom is padlocked behind the lilac bar.
+    dict(n=45, width=6, lower=6,
+         boxes=[box("T4", "G", 0, 4), box("S", "Y", 3, 5), box("L3D", "B", 3, 4), box("S", "P", 5, 5),
+                box("S", "U", 0, 4), box("S", "R", 2, 4), box("S", "Y", 5, 4),
+                box("L4A", "P", 0, 1), box("H2", "U", 2, 3, key="blue"), box("S", "B", 5, 3),
+                box("S", "G", 3, 2), box("L3C", "Y", 4, 2),
+                box("T4", "B", 1, 0, lock="blue"), box("S", "R", 5, 1),
+                box("H2", "G", 4, 0)],
+         dividers=[1, 2, 3, 4, 5],
+         layers=[[("R", None)], [("B", None)], [("G", None)], [("Y", None)], [("P", None)], [("U", None)]]),
+    # A padlocked yellow square in the middle of the board, opened by the white and blue bars.
+    dict(n=46, width=6, lower=6,
+         boxes=[box("S", "K", 0, 5), box("S", "G", 1, 5), box("S", "W", 2, 5), box("S", "B", 3, 5),
+                box("S", "Y", 4, 5), box("S", "K", 5, 5),
+                box("H2", "W", 0, 4, key="yellow"), box("H2", "B", 4, 4, key="yellow"),
+                box("S", "G", 0, 3), box("S", "B", 1, 3), box("Q", "Y", 2, 2, lock="yellow"),
+                box("S", "K", 4, 3), box("S", "W", 5, 3),
+                box("V2", "K", 0, 1), box("S", "G", 5, 2),
+                box("H2", "G", 1, 1), box("H2", "W", 4, 1),
+                box("S", "B", 2, 0), box("S", "Y", 5, 0)],
+         # Checkerboards on both sides of the yellow chamber.
+         dividers=[2, 4], mix={0: "checker", 2: "checker"},
+         layers=[[("G", None), ("K", None)], [("Y", None)], [("W", None), ("B", None)]]),
+    # Red singles crowd the top; red pours from both outer columns. The big blue block at the
+    # bottom opens once the green and yellow key boxes are done.
+    dict(n=47, width=6, lower=6,
+         boxes=[box("S", "R", 0, 5), box("S", "R", 1, 5), box("S", "Y", 2, 5), box("S", "R", 3, 5),
+                box("S", "R", 4, 5), box("S", "G", 5, 5),
+                box("S", "Y", 0, 4, key="blue"), box("S", "R", 1, 4), box("V2", "G", 2, 3, key="blue"),
+                box("S", "R", 3, 4), box("S", "Y", 4, 4),
+                box("S", "G", 0, 3), box("S", "R", 4, 3),
+                box("V2", "Y", 1, 1, axis="V"), box("V2", "G", 5, 1),
+                box("R6", "B", 2, 0, lock="blue")],
+         dividers=[1, 2, 4, 5],
+         layers=[[("R", 45)], [("Y", None)], [("B", None)], [("G", None)], [("R", None)]]),
+    # Hard: two nested squares whose inner colours sit on opposite sides, frozen bars between.
+    dict(n=48, width=6, lower=5, difficulty=1,
+         boxes=[box("S", "G", 0, 4), box("S", "C", 1, 4), box("H2", "Y", 2, 4), box("S", "B", 4, 4),
+                box("S", "R", 5, 4),
+                box("Q", "R", 0, 2, inner="C"), box("S", "Y", 2, 3, ice=2), box("S", "G", 3, 3),
+                box("Q", "Y", 4, 2, inner="B"),
+                box("H2", "B", 0, 1, ice=4), box("S", "G", 3, 1),
+                box("S", "R", 1, 0), box("H2", "G", 2, 0, ice=3), box("S", "C", 5, 1)],
+         slots=2, dividers=[1, 2, 4], mix={3: "diagonal"},
+         layers=[[("C", None)], [("Y", None)], [("R", None)], [("B", None), ("G", None)]]),
+    # Very hard: every colour in a column of its own, a padlock, a nested bar, a column-locked
+    # green bar, and ice on the floor.
+    dict(n=49, width=7, lower=7, difficulty=2,
+         boxes=[box("S", "B", 0, 6), box("S", "R", 1, 6), box("S", "Y", 2, 6), box("S", "G", 3, 6),
+                box("S", "O", 4, 6), box("S", "C", 5, 6), box("S", "P", 6, 6),
+                box("H2", "G", 0, 5), box("S", "P", 2, 5, ice=4), box("H2", "R", 3, 5, key="orange"),
+                box("S", "Y", 5, 5), box("S", "B", 6, 5),
+                box("V2", "C", 0, 3), box("S", "O", 1, 4), box("H2", "B", 3, 4, inner="Y"), box("S", "G", 5, 4),
+                box("V3", "G", 2, 1, axis="V"), box("Q", "O", 4, 2, lock="orange"), box("S", "R", 6, 3),
+                box("S", "P", 0, 2), box("S", "C", 3, 2, ice=6),
+                box("H2", "R", 0, 1), box("H3", "P", 4, 1, ice=8),
+                box("S", "Y", 1, 0), box("H2", "C", 3, 0), box("S", "B", 6, 0)],
+         slots=2, dividers=[1, 2, 3, 4, 5, 6],
+         layers=[[("R", None)], [("B", None)], [("G", None)], [("Y", None)], [("P", None)], [("O", None)],
+                 [("C", None)]]),
+    # Feeder tube intro: the middle column is fed from the tube above it, so every box
+    # takes its turn under the middle.
+    dict(n=50, width=5, lower=4,
+         boxes=[box("H2", "B", 0, 3), box("S", "W", 2, 3), box("H2", "G", 3, 3),
+                box("S", "W", 0, 2), box("H2", "O", 1, 1), box("S", "K", 4, 2),
+                box("H2", "K", 0, 0), box("H2", "B", 3, 0)],
+         dividers=[2, 3],
+         layers=[[("B", 21)], [("W", 9)], [("G", 21)]],
+         feeders=[(2, [("W", None), ("O", None), ("K", None), ("B", None)])]),
+    # A tube in the right corner: green and white only ever come down the tube.
+    dict(n=51, width=6, lower=5,
+         boxes=[box("S", "W", 0, 4), box("S", "K", 1, 4), box("S", "R", 2, 4), box("S", "P", 3, 4),
+                box("S", "G", 5, 4),
+                box("H2", "P", 0, 3), box("S", "R", 2, 3), box("H2", "G", 4, 3),
+                box("S", "K", 0, 2), box("V2", "W", 2, 1), box("S", "P", 3, 2), box("S", "K", 5, 2),
+                box("H2", "W", 4, 1),
+                box("H2", "K", 0, 0), box("S", "R", 3, 0)],
+         dividers=[1, 2, 3, 4],
+         layers=[[("K", 9)], [("K", None)], [("R", None)], [("P", None)], [("G", 9)]],
+         feeders=[(5, [("G", None), ("W", 9), ("K", 9), ("W", None)])]),
+    # Nested frames: tall blue bars that fill red or orange first, mirrored left and right.
+    dict(n=52, width=6, lower=6, slots=2,
+         boxes=[box("V3", "B", 0, 3, inner="R"), box("H2", "O", 1, 5), box("H2", "R", 3, 5),
+                box("V3", "B", 5, 3, inner="O"),
+                box("S", "R", 1, 4), box("Q", "B", 2, 3, inner="R"), box("S", "O", 4, 4),
+                box("H2", "B", 1, 2), box("H2", "B", 3, 1),
+                box("V2", "R", 0, 0), box("V2", "O", 5, 0)],
+         # Blue and orange share the right four columns in a checkerboard; red keeps its own chamber.
+         dividers=[2], mix={1: "checker"},
+         layers=[[("R", None)], [("B", None), ("O", None)]]),
+    # The tube pours into the middle column; black and green wait in the side columns.
+    dict(n=53, width=7, lower=5,
+         boxes=[box("S", "G", 0, 4), box("S", "K", 1, 4), box("S", "W", 2, 4), box("S", "P", 3, 4),
+                box("S", "W", 4, 4), box("S", "K", 5, 4), box("S", "G", 6, 4),
+                box("H2", "P", 0, 3), box("S", "K", 3, 3), box("H2", "P", 5, 3),
+                box("S", "W", 0, 2), box("V2", "G", 2, 1), box("V2", "G", 4, 1), box("S", "W", 6, 2),
+                box("H3", "K", 0, 0), box("H3", "P", 4, 0)],
+         dividers=[1, 2, 3, 4, 5, 6],
+         layers=[[("K", 9)], [("W", 9)], [("K", None)], [("P", 9)], [("K", None)], [("W", None)], [("G", 9)]],
+         feeders=[(3, [("P", None), ("G", None)])]),
+    # Hard: the tube feeds a frozen corner; the padlocked lilac bar needs both key singles.
+    dict(n=54, width=6, lower=6, difficulty=1,
+         boxes=[box("S", "R", 0, 5), box("S", "Y", 1, 5), box("S", "G", 3, 5), box("S", "U", 4, 5),
+                box("S", "B", 5, 5),
+                box("H2", "G", 0, 4), box("S", "B", 2, 4, key="lilac"), box("S", "R", 3, 4, ice=3),
+                box("H2", "Y", 4, 4),
+                box("S", "Y", 0, 3, key="lilac"), box("V2", "B", 1, 2), box("Q", "R", 2, 2, ice=5),
+                box("S", "G", 5, 3),
+                box("H3", "U", 3, 1, lock="lilac"),
+                box("S", "G", 0, 0), box("H2", "B", 2, 0), box("S", "R", 5, 0)],
+         dividers=[2, 4, 5], mix={0: "stripes"},
+         layers=[[("R", 9), ("Y", None)], [("B", None)], [("G", None)], [("U", None)]],
+         feeders=[(2, [("R", None)])]),
+    # A thin tube over the middle column fills the big green block, one load at a time.
+    dict(n=55, width=5, lower=6,
+         boxes=[box("S", "K", 0, 5), box("S", "G", 2, 5), box("S", "W", 4, 5),
+                box("S", "W", 0, 4), box("H2", "K", 3, 4),
+                box("R6", "G", 1, 2),
+                box("V2", "K", 0, 1), box("S", "W", 4, 2), box("H2", "B", 3, 0), box("S", "B", 1, 0)],
+         dividers=[1, 2, 3, 4],
+         layers=[[("W", None)], [("B", None)], [("G", 9)], [("K", None)], [("B", None)]],
+         feeders=[(2, [("G", None)])]),
+    # Hard: four tubes over an eight-column board, each pouring its own colour.
+    dict(n=56, width=8, lower=6, difficulty=1,
+         boxes=[box("S", "O", 0, 5), box("S", "G", 1, 5), box("S", "P", 2, 5), box("S", "O", 3, 5),
+                box("S", "R", 4, 5), box("S", "P", 5, 5), box("S", "G", 6, 5), box("S", "R", 7, 5),
+                box("H2", "G", 0, 4), box("H2", "O", 2, 4, key="pink left"), box("H2", "R", 5, 4, key="pink right"),
+                box("S", "O", 7, 4),
+                box("L4A", "P", 0, 1, lock="pink left"), box("S", "R", 2, 3), box("H2", "G", 3, 2),
+                box("S", "O", 6, 3), box("L4B", "P", 6, 0, lock="pink right"),
+                box("H2", "R", 1, 0), box("H2", "G", 3, 0)],
+         # Two wide chambers, each fed by two tubes over a checkerboard start.
+         dividers=[4], mix={0: "checker", 1: "checker"},
+         layers=[[("G", 9), ("O", 9)], [("R", 9), ("P", 9)]],
+         feeders=[(1, [("G", None)]), (3, [("O", None)]), (5, [("R", None)]), (7, [("P", None)])]),
 ]
 
 
@@ -608,11 +794,17 @@ def upper_outside(level, upper):
     return {(x, y) for x in level.get("upper_outside_columns", ()) for y in range(upper)}
 
 
+def feeder_queues(level):
+    return [queue for _, queue in level.get("feeders", ())]
+
+
 def resolve_layers(level, needed):
-    """Chamber layers, bottom to top, as (color, count). A None count takes an even
-    share of whatever that color still needs after the explicit counts."""
+    """Chamber layers, bottom to top, as (color, count), followed by each feeder tube's
+    queue, first out first. A None count takes an even share of whatever that color
+    still needs after the explicit counts."""
+    groups = level["layers"] + feeder_queues(level)
     fixed, open_layers = Counter(), Counter()
-    for chamber in level["layers"]:
+    for chamber in groups:
         for color, count in chamber:
             if count is None:
                 open_layers[color] += 1
@@ -620,7 +812,7 @@ def resolve_layers(level, needed):
                 fixed[color] += count
     given = Counter()
     resolved = []
-    for chamber in level["layers"]:
+    for chamber in groups:
         layers = []
         for color, count in chamber:
             if count is None:
@@ -645,11 +837,12 @@ def reservoir_height(level, needed):
     outside_columns = set(level.get("upper_outside_columns", ()))
     boundaries = [0] + level.get("dividers", []) + [level["width"]]
     if "layers" in level:
-        quotas = [sum(count for _, count in chamber) for chamber in resolve_layers(level, needed)]
+        chambers = resolve_layers(level, needed)[:len(level["layers"])]
+        quotas = [sum(count for _, count in chamber) for chamber in chambers]
         floor_rows = 0
         for color, first, last in level.get("floor", ()):
             # A stripe must fit its own columns within the fill limit too.
-            share = sum(count for chamber in resolve_layers(level, needed) for band, count in chamber if band == color)
+            share = sum(count for chamber in chambers for band, count in chamber if band == color)
             floor_rows = max(floor_rows, math.ceil(share / (4 * (last - first) * MAX_RESERVOIR_FILL) / 4))
     else:
         palettes = level.get("chamber_colors") or ["".join(needed)]
@@ -672,7 +865,7 @@ def make_layered_balls(level, needed):
     width, lower, upper = level["width"], level["lower"], level["upper"]
     outside = upper_outside(level, upper)
     boundaries = [0] + level.get("dividers", []) + [width]
-    layers = resolve_layers(level, needed)
+    layers = resolve_layers(level, needed)[:len(level["layers"])]
     if len(layers) != len(boundaries) - 1:
         raise ValueError(f"Level {level['n']}: layer list count differs from chamber count")
     balls = []
@@ -694,11 +887,39 @@ def make_layered_balls(level, needed):
         colors = [color for color, count in bands for _ in range(count)]
         if len(colors) > len(sites):
             raise ValueError(f"Level {level['n']}: chamber {chamber} needs {len(colors)} balls, has {len(sites)} positions")
-        balls.extend(zip(sites, colors))
+        if chamber in level.get("mix", {}):
+            balls.extend(mix_pattern(sites[:len(colors)], colors, first * 4, level["mix"][chamber]))
+        else:
+            balls.extend(zip(sites, colors))
     if "blobs" in level:
         balls = gather_blobs(balls, *level["blobs"])
     balls.sort(key=lambda item: (item[0][1], item[0][0]))
     return balls
+
+
+MIX_PATTERNS = {
+    # Pattern cell -> index into the chamber's colours, on micro coordinates local to the chamber.
+    "stripes": lambda x, y: x // 2,
+    "checker": lambda x, y: x // 2 + y // 2,
+    "diagonal": lambda x, y: (x + y) // 2,
+    "zigzag": lambda x, y: y // 2 + abs(x % 8 - 4) // 2,
+}
+
+
+def mix_pattern(sites, colors, left, style):
+    """Lay a chamber's balls out in a pattern instead of bands. Positions and colour counts
+    stay the same; a colour that runs out hands its pattern cells to the others."""
+    palette = list(dict.fromkeys(colors))
+    remaining = Counter(colors)
+    pattern = MIX_PATTERNS[style]
+    placed = []
+    for x, y in sorted(sites, key=lambda cell: (cell[1], cell[0])):
+        wanted = palette[pattern(x - left, y) % len(palette)]
+        if remaining[wanted] == 0:
+            wanted = max(palette, key=lambda color: remaining[color])
+        remaining[wanted] -= 1
+        placed.append(((x, y), wanted))
+    return placed
 
 
 def gather_blobs(balls, spot, ground, centers):
@@ -794,6 +1015,8 @@ def build_level(level, colors, shapes):
     keys = {entry[9] for entry in level["boxes"] if entry[9]}
     if locks != keys:
         raise ValueError(f"Level {n}: every lock needs a key box and every key a lock ({locks} vs {keys})")
+    if len(locks) != sum(entry[8] is not None for entry in level["boxes"]):
+        raise ValueError(f"Level {n}: each padlock needs a name of its own")
     for shape, color, x, y, ice, prefill, axis, inner, lock, key in level["boxes"]:
         offsets = shapes[shape][1]
         for dx, dy in offsets:
@@ -815,7 +1038,20 @@ def build_level(level, colors, shapes):
             needed[color] += full - prefill
     upper = level["upper"] = reservoir_height(level, needed)
     balls = make_layered_balls(level, needed) if "layers" in level else make_balls(level, needed)
+    feeders = []
+    if "feeders" in level:
+        if "layers" not in level:
+            raise ValueError(f"Level {n}: feeder tubes need a layered reservoir")
+        queues = resolve_layers(level, needed)[len(level["layers"]):]
+        feeders = [(column, [(color, count) for color, count in queue if count > 0])
+                   for (column, _), queue in zip(level["feeders"], queues)]
+        columns = sorted(column for column, _ in feeders)
+        if (any(b - a < 2 for a, b in zip(columns, columns[1:])) or not all(0 <= c < width for c in columns)
+                or any(c in level.get("upper_outside_columns", ()) for c in columns)):
+            raise ValueError(f"Level {n}: feeder tubes need usable columns with a gap between them")
     path = OUTPUT / f"Level_{n:02d}_Reference.asset"
+    # LevelDifficulty: 1 = Hard, 2 = Very Hard. Normal levels leave the field at its default.
+    difficulty = f"  difficulty: {level['difficulty']}\n" if level.get("difficulty") else ""
     body = f"""%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
@@ -831,8 +1067,8 @@ MonoBehaviour:
   m_Name: Level_{n:02d}_Reference
   m_EditorClassIdentifier: 
   levelPrefab: {{fileID: 1903656605721246596, guid: 41b36d7bcac348d4baa631aacfacb93c, type: 3}}
-  timeLimitSeconds: 240
-  macroGridWidth: {width}
+  timeLimitSeconds: {level.get("time", 240)}
+{difficulty}  macroGridWidth: {width}
   lowerGridHeight: {lower}
   ballAreaMacroHeight: {upper}
   hopperMicroRows: 0
@@ -873,8 +1109,13 @@ MonoBehaviour:
     keyId: ''
 """
     body += "  palette:\n" + "".join(f"  - {reference(colors[color])}\n" for color in needed)
+    if feeders:
+        body += "  feeders:\n"
+        for column, queue in feeders:
+            body += f"  - column: {column}\n    queue:\n"
+            body += "".join(f"    - color: {reference(colors[color])}\n      count: {count}\n" for color, count in queue)
     write_asset(path, body)
-    return path, len(level["boxes"]), len(balls), upper
+    return path, len(level["boxes"]), len(balls) + sum(count for _, queue in feeders for _, count in queue), upper
 
 
 def main():

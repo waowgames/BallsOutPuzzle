@@ -8,6 +8,8 @@ namespace BallsOut
     {
         private readonly BallMicroGrid grid;
         private readonly BallCollectionSystem collection;
+        private readonly BallFeederSystem feeder;
+        private readonly Action<BallState, Vector3> launch;
         private readonly List<BallState> moving = new List<BallState>();
         private readonly float visualHeight;
         private readonly int sinkReachRows;
@@ -26,10 +28,12 @@ namespace BallsOut
         public event Action<bool> OnStabilityChanged;
 
         public BallSimulationSystem(BallMicroGrid grid, BallCollectionSystem collection, float tickInterval, float visualHeight,
-            Action<float> advanceBoxSystems, Func<bool> hasPendingBoxWork, int sinkReachRows = 0)
+            Action<float> advanceBoxSystems, Func<bool> hasPendingBoxWork, int sinkReachRows = 0, BallFeederSystem feeder = null)
         {
             this.grid = grid;
             this.collection = collection;
+            this.feeder = feeder;
+            launch = Launch;
             this.visualHeight = visualHeight;
             this.sinkReachRows = Mathf.Clamp(sinkReachRows, 0, 3);
             firstBallRow = grid.Board.Definition.lowerGridHeight * LevelDefinition.MicroResolution;
@@ -103,6 +107,8 @@ namespace BallsOut
                     Enter(ball, target);
                     changed = true;
                 }
+            // Tubes top up the row the pile has just left.
+            if (feeder != null && feeder.Feed(launch)) changed = true;
             SetStable(!changed);
         }
 
@@ -170,8 +176,19 @@ namespace BallsOut
             moving.Add(ball);
         }
 
+        // A ball dropped from a feeder tube falls from its place in the tube to its reservoir site.
+        private void Launch(BallState ball, Vector3 from)
+        {
+            ball.PreviousMacro = BallMicroGrid.ToMacro(ball.Cell);
+            ball.AnimationStart = from;
+            ball.AnimationEnd = grid.CellToLocal(ball.Cell) + Vector3.up * visualHeight;
+            grid.ReserveVisual(ball.PreviousMacro, 1);
+            moving.Add(ball);
+        }
+
         private void Interpolate(float amount)
         {
+            feeder?.Render(amount);
             foreach (var ball in moving)
                 if (ball.Visual != null)
                     ball.Visual.localPosition = Vector3.LerpUnclamped(ball.AnimationStart, ball.AnimationEnd, amount);

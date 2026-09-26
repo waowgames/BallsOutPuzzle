@@ -4,7 +4,7 @@ Run from the project Assets directory:
     python _Game/Content/GridAndBox/ReferenceLevels/verify_levels.py [first] [last] [--probes N] [--budget STATES]
 
 The ball flow is a line-by-line port of BallSimulationSystem / BallCollectionSystem
-(sinkReachRows = 2, flat reservoirs). A player action is one box step (or a tap that
+(sinkReachRows = 2, flat reservoirs) and BallFeederSystem. A player action is one box step (or a tap that
 wakes a box) followed by letting the balls settle, so a found solution can always be
 played by moving slowly. The dead-end probe plays random sequences of actions and
 checks that every visited position can still be won.
@@ -113,6 +113,14 @@ class Level:
         for guid, x, y in re.findall(r"color: \{fileID: \d+, guid: (\w+), type: 2\}\n    cell: \{x: (\d+), y: (\d+)\}",
                                      ball_text):
             self.balls[(int(x), int(y))] = self.color_index(colors[guid])
+        # Feeder tubes: (macro column, queued colors first out first).
+        self.feeders = []
+        if "\n  feeders:\n" in text:
+            for chunk in text.split("\n  feeders:\n", 1)[1].split("  - column: ")[1:]:
+                queue = []
+                for guid, count in re.findall(r"color: \{fileID: \d+, guid: (\w+), type: 2\}\n      count: (\d+)", chunk):
+                    queue.extend([self.color_index(colors[guid])] * int(count))
+                self.feeders.append((int(chunk.split("\n", 1)[0]), bytes(queue)))
 
     def color_index(self, name):
         if name not in self.color_names:
@@ -165,7 +173,7 @@ class Board:
 
 
 class State:
-    __slots__ = ("balls", "boxes", "occ", "left")
+    __slots__ = ("balls", "boxes", "occ", "left", "fed")
 
     def copy(self):
         other = State()
@@ -173,10 +181,11 @@ class State:
         other.boxes = [list(b) for b in self.boxes]
         other.occ = list(self.occ)
         other.left = self.left
+        other.fed = self.fed
         return other
 
     def key(self):
-        return (self.balls, tuple(tuple(b) for b in self.boxes))
+        return (self.balls, tuple(tuple(b) for b in self.boxes), self.fed)
 
 
 # box record: [x, y, alive, woke, fill, ice, layer, keys]; nested boxes collect colors[layer] in turn,
@@ -206,7 +215,9 @@ class Game:
         for i, b in enumerate(self.level.boxes):
             for dx, dy in b["cells"]:
                 s.occ[(b["y"] + dy) * self.level.width + b["x"] + dx] = i
-        s.left = len(self.level.balls)
+        # Balls still in a tube count as left; fed holds how many each tube has dropped.
+        s.left = len(self.level.balls) + sum(len(queue) for _, queue in self.level.feeders)
+        s.fed = (0,) * len(self.level.feeders)
         self.settle(s)
         return s
 
@@ -263,6 +274,8 @@ class Game:
         W, H, first = board.W, board.H, board.first
         is_ball, nb = board.is_ball, board.nb
         balls = bytearray(s.balls)
+        fed = list(s.fed)
+        top = (H - 1) * W
         for _ in range(limit):
             changed = False
             for y in range(first, H):
@@ -313,8 +326,16 @@ class Game:
                     target = (r if ((r // W) & 1) == 0 else l) if can_left and can_right else (l if can_left else r)
                     self.enter(s, balls, c, target, color, into_box(target))
                     changed = True
+            # BallFeederSystem.Feed: each tube tops up the free sites of the row under it.
+            for t, (column, queue) in enumerate(self.level.feeders):
+                for x in range(column * R, column * R + R):
+                    if fed[t] < len(queue) and is_ball[top + x] and not balls[top + x]:
+                        balls[top + x] = queue[fed[t]]
+                        fed[t] += 1
+                        changed = True
             if not changed:
                 s.balls = bytes(balls)
+                s.fed = tuple(fed)
                 return
         raise RuntimeError("balls did not settle")
 

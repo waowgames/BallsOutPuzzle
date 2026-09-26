@@ -40,7 +40,7 @@ namespace BallsOut
             var ids = new HashSet<string>(StringComparer.Ordinal);
             var capacities = new Dictionary<BallColorDefinition, long>();
             var ballCounts = new Dictionary<BallColorDefinition, long>();
-            if (level.boxes.Count == 0 || level.balls.Count == 0) errors.Add("A playable level must contain boxes and balls.");
+            if (level.boxes.Count == 0 || level.balls.Count == 0 && !level.HasFeeders) errors.Add("A playable level must contain boxes and balls.");
             for (int i = 0; i < level.boxes.Count; i++)
             {
                 BoxSpawnData box = level.boxes[i];
@@ -86,6 +86,7 @@ namespace BallsOut
                 if (!occupied.Add(ball.cell)) errors.Add($"Ball {i}: duplicate cell {ball.cell}.");
                 if (ball.specialType != BallSpecialType.Normal) errors.Add($"Ball {i}: key balls require Phase 13.");
             }
+            ValidateFeeders(level, ballCounts, errors);
             var colors = new HashSet<BallColorDefinition>(capacities.Keys);
             colors.UnionWith(ballCounts.Keys);
             var colorIds = new Dictionary<string, BallColorDefinition>(StringComparer.Ordinal);
@@ -172,6 +173,32 @@ namespace BallsOut
                         if (level.boxes[source].startsLocked && !Opens(source)) return false;
                 state[box] = 2;
                 return true;
+            }
+        }
+
+        // A tube pours into the top micro row of one reservoir column. Neighbouring tubes would
+        // share a wall, so they need at least one column between them.
+        private static void ValidateFeeders(LevelDefinition level, Dictionary<BallColorDefinition, long> ballCounts, List<string> errors)
+        {
+            if (level.feeders == null) return;
+            if (level.HasFeeders && level.hopperMicroRows > 0) errors.Add("Feeder tubes cannot be combined with a funnel.");
+            var columns = new HashSet<int>();
+            for (int i = 0; i < level.feeders.Count; i++)
+            {
+                BallFeederData feeder = level.feeders[i];
+                if (feeder == null || feeder.queue == null || feeder.queue.Count == 0)
+                { errors.Add($"Feeder {i}: assign a nonempty queue."); continue; }
+                if (level.ballAreaMask.Get(new Vector2Int(feeder.column, level.ballAreaMacroHeight - 1),
+                        level.macroGridWidth, level.ballAreaMacroHeight) != CellKind.Usable)
+                    errors.Add($"Feeder {i}: column {feeder.column} must be a usable top reservoir cell.");
+                if (columns.Contains(feeder.column - 1) || columns.Contains(feeder.column + 1) || !columns.Add(feeder.column))
+                    errors.Add($"Feeder {i}: column {feeder.column} duplicates or touches another tube.");
+                foreach (FeederSegment segment in feeder.queue)
+                {
+                    if (segment == null || segment.color == null || segment.count <= 0)
+                    { errors.Add($"Feeder {i}: every segment needs a color and a positive count."); continue; }
+                    AddCount(ballCounts, segment.color, segment.count);
+                }
             }
         }
 

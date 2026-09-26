@@ -179,8 +179,23 @@ namespace BallsOut
                         if (left < shoulderLeft) Rail(P(left, top), P(Mathf.Min(right, shoulderLeft), top));
                         if (right > shoulderRight) Rail(P(Mathf.Max(left, shoulderRight), top), P(right, top));
                     }
-                    else if (!Depot(x, y + 1)) Rail(P(left, top), P(right, top));
+                    else if (!Depot(x, y + 1))
+                    {
+                        if (y == level.ballAreaMacroHeight - 1 && level.HasFeederAt(x)) BuildFeeder(left, right, top);
+                        else Rail(P(left, top), P(right, top));
+                    }
                 }
+        }
+
+        // A feeder tube: the reservoir's top rail opens into a one-column channel that is walled
+        // and capped like the rest of the board.
+        private void BuildFeeder(float left, float right, float bottom)
+        {
+            float top = level.FeederTop;
+            Floor(DepotFloorMaterial, left, right, bottom, top, level.DepotFloorHeight);
+            Rail(P(left, bottom), P(left, top));
+            Rail(P(left, top), P(right, top));
+            Rail(P(right, top), P(right, bottom));
         }
 
         private float Center => level.macroGridWidth * level.macroCellSize * 0.5f;
@@ -253,7 +268,9 @@ namespace BallsOut
             foreach (int column in level.reservoirDividerColumns)
             {
                 float x = column * size;
-                Rail(P(x, level.DepotBottom + 0.15f * size), P(x, level.DepotTop + 0.15f * size));
+                // Beside a tube mouth there is no top rail to tuck under; the slat ends at the lattice top.
+                bool mouth = level.HasFeederAt(column - 1) || level.HasFeederAt(column);
+                Rail(P(x, level.DepotBottom + 0.15f * size), P(x, level.DepotTop + (mouth ? 0f : 0.15f * size)));
             }
         }
 
