@@ -42,6 +42,8 @@ namespace BallsOut
         // A key reached this padlocked box; OnBoxUnlocked follows when it was the last one.
         public event Action<BoxController> OnKeyDelivered;
         public event Action<BoxController> OnBoxUnlocked;
+        // The completed box's chain snapped, freeing its partner.
+        public event Action<BoxController> OnChainBroken;
         public event Action<LevelDefinition> OnLevelWon;
 
         private void OnEnable()
@@ -107,6 +109,12 @@ namespace BallsOut
                     if (other.KeyId == box.LockId) keys++;
                 box.SetupLock(keys, Board.CellSize);
             }
+            if (level.links != null)
+                foreach (BoxLinkData link in level.links)
+                {
+                    BoxController a = FindBox(link.boxA), b = FindBox(link.boxB);
+                    if (a != null && b != null) BoxChain.Create(a, b, link.length, Board);
+                }
             float height = prefabs != null ? prefabs.ballHeight : Board.CellSize * 0.1f;
             foreach (var spawn in level.balls)
             {
@@ -124,6 +132,7 @@ namespace BallsOut
             Completion.OnInnerLayerCompleted += ForwardInnerLayerCompleted;
             Completion.OnBoxCompleted += CrackIce;
             Completion.OnBoxCompleted += SendKey;
+            Completion.OnBoxCompleted += BreakChain;
             Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
             Collection.OnBallCollected += ForwardBallCollected;
             Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows, Feeder);
@@ -201,6 +210,21 @@ namespace BallsOut
             completed.SendKey(target, content, DeliverKey);
         }
 
+        // A completed box drops its chain; the partner is free from then on.
+        private void BreakChain(BoxController completed)
+        {
+            if (completed.Chain == null || completed.Chain.IsBroken) return;
+            completed.Chain.Break();
+            OnChainBroken?.Invoke(completed);
+        }
+
+        private BoxController FindBox(string id)
+        {
+            foreach (BoxController box in boxes)
+                if (box.Id == id) return box;
+            return null;
+        }
+
         private void DeliverKey(BoxController target)
         {
             // The level may have been reloaded while the key was in the air.
@@ -232,6 +256,7 @@ namespace BallsOut
                 Completion.OnInnerLayerCompleted -= ForwardInnerLayerCompleted;
                 Completion.OnBoxCompleted -= CrackIce;
                 Completion.OnBoxCompleted -= SendKey;
+                Completion.OnBoxCompleted -= BreakChain;
             }
             Fill?.Clear(boxes);
             foreach (var box in boxes) if (box != null) box.OnBoxFillChanged -= ForwardFillChanged;

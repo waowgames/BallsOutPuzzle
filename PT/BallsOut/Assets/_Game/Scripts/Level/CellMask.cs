@@ -80,4 +80,16 @@ namespace BallsOut
             "Each layer holds the full shape capacity.")]
         public BallColorDefinition innerColor;
     }
+
+    [Serializable]
+    public sealed class BoxLinkData
+    {
+        [Tooltip("Id of one chained box.")]
+        public string boxA;
+        [Tooltip("Id of the box at the other end of the chain.")]
+        public string boxB;
+        [Tooltip("Free cells the chain spans: the two footprints can drift at most this many cells apart on either axis. " +
+            "Dragging one further tows the other along.")]
+        [Min(1)] public int length = 1;
+    }
 }

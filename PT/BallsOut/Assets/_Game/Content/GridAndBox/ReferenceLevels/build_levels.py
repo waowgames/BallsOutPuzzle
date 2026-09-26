@@ -122,10 +122,11 @@ SHAPE_CELLS = {
 AXIS = {None: 0, "H": 1, "V": 2}
 
 
-def box(shape, color, x, y, ice=0, fill=0, axis=None, inner=None, lock=None, key=None):
+def box(shape, color, x, y, ice=0, fill=0, axis=None, inner=None, lock=None, key=None, link=None):
     """axis: None (free), "H" or "V". inner: color a nested box collects before its own.
-    lock: padlock name; the box waits until every box with key=<that name> completes."""
-    return (shape, color, x, y, ice, fill, axis, inner, lock, key)
+    lock: padlock name; the box waits until every box with key=<that name> completes.
+    link: chain name; the two boxes sharing it are chained (level chains={name: length}, default 1)."""
+    return (shape, color, x, y, ice, fill, axis, inner, lock, key, link)
 
 
 LEVELS = [
@@ -697,6 +698,109 @@ LEVELS = [
          dividers=[4], mix={0: "checker", 1: "checker"},
          layers=[[("G", 9), ("O", 9)], [("R", 9), ("P", 9)]],
          feeders=[(1, [("G", None)]), (3, [("O", None)]), (5, [("R", None)]), (7, [("P", None)])]),
+    # Levels 57-66: chained boxes (link=). A chain lets its two boxes drift at most one free
+    # cell apart on either axis, diagonals included (chains={name: length} changes that); dragging one further
+    # tows the other along. A frozen or padlocked partner holds its chain in place, and a
+    # completed box drops its chain.
+    # Chain intro: the red and blue bars are chained across the middle column and rise together.
+    dict(n=57, width=5, lower=5,
+         boxes=[box("S", "Y", 0, 4), box("S", "R", 3, 4), box("S", "Y", 4, 4),
+                box("S", "B", 1, 3),
+                box("H2", "R", 0, 2, link="a"), box("H2", "B", 3, 2, link="a"),
+                box("S", "Y", 2, 1),
+                box("S", "B", 0, 0), box("S", "R", 4, 0)],
+         dividers=[2, 3],
+         layers=[[("R", None)], [("Y", None)], [("B", None)]]),
+    # The orange single is chained to a frozen green bar on the floor: it cannot reach the top
+    # row until three boxes are done and the ice lets go.
+    dict(n=58, width=6, lower=5,
+         boxes=[box("S", "P", 0, 4), box("S", "O", 1, 4), box("S", "G", 3, 4), box("S", "P", 5, 4),
+                box("Q", "O", 2, 2), box("S", "G", 4, 2),
+                box("S", "O", 3, 1, link="a"),
+                box("H2", "G", 0, 0, ice=3, link="a"), box("H2", "P", 4, 0)],
+         dividers=[2, 4],
+         layers=[[("G", None)], [("P", None)], [("O", None)]]),
+    # A nested blue square takes cyan first, chained to the yellow bar beside it; yellow and
+    # blue share the right chamber in a checkerboard.
+    dict(n=59, width=6, lower=5,
+         boxes=[box("S", "Y", 0, 4), box("S", "B", 2, 4), box("S", "C", 4, 4), box("S", "Y", 5, 4),
+                box("Q", "B", 1, 1, inner="C", link="a"), box("H2", "Y", 4, 1, link="a"),
+                box("S", "C", 0, 1), box("H2", "B", 3, 0)],
+         dividers=[3], mix={1: "checker"},
+         layers=[[("C", None)], [("Y", None), ("B", None)]]),
+    # Hard: the green key bar drags a blue single on its chain; the red block waits for the key.
+    dict(n=60, width=6, lower=6, difficulty=1,
+         boxes=[box("S", "G", 0, 5), box("S", "R", 2, 5), box("S", "Y", 3, 5), box("S", "B", 5, 5),
+                box("H2", "G", 1, 3, key="red", link="a"), box("S", "B", 4, 3, link="a"),
+                box("S", "Y", 0, 2), box("S", "Y", 5, 2),
+                box("R6", "R", 0, 0, lock="red"), box("S", "B", 3, 1)],
+         dividers=[2, 3, 5],
+         layers=[[("R", None)], [("G", None)], [("B", None)], [("Y", None)]]),
+    # No chains: a nested red bar that takes black first, and frozen black and white singles.
+    dict(n=61, width=7, lower=5,
+         boxes=[box("S", "G", 0, 4), box("S", "W", 2, 4), box("S", "R", 4, 4), box("S", "Y", 6, 4),
+                box("H2", "R", 0, 2, inner="K"), box("S", "K", 3, 2, ice=2), box("H2", "G", 5, 2),
+                box("S", "Y", 2, 1), box("S", "W", 4, 1, ice=3),
+                box("S", "G", 0, 0), box("H2", "Y", 5, 0)],
+         # Red and yellow pour in stripes on the left, white and green on the right.
+         dividers=[3, 4], mix={0: "stripes", 2: "stripes"},
+         layers=[[("R", None), ("Y", None)], [("K", None)], [("W", None), ("G", None)]]),
+    # Hard: a nested pink bar chained to a cyan single, and a frozen orange bar chained to
+    # another cyan single on the floor.
+    dict(n=62, width=6, lower=6, difficulty=1,
+         boxes=[box("S", "P", 0, 5), box("S", "C", 1, 5), box("S", "O", 3, 5), box("S", "P", 5, 5),
+                box("S", "O", 0, 3), box("H2", "P", 2, 3, inner="O", link="a"), box("S", "C", 5, 3, link="a"),
+                box("H2", "C", 0, 1, ice=4), box("S", "P", 3, 1),
+                box("H2", "O", 2, 0, ice=2, link="b"), box("S", "C", 5, 0, link="b")],
+         dividers=[2, 4],
+         layers=[[("O", None)], [("P", None)], [("C", None)]]),
+    # The tube over the middle column pours white, then black; the black bar is chained to a
+    # blue single that has to come along.
+    dict(n=63, width=5, lower=5,
+         boxes=[box("S", "G", 0, 4), box("S", "W", 3, 4), box("S", "B", 4, 4),
+                box("H2", "K", 0, 2, link="a"), box("S", "B", 3, 2, link="a"),
+                box("S", "W", 2, 1),
+                box("S", "B", 0, 0), box("H2", "G", 3, 0)],
+         dividers=[2, 3],
+         layers=[[("B", None)], [("W", 9)], [("G", None)]],
+         feeders=[(2, [("W", None), ("K", None)])]),
+    # Hard: three chains. The red key bar pulls a yellow single, the green bar a blue single,
+    # and a pink single is chained to a red single. The blue bar opens last.
+    dict(n=64, width=7, lower=6, difficulty=1,
+         boxes=[box("S", "B", 0, 5), box("S", "G", 2, 5, key="blue"), box("S", "R", 3, 5), box("S", "Y", 5, 5),
+                box("S", "P", 6, 5),
+                box("H2", "R", 0, 3, key="blue", link="a"), box("S", "Y", 3, 3, link="a"),
+                box("H2", "G", 5, 3, link="b"),
+                box("S", "P", 0, 1, link="c"), box("S", "B", 3, 1, link="b"), box("S", "Y", 6, 1),
+                box("S", "R", 1, 0, link="c"), box("H3", "B", 4, 0, lock="blue")],
+         # Red and pink share the left chamber in a checkerboard.
+         dividers=[2, 3, 5], mix={0: "checker"},
+         layers=[[("R", None), ("P", None)], [("Y", None)], [("B", None)], [("G", None)]]),
+    # Hard: lilac only comes down the tube, and the frozen lilac single holds a yellow bar
+    # on its chain. The cyan bar pulls a red single across the board.
+    dict(n=65, width=6, lower=6, difficulty=1,
+         boxes=[box("S", "Y", 0, 5), box("S", "R", 1, 5), box("S", "C", 3, 5), box("S", "U", 5, 5),
+                box("H2", "C", 0, 3, link="a"), box("S", "R", 3, 3, link="a"),
+                box("S", "U", 2, 2, ice=2, link="b"), box("S", "C", 5, 2),
+                box("H2", "R", 1, 0), box("V2", "Y", 4, 0, link="b")],
+         dividers=[2, 4],
+         layers=[[("C", None)], [("R", None)], [("Y", None)]],
+         feeders=[(3, [("U", None)])]),
+    # Very hard: a nested red square that takes blue first, chained to a white single; an
+    # orange key bar chained to a red single; a padlocked blue bar, frozen green and pink
+    # singles, and a tube of white over the right edge.
+    dict(n=66, width=7, lower=7, difficulty=2,
+         boxes=[box("S", "B", 0, 6), box("S", "P", 2, 6), box("S", "W", 3, 6), box("S", "R", 4, 6),
+                box("S", "G", 6, 6),
+                box("H2", "O", 0, 4, key="blue", link="a"), box("S", "R", 3, 4, link="a"),
+                box("S", "P", 5, 4, ice=4),
+                box("S", "G", 0, 2, ice=3), box("Q", "R", 2, 1, inner="B", link="b"), box("S", "W", 5, 2, link="b"),
+                box("S", "O", 6, 1),
+                box("H2", "B", 0, 0, lock="blue"), box("H2", "G", 5, 0)],
+         # Green and orange pour in diagonal bands on the left.
+         dividers=[2, 3, 5], mix={0: "diagonal"},
+         layers=[[("G", None), ("O", None)], [("P", None)], [("B", None)], [("R", None)]],
+         feeders=[(6, [("W", None)])]),
 ]
 
 
@@ -796,6 +900,33 @@ def upper_outside(level, upper):
 
 def feeder_queues(level):
     return [queue for _, queue in level.get("feeders", ())]
+
+
+def chain_links(level, shapes):
+    """(first box index, second box index, length) for every chain name, which exactly two boxes
+    share. The pair must start within reach: at most `length` free cells apart on either axis."""
+    named = {}
+    for index, entry in enumerate(level["boxes"]):
+        if entry[10] is not None:
+            named.setdefault(entry[10], []).append(index)
+    links = []
+    for name, members in named.items():
+        if len(members) != 2:
+            raise ValueError(f"Level {level['n']}: chain '{name}' needs exactly two boxes, has {len(members)}")
+        length = level.get("chains", {}).get(name, 1)
+        spans = []
+        for index in members:
+            shape, _, x, y = level["boxes"][index][:4]
+            cells = [(x + dx, y + dy) for dx, dy in shapes[shape][1]]
+            spans.append((min(c[0] for c in cells), max(c[0] for c in cells),
+                          min(c[1] for c in cells), max(c[1] for c in cells)))
+        (a_left, a_right, a_bottom, a_top), (b_left, b_right, b_bottom, b_top) = spans
+        gap_x = max(b_left - a_right, a_left - b_right) - 1
+        gap_y = max(b_bottom - a_top, a_bottom - b_top) - 1
+        if not 1 <= length <= 4 or gap_x > length or gap_y > length:
+            raise ValueError(f"Level {level['n']}: chain '{name}' starts out of reach ({gap_x}, {gap_y} > {length})")
+        links.append((members[0], members[1], length))
+    return links
 
 
 def resolve_layers(level, needed):
@@ -1017,7 +1148,7 @@ def build_level(level, colors, shapes):
         raise ValueError(f"Level {n}: every lock needs a key box and every key a lock ({locks} vs {keys})")
     if len(locks) != sum(entry[8] is not None for entry in level["boxes"]):
         raise ValueError(f"Level {n}: each padlock needs a name of its own")
-    for shape, color, x, y, ice, prefill, axis, inner, lock, key in level["boxes"]:
+    for shape, color, x, y, ice, prefill, axis, inner, lock, key, link in level["boxes"]:
         offsets = shapes[shape][1]
         for dx, dy in offsets:
             cell = (x + dx, y + dy)
@@ -1036,6 +1167,7 @@ def build_level(level, colors, shapes):
             needed[color] += full
         else:
             needed[color] += full - prefill
+    links = chain_links(level, shapes)
     upper = level["upper"] = reservoir_height(level, needed)
     balls = make_layered_balls(level, needed) if "layers" in level else make_balls(level, needed)
     feeders = []
@@ -1084,9 +1216,11 @@ MonoBehaviour:
     body += "  ballAreaMask:\n    defaultKind: 1\n"
     body += mask_lines(upper_outside(level, upper), width, upper)
     body += "  boxes:\n"
-    for shape, color, x, y, ice, prefill, axis, inner, lock, key in level["boxes"]:
+    box_ids = []
+    for shape, color, x, y, ice, prefill, axis, inner, lock, key, link in level["boxes"]:
         prefill = scaled_prefill(prefill, shapes[shape][1], slots, dense, fill_layers)
         ids[color] += 1
+        box_ids.append(f"{color}_{ids[color]}")
         body += f"""  - id: {color}_{ids[color]}
     shape: {reference(shapes[shape][0])}
     color: {reference(colors[color])}
@@ -1114,6 +1248,10 @@ MonoBehaviour:
         for column, queue in feeders:
             body += f"  - column: {column}\n    queue:\n"
             body += "".join(f"    - color: {reference(colors[color])}\n      count: {count}\n" for color, count in queue)
+    if links:
+        body += "  links:\n"
+        for first, second, length in links:
+            body += f"  - boxA: {box_ids[first]}\n    boxB: {box_ids[second]}\n    length: {length}\n"
     write_asset(path, body)
     return path, len(level["boxes"]), len(balls) + sum(count for _, queue in feeders for _, count in queue), upper
 

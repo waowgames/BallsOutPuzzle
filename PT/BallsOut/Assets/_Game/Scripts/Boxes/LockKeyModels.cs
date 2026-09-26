@@ -198,7 +198,7 @@ namespace BallsOut
             return count;
         }
 
-        private static Material GetMaterial(ref Material material, Color color, string name, float gloss, float shade)
+        internal static Material GetMaterial(ref Material material, Color color, string name, float gloss, float shade)
         {
             if (material != null) return material;
             Shader shader = Shader.Find("Money Design/Soft Plastic")
@@ -213,7 +213,7 @@ namespace BallsOut
             return material;
         }
 
-        private sealed class Builder
+        internal sealed class Builder
         {
             private readonly List<Vector3> vertices = new List<Vector3>();
             private readonly List<Vector3> normals = new List<Vector3>();

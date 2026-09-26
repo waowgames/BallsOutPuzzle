@@ -26,6 +26,8 @@ namespace BallsOut
         public List<BallSpawnData> balls = new List<BallSpawnData>();
         [Tooltip("Tubes on the reservoir's top edge. Each drops its queue into the top row below it whenever a site there is free.")]
         public List<BallFeederData> feeders = new List<BallFeederData>();
+        [Tooltip("Chained box pairs. A box drags its partner along once the chain between them is taut.")]
+        public List<BoxLinkData> links = new List<BoxLinkData>();
         [Tooltip("Editor dense-field authoring palette; runtime uses the explicit balls list.")]
         public List<BallColorDefinition> palette = new List<BallColorDefinition>();
         public int FillLayerCount => fillLayers > 0 ? fillLayers : FillLayers;

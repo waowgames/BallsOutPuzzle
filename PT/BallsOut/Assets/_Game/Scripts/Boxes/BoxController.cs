@@ -32,6 +32,9 @@ namespace BallsOut
         // Completing this box sends a key to the padlock with this id.
         public string KeyId { get; private set; }
         public bool HasKey => key != null;
+        // Chained boxes tow each other once the chain between them is taut.
+        internal BoxChain Chain { get; set; }
+        public BoxController ChainPartner => Chain != null ? Chain.PartnerOf(this) : null;
         public bool CanMove => IsPlaced && !IsFrozen && !IsLocked && !IsCompleting && !IsSwappingLayer && !IsRemoved && CurrentFill < Capacity;
         public Transform FillRoot { get; private set; }
         public Vector3 FillSpacing { get; private set; }

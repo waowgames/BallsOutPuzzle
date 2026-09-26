@@ -74,6 +74,7 @@ namespace BallsOut
             }
             ValidateIce(level, errors);
             ValidateLocks(level, errors);
+            ValidateLinks(level, errors);
             occupied.Clear();
             for (int i = 0; i < level.balls.Count; i++)
             {
@@ -173,6 +174,39 @@ namespace BallsOut
                         if (level.boxes[source].startsLocked && !Opens(source)) return false;
                 state[box] = 2;
                 return true;
+            }
+        }
+
+        // A chain joins two different boxes, each box holds at most one chain, and the pair
+        // must start within reach of each other.
+        private static void ValidateLinks(LevelDefinition level, List<string> errors)
+        {
+            if (level.links == null) return;
+            var boxes = new Dictionary<string, BoxSpawnData>(StringComparer.Ordinal);
+            foreach (BoxSpawnData box in level.boxes)
+                if (box != null && box.shape != null && !string.IsNullOrEmpty(box.id)) boxes[box.id] = box;
+            var chained = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < level.links.Count; i++)
+            {
+                BoxLinkData link = level.links[i];
+                if (link == null) { errors.Add($"Link {i}: missing data."); continue; }
+                if (link.length < 1 || link.length > 4) errors.Add($"Link {i}: length must be between 1 and 4 cells.");
+                if (link.boxA == link.boxB) { errors.Add($"Link {i}: a box cannot be chained to itself."); continue; }
+                if (link.boxA == null || !boxes.TryGetValue(link.boxA, out BoxSpawnData a) ||
+                    link.boxB == null || !boxes.TryGetValue(link.boxB, out BoxSpawnData b))
+                { errors.Add($"Link {i}: '{link.boxA}' and '{link.boxB}' must both name boxes."); continue; }
+                if (!chained.Add(link.boxA) || !chained.Add(link.boxB))
+                    errors.Add($"Link {i}: a box can hold only one chain.");
+                BoxChain.Span(a.shape, true, out int aLeft, out int aRight);
+                BoxChain.Span(b.shape, true, out int bLeft, out int bRight);
+                BoxChain.Span(a.shape, false, out int aBottom, out int aTop);
+                BoxChain.Span(b.shape, false, out int bBottom, out int bTop);
+                int gapX = Mathf.Max(b.startingMacroOrigin.x + bLeft - a.startingMacroOrigin.x - aRight,
+                    a.startingMacroOrigin.x + aLeft - b.startingMacroOrigin.x - bRight) - 1;
+                int gapY = Mathf.Max(b.startingMacroOrigin.y + bBottom - a.startingMacroOrigin.y - aTop,
+                    a.startingMacroOrigin.y + aBottom - b.startingMacroOrigin.y - bTop) - 1;
+                if (gapX > link.length || gapY > link.length)
+                    errors.Add($"Link {i}: '{link.boxA}' and '{link.boxB}' start further apart than the chain reaches.");
             }
         }
 
