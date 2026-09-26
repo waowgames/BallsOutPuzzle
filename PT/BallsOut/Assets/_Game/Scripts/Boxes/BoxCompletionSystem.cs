@@ -22,10 +22,11 @@ namespace BallsOut
             public float waited;
             public float elapsed;
             public bool started;
+            public InnerLayerSwapEffect effect;
         }
 
-        // Time for a finished inner tray and its balls to shrink away.
-        private const float LayerSwapDuration = 0.45f;
+        // Time for a finished inner tray to lift, lid up and vanish; quicker than a full completion.
+        private const float LayerSwapDuration = 0.7f;
 
         private readonly BoardGrid board;
         private readonly BoxFillSystem fill;
@@ -116,6 +117,7 @@ namespace BallsOut
                     continue;
                 }
                 if (swap.started) swap.elapsed += deltaTime;
+                else if (box.InnerArt != null) swap.effect = new InnerLayerSwapEffect(box, LayerSwapDuration);
                 swap.started = true;
                 if (swap.elapsed < LayerSwapDuration) { swaps[i] = swap; continue; }
                 fill.Release(box);
@@ -130,17 +132,8 @@ namespace BallsOut
         {
             foreach (LayerSwap swap in swaps)
             {
-                if (!swap.started) continue;
-                float t = Mathf.Clamp01((swap.elapsed + interpolationTime) / LayerSwapDuration);
-                // Anticipation, then the tray and its load pop out of the outer frame.
-                float scale = t < 0.2f ? 1f + Mathf.Sin(t / 0.2f * Mathf.PI) * 0.08f : 1f - Smooth((t - 0.2f) / 0.8f);
-                if (swap.box.InnerArt != null)
-                {
-                    swap.box.InnerArt.localScale = Vector3.one * scale;
-                    swap.box.InnerArt.localRotation = Quaternion.Euler(0f, (1f - scale) * 40f, 0f);
-                }
-                foreach (BallState ball in swap.box.CollectedBalls)
-                    if (ball.Visual != null) ball.Visual.localScale = Vector3.one * (swap.box.FillBallDiameter * scale);
+                if (!swap.started || swap.effect == null) continue;
+                swap.effect.Evaluate((swap.elapsed + interpolationTime) / LayerSwapDuration);
             }
             foreach (Completion entry in pending)
             {
@@ -149,7 +142,5 @@ namespace BallsOut
                 entry.effect.Evaluate(t);
             }
         }
-
-        private static float Smooth(float t) => t * t * (3f - 2f * t);
     }
 }

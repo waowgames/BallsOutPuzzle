@@ -123,6 +123,27 @@ namespace BallsOut
             return mesh;
         }
 
+        // The lid profile pulled in to sit on the nested tray's rim (outer wall face at 0.095).
+        private static readonly Dictionary<BoxShapeDefinition, Mesh> InnerLidMeshes = new Dictionary<BoxShapeDefinition, Mesh>();
+        private static readonly Vector2[] InnerLidProfile =
+        {
+            new Vector2(0.115f, 0f), new Vector2(0.097f, 0.014f),
+            new Vector2(0.097f, 0.052f), new Vector2(0.115f, 0.07f),
+            new Vector2(0.17f, 0.074f), new Vector2(0.195f, 0.094f)
+        };
+        // Rim height of the inner tray mesh, before the depth scale.
+        internal const float InnerTrayTop = 0.245f;
+
+        internal static Mesh InnerLidMesh(BoxShapeDefinition shape)
+        {
+            if (!InnerLidMeshes.TryGetValue(shape, out Mesh mesh))
+            {
+                mesh = BuildMesh(shape, InnerLidProfile, "Inner Lid ");
+                InnerLidMeshes.Add(shape, mesh);
+            }
+            return mesh;
+        }
+
         private static Mesh BuildMesh(BoxShapeDefinition shape) => BuildMesh(shape, Profile, "Box ");
 
         private static Mesh BuildMesh(BoxShapeDefinition shape, Vector2[] rings, string prefix)

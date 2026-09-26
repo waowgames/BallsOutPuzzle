@@ -105,7 +105,7 @@ namespace BallsOut
         }
 
         // The recessed-tray shading would paint the lid's raised panel as a dark inner wall.
-        private static Material LidMaterial(Material boxMaterial)
+        internal static Material LidMaterial(Material boxMaterial)
         {
             if (boxMaterial == null || !boxMaterial.HasProperty("_BoxGlass")) return boxMaterial;
             if (!LidMaterials.TryGetValue(boxMaterial, out Material lidMaterial))
