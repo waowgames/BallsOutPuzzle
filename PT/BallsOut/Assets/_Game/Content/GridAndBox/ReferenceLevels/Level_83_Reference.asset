@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_83_Reference
   m_EditorClassIdentifier: 
   levelPrefab: {fileID: 1903656605721246596, guid: 41b36d7bcac348d4baa631aacfacb93c, type: 3}
-  timeLimitSeconds: 300
+  timeLimitSeconds: 180
   macroGridWidth: 6
   lowerGridHeight: 5
   ballAreaMacroHeight: 3

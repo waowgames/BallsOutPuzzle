@@ -8,7 +8,11 @@ from collections import Counter
 from pathlib import Path
 import math
 import re
+import sys
 import uuid
+
+sys.dont_write_bytecode = True  # keep __pycache__ out of the Unity project
+from level_generator import generated_levels  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -28,6 +32,8 @@ MAX_RESERVOIR_FILL = 0.75
 # Dense fill also packs the seams between cells, so a full box is covered wall to wall
 # instead of showing empty gutters between its cells.
 DEFAULT_DENSE = True
+# Play time per LevelDifficulty (0 = Normal, 1 = Hard, 2 = Very Hard), in seconds.
+TIME_LIMITS = {0: 180, 1: 120, 2: 90}
 
 
 def guid(name):
@@ -810,14 +816,14 @@ LEVELS = [
     # reservoir and pours, in order, through a one-column gate whenever the top row under the gate
     # has room. Boxes hold two layers of balls, so these boards carry several hundred balls.
     # Conveyor intro: four colours come down the belt in turn and every box starts in reach.
-    dict(n=67, width=6, lower=4, fill_layers=2, time=300,
+    dict(n=67, width=6, lower=4, fill_layers=2,
          boxes=[box("Q", "R", 0, 2), box("H2", "Y", 2, 3), box("Q", "B", 4, 2),
                 box("H2", "G", 2, 2),
                 box("Q", "Y", 0, 0), box("Q", "G", 4, 0)],
          layers=[[]],
          conveyor=(5, [("R", None), ("Y", 42), ("B", None), ("G", 42), ("Y", None), ("G", None)], 2)),
     # The gate pours into the middle column, so the pile spreads both ways; three runs of belt.
-    dict(n=68, width=7, lower=5, fill_layers=2, time=300,
+    dict(n=68, width=7, lower=5, fill_layers=2,
          boxes=[box("H2", "R", 0, 4), box("S", "B", 2, 4), box("S", "Y", 4, 4), box("H2", "G", 5, 4),
                 box("Q", "B", 0, 2), box("H3", "Y", 2, 3), box("Q", "R", 5, 2),
                 box("H2", "G", 2, 1),
@@ -826,7 +832,7 @@ LEVELS = [
          conveyor=(3, [("R", 42), ("G", 42), ("B", 18), ("Y", 18), ("Y", None), ("B", 98), ("R", None),
                        ("G", None), ("B", None)], 3)),
     # Frozen orange square: it thaws after two boxes, while the belt keeps orange coming.
-    dict(n=69, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=69, width=6, lower=5, fill_layers=2,
          boxes=[box("H2", "P", 0, 4), box("S", "O", 2, 4), box("H2", "C", 3, 4), box("S", "P", 5, 4),
                 box("Q", "O", 0, 2, ice=2), box("H2", "C", 2, 2), box("Q", "P", 4, 2),
                 box("H3", "C", 0, 0), box("H3", "O", 3, 0)],
@@ -834,7 +840,7 @@ LEVELS = [
          conveyor=(0, [("P", 42), ("C", 42), ("O", 18), ("P", None), ("O", None), ("C", None), ("O", None),
                        ("P", None), ("C", None)], 3)),
     # Hard: two nested squares, each taking the other's outer colour first.
-    dict(n=70, width=6, lower=5, fill_layers=2, time=300, difficulty=1,
+    dict(n=70, width=6, lower=5, fill_layers=2, difficulty=1,
          boxes=[box("S", "R", 0, 4), box("H2", "B", 1, 4), box("S", "Y", 3, 4), box("H2", "R", 4, 4),
                 box("Q", "Y", 0, 2, inner="B"), box("S", "R", 2, 3), box("Q", "B", 4, 2, inner="R"),
                 box("H2", "Y", 2, 1)],
@@ -842,7 +848,7 @@ LEVELS = [
          conveyor=(5, [("R", 18), ("B", 42), ("Y", 18), ("R", 42), ("B", None), ("R", None), ("Y", None),
                        ("B", None), ("Y", None)], 3)),
     # The big blue block is padlocked until the red and green key bars are done.
-    dict(n=71, width=7, lower=5, fill_layers=2, time=300,
+    dict(n=71, width=7, lower=5, fill_layers=2,
          boxes=[box("S", "G", 0, 4), box("H2", "R", 1, 4, key="blue"), box("S", "Y", 3, 4),
                 box("H2", "G", 4, 4, key="blue"), box("S", "R", 6, 4),
                 box("H2", "Y", 0, 3), box("S", "G", 3, 3), box("H2", "R", 5, 3),
@@ -851,7 +857,7 @@ LEVELS = [
          conveyor=(3, [("G", 18), ("R", 42), ("Y", 18), ("G", 42), ("R", None), ("Y", None), ("G", None),
                        ("B", 77), ("Y", None), ("B", None)], 3)),
     # A cyan bar and an orange bar chained across the middle, two cells of slack.
-    dict(n=72, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=72, width=6, lower=5, fill_layers=2,
          boxes=[box("S", "P", 0, 4), box("S", "C", 2, 4), box("S", "O", 3, 4), box("S", "P", 5, 4),
                 box("H2", "C", 0, 2, link="a"), box("H2", "O", 4, 2, link="a"),
                 box("Q", "P", 2, 1),
@@ -861,7 +867,7 @@ LEVELS = [
          conveyor=(0, [("P", 18), ("C", 18), ("O", 18), ("P", 18), ("C", None), ("O", None), ("P", None),
                        ("O", None), ("C", None)], 3)),
     # Hard: a nested yellow square that takes red first, and a frozen blue bar in the middle.
-    dict(n=73, width=7, lower=5, fill_layers=2, time=300, difficulty=1,
+    dict(n=73, width=7, lower=5, fill_layers=2, difficulty=1,
          boxes=[box("H2", "R", 0, 4), box("S", "B", 2, 4), box("S", "Y", 4, 4), box("H2", "G", 5, 4),
                 box("Q", "Y", 0, 2, inner="R"), box("H2", "B", 2, 3, ice=2), box("Q", "G", 5, 2),
                 box("H3", "B", 2, 1)],
@@ -869,7 +875,7 @@ LEVELS = [
          conveyor=(3, [("R", 42), ("B", 18), ("Y", 18), ("G", 42), ("R", 98), ("B", 42), ("Y", 98),
                        ("G", 98), ("B", 66)], 3)),
     # Rails: the red bar only slides sideways and the blue column only up and down.
-    dict(n=74, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=74, width=6, lower=5, fill_layers=2,
          boxes=[box("H2", "R", 0, 4, axis="H"), box("S", "G", 2, 4), box("S", "B", 3, 4), box("H2", "Y", 4, 4),
                 box("V2", "B", 0, 2, axis="V"), box("Q", "G", 2, 2), box("V2", "R", 5, 2),
                 box("H2", "Y", 0, 0), box("H2", "R", 2, 0), box("H2", "G", 4, 0)],
@@ -878,7 +884,7 @@ LEVELS = [
                        ("Y", None), ("G", None), ("R", None)], 3)),
     # Hard: the white key bar drags an orange single on its chain, a frozen cyan bar, and the
     # padlocked pink square in the middle.
-    dict(n=75, width=7, lower=6, fill_layers=2, time=300, difficulty=1,
+    dict(n=75, width=7, lower=6, fill_layers=2, difficulty=1,
          boxes=[box("S", "O", 0, 5), box("S", "P", 1, 5), box("S", "C", 2, 5), box("S", "W", 4, 5),
                 box("S", "O", 5, 5), box("S", "C", 6, 5),
                 box("H2", "W", 0, 3, key="pink", link="a"), box("S", "O", 3, 4, link="a"),
@@ -890,7 +896,7 @@ LEVELS = [
                        ("W", None), ("P", None), ("O", None), ("C", None)], 3)),
     # Very hard: four runs of belt and five colours; the big green block opens once the red key bar
     # is done, and green comes last down the belt.
-    dict(n=76, width=7, lower=6, fill_layers=2, time=360, difficulty=2,
+    dict(n=76, width=7, lower=6, fill_layers=2, difficulty=2,
          boxes=[box("S", "B", 0, 5), box("S", "R", 1, 5), box("S", "G", 2, 5), box("S", "Y", 4, 5),
                 box("S", "P", 5, 5), box("S", "B", 6, 5),
                 box("H2", "R", 0, 4, key="green"), box("S", "Y", 3, 4), box("H2", "P", 5, 4),
@@ -903,7 +909,7 @@ LEVELS = [
     # zero crumbles. The belt always opens with colours for boxes that are free, so the blocks fall
     # before the colours of the boxes they wall in come down.
     # A stone wall across the middle seals the bottom boxes in until two top boxes are done.
-    dict(n=77, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=77, width=6, lower=5, fill_layers=2,
          boxes=[box("S", "B", 0, 4), box("S", "R", 5, 4),
                 box("H2", "Y", 0, 3), box("H2", "G", 4, 3),
                 box("Q", "R", 0, 0), box("H2", "Y", 2, 0), box("Q", "B", 4, 0)],
@@ -911,7 +917,7 @@ LEVELS = [
          layers=[[]],
          conveyor=(3, [("Y", 42), ("B", 18), ("G", 42), ("R", 18), ("R", 98), ("Y", 42), ("B", 98)], 2)),
     # Two stones: the left one breaks after the first box, the right one holds out for three.
-    dict(n=78, width=7, lower=5, fill_layers=2, time=300,
+    dict(n=78, width=7, lower=5, fill_layers=2,
          boxes=[box("H2", "R", 0, 4), box("H2", "B", 5, 4),
                 box("S", "G", 0, 3), box("S", "Y", 6, 3),
                 box("Q", "B", 0, 0), box("H3", "Y", 2, 1), box("Q", "R", 5, 0),
@@ -920,7 +926,7 @@ LEVELS = [
          layers=[[]],
          conveyor=(3, [("G", 18), ("R", 42), ("Y", 18), ("B", 42), ("B", 98), ("Y", 66), ("R", 98), ("G", 66)], 3)),
     # A 2x2 boulder in the middle and a frozen orange column beside it; both give way after two boxes.
-    dict(n=79, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=79, width=6, lower=5, fill_layers=2,
          boxes=[box("H2", "P", 0, 4), box("H2", "C", 4, 4),
                 box("S", "O", 0, 3), box("S", "P", 5, 3),
                 box("V2", "C", 0, 1), box("V2", "O", 5, 1, ice=2),
@@ -930,7 +936,7 @@ LEVELS = [
          conveyor=(2, [("P", 42), ("O", 18), ("C", 42), ("P", 18), ("O", 42), ("C", 42), ("O", 66), ("C", 66)], 3)),
     # Hard: two stone pillars leave a one-cell shaft for the red single; the nested yellow square
     # takes blue first.
-    dict(n=80, width=7, lower=5, fill_layers=2, time=300, difficulty=1,
+    dict(n=80, width=7, lower=5, fill_layers=2, difficulty=1,
          boxes=[box("H2", "R", 0, 4), box("H2", "Y", 5, 4),
                 box("S", "B", 1, 3), box("S", "G", 5, 3),
                 box("Q", "Y", 0, 1, inner="B"), box("Q", "R", 5, 1),
@@ -941,7 +947,7 @@ LEVELS = [
                        ("B", 42)], 3)),
     # The big blue block is padlocked behind a stone slab: the green and red key boxes open it,
     # three finished boxes break the slab.
-    dict(n=81, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=81, width=6, lower=5, fill_layers=2,
          boxes=[box("S", "G", 0, 4, key="blue"), box("H2", "R", 4, 4, key="blue"),
                 box("H2", "Y", 0, 3), box("S", "B", 5, 3),
                 box("R6", "B", 0, 0, lock="blue"), box("H2", "G", 3, 0), box("V2", "Y", 5, 0)],
@@ -949,7 +955,7 @@ LEVELS = [
          layers=[[]],
          conveyor=(2, [("Y", 42), ("G", 18), ("R", 42), ("B", 18), ("Y", 42), ("G", 42), ("B", 154)], 3)),
     # Hard: a cyan and an orange bar chained across a stone pillar; the cyan single under it waits.
-    dict(n=82, width=7, lower=5, fill_layers=2, time=300, difficulty=1,
+    dict(n=82, width=7, lower=5, fill_layers=2, difficulty=1,
          boxes=[box("S", "P", 0, 4), box("H2", "C", 2, 4), box("S", "O", 6, 4),
                 box("H2", "O", 0, 3), box("H2", "P", 5, 3),
                 box("H2", "C", 0, 1, link="a"), box("H2", "O", 5, 1, link="a"),
@@ -960,7 +966,7 @@ LEVELS = [
          conveyor=(3, [("C", 42), ("P", 18), ("O", 18), ("O", 42), ("P", 42), ("C", 42), ("O", 42), ("P", 66),
                        ("C", 18), ("O", 66)], 3)),
     # Rails beside a stone pillar: the red bar only slides, the blue column only rises under the gate.
-    dict(n=83, width=6, lower=5, fill_layers=2, time=300,
+    dict(n=83, width=6, lower=5, fill_layers=2,
          boxes=[box("H2", "R", 0, 4, axis="H"), box("S", "Y", 3, 4), box("H2", "G", 4, 4),
                 box("S", "B", 0, 3),
                 box("V2", "Y", 0, 1), box("V2", "B", 2, 1, axis="V"), box("V2", "G", 5, 1),
@@ -971,7 +977,7 @@ LEVELS = [
                        ("G", 42), ("R", 42)], 3)),
     # Hard: a three-cell stone wall over the green bar, a frozen blue square, and a nested green bar
     # that takes yellow first.
-    dict(n=84, width=7, lower=6, fill_layers=2, time=360, difficulty=1,
+    dict(n=84, width=7, lower=6, fill_layers=2, difficulty=1,
          boxes=[box("S", "B", 0, 5), box("S", "R", 2, 5), box("S", "Y", 4, 5), box("S", "G", 6, 5),
                 box("H2", "Y", 0, 4), box("H2", "G", 5, 4, inner="Y"),
                 box("Q", "R", 0, 1), box("H3", "G", 2, 2), box("Q", "B", 5, 1, ice=2),
@@ -982,7 +988,7 @@ LEVELS = [
                        ("B", 98), ("G", 66), ("R", 42), ("B", 18), ("Y", 42)], 3)),
     # Hard: a 3x2 boulder fills the middle. The white key bar drags an orange single on its chain,
     # the pink square is padlocked and the cyan square frozen.
-    dict(n=85, width=7, lower=6, fill_layers=2, time=330, difficulty=1,
+    dict(n=85, width=7, lower=6, fill_layers=2, difficulty=1,
          boxes=[box("S", "O", 0, 5), box("S", "C", 2, 5), box("S", "W", 4, 5), box("S", "O", 6, 5),
                 box("H2", "W", 0, 4, key="pink", link="a"), box("S", "O", 3, 4, link="a"), box("H2", "C", 5, 4),
                 box("Q", "P", 0, 1, lock="pink"), box("Q", "C", 5, 1, ice=3),
@@ -994,7 +1000,7 @@ LEVELS = [
                        ("O", 66), ("W", 42), ("P", 42)], 3)),
     # Very hard: four runs of belt and five colours. The padlocked green block sits under two stones
     # (two and four boxes), the red key bar opens it, and green comes last down the belt.
-    dict(n=86, width=7, lower=6, fill_layers=2, time=360, difficulty=2,
+    dict(n=86, width=7, lower=6, fill_layers=2, difficulty=2,
          boxes=[box("S", "B", 0, 5), box("S", "R", 1, 5), box("S", "G", 3, 5), box("S", "Y", 5, 5),
                 box("S", "P", 6, 5),
                 box("H2", "R", 0, 4, key="green"), box("H2", "P", 5, 4),
@@ -1005,6 +1011,8 @@ LEVELS = [
          conveyor=(3, [("G", 18), ("Y", 18), ("R", 18), ("B", 18), ("P", 18), ("R", 42), ("P", 42), ("Y", 98),
                        ("B", 98), ("Y", 42), ("B", 42), ("G", 154)], 4)),
 ]
+# Levels 87-186 come from level_generator.py: seeded boards that mix every mechanic above.
+LEVELS += generated_levels(87, 100)
 
 
 def prepare_palette():
@@ -1426,7 +1434,7 @@ MonoBehaviour:
   m_Name: Level_{n:02d}_Reference
   m_EditorClassIdentifier: 
   levelPrefab: {{fileID: 1903656605721246596, guid: 41b36d7bcac348d4baa631aacfacb93c, type: 3}}
-  timeLimitSeconds: {level.get("time", 240)}
+  timeLimitSeconds: {TIME_LIMITS[level.get("difficulty", 0)]}
 {difficulty}  macroGridWidth: {width}
   lowerGridHeight: {lower}
   ballAreaMacroHeight: {upper}

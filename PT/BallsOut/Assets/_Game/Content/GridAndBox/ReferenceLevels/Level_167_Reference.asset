@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0927cc5767a13394f9fb22eaf1fb6481, type: 3}
+  m_Name: Level_167_Reference
+  m_EditorClassIdentifier: 
+  levelPrefab: {fileID: 1903656605721246596, guid: 41b36d7bcac348d4baa631aacfacb93c, type: 3}
+  timeLimitSeconds: 180
+  macroGridWidth: 8
+  lowerGridHeight: 6
+  ballAreaMacroHeight: 3
+  hopperMicroRows: 0
+  macroCellSize: 1
+  denseBoxFill: 1
+  fillLayers: 2
+  boxSlotsPerSide: 3
+  reservoirDividerColumns: []
+  lowerGridMask:
+    defaultKind: 1
+    overrides: []
+  ballAreaMask:
+    defaultKind: 1
+    overrides: []
+  boxes:
+  - id: K_1
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+    startingMacroOrigin: {x: 0, y: 5}
+    startsLocked: 0
+    lockId: ''
+    keyId: 'pink'
+    iceCount: 0
+    initialFillCount: 0
+  - id: P_1
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+    startingMacroOrigin: {x: 7, y: 5}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: W_1
+    shape: {fileID: 11400000, guid: c74de5f3403528c46a70d3a2fb982c9b, type: 2}
+    color: {fileID: 11400000, guid: 354c71f7884a5f9189973254b8658471, type: 2}
+    startingMacroOrigin: {x: 6, y: 4}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: W_2
+    shape: {fileID: 11400000, guid: b665169a0dfc5014abfbe8d6224601f6, type: 2}
+    color: {fileID: 11400000, guid: 354c71f7884a5f9189973254b8658471, type: 2}
+    startingMacroOrigin: {x: 0, y: 3}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: P_2
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+    startingMacroOrigin: {x: 5, y: 3}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: P_3
+    shape: {fileID: 11400000, guid: c74de5f3403528c46a70d3a2fb982c9b, type: 2}
+    color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+    startingMacroOrigin: {x: 7, y: 3}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: W_3
+    shape: {fileID: 11400000, guid: 6746126625fa10c439f8c95749cc4133, type: 2}
+    color: {fileID: 11400000, guid: 354c71f7884a5f9189973254b8658471, type: 2}
+    startingMacroOrigin: {x: 0, y: 2}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: G_1
+    shape: {fileID: 11400000, guid: c0de1d4ebc69b244c90bf7a1a5b421d4, type: 2}
+    color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    startingMacroOrigin: {x: 1, y: 2}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: K_2
+    shape: {fileID: 11400000, guid: c74de5f3403528c46a70d3a2fb982c9b, type: 2}
+    color: {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+    startingMacroOrigin: {x: 6, y: 2}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: G_2
+    shape: {fileID: 11400000, guid: bccb1278f39bfaf458658789d72ca0d1, type: 2}
+    color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    startingMacroOrigin: {x: 3, y: 1}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: G_3
+    shape: {fileID: 11400000, guid: c74de5f3403528c46a70d3a2fb982c9b, type: 2}
+    color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+    startingMacroOrigin: {x: 4, y: 1}
+    startsLocked: 0
+    lockId: ''
+    keyId: ''
+    iceCount: 0
+    initialFillCount: 0
+  - id: P_4
+    shape: {fileID: 11400000, guid: ee2ca1649f6c5eadb083191af67ba671, type: 2}
+    color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+    startingMacroOrigin: {x: 5, y: 0}
+    startsLocked: 1
+    lockId: 'pink'
+    keyId: ''
+    iceCount: 2
+    initialFillCount: 0
+    innerColor: {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+  balls:
+  palette:
+  - {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+  - {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+  - {fileID: 11400000, guid: 354c71f7884a5f9189973254b8658471, type: 2}
+  - {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+  conveyor:
+    column: 4
+    runs: 4
+    queue:
+    - color: {fileID: 11400000, guid: 354c71f7884a5f9189973254b8658471, type: 2}
+      count: 42
+    - color: {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+      count: 18
+    - color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+      count: 60
+    - color: {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+      count: 42
+    - color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+      count: 18
+    - color: {fileID: 11400000, guid: 354c71f7884a5f9189973254b8658471, type: 2}
+      count: 116
+    - color: {fileID: 11400000, guid: cbd5292069869824980827ded4b22646, type: 2}
+      count: 150
+    - color: {fileID: 11400000, guid: 3284f32b1ea05399a6ffa68a176fc792, type: 2}
+      count: 90
+    - color: {fileID: 11400000, guid: a870d38942b455daa3f571030bb988f7, type: 2}
+      count: 90
