@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 namespace BallsOut
 {
     // Procedural ice block over a box footprint: rounded, bevelled slab with
-    // polish streaks, counter, progressive cracks and a shatter burst.
+    // baked glass reflections, counter, progressive cracks and a shatter burst.
     // Pure presentation; BoxController owns the count.
     internal sealed class IceBoxVisual : MonoBehaviour
     {
@@ -20,7 +20,7 @@ namespace BallsOut
 
         // Footprint, in cells: gap to neighbouring blocks, corner radius, bevel width.
         private const float Inset = 0.035f;
-        private const float CornerRadius = 0.16f;
+        private const float CornerRadius = 0.12f;
         private const float BevelWidth = 0.11f;
         private const float DistanceRange = 0.3f;
         private const float Padding = 0.12f;
@@ -32,15 +32,15 @@ namespace BallsOut
         private static readonly int FlashId = Shader.PropertyToID("_Flash");
         private static readonly int RangeId = Shader.PropertyToID("_Range");
 
-        private static readonly Color TopLow = new Color32(0x27, 0x89, 0xC9, 0xFF);
-        private static readonly Color TopHigh = new Color32(0x4D, 0xAD, 0xDD, 0xFF);
-        private static readonly Color RimLight = new Color32(0xA7, 0xDE, 0xF2, 0xFF);
-        private static readonly Color RimShade = new Color32(0x18, 0x69, 0xA8, 0xFF);
-        private static readonly Color WallTop = new Color32(0x2A, 0x84, 0xBD, 0xFF);
-        private static readonly Color WallBottom = new Color32(0x14, 0x53, 0x88, 0xFF);
-        private static readonly Color CrackShade = new Color32(0x12, 0x55, 0x91, 0xFF);
-        private static readonly Color ShardColor = new Color32(0x86, 0xCD, 0xEC, 0xFF);
-        private static readonly Vector2 LightDirection = new Vector2(-0.35f, 1f).normalized;
+        // Authored in sRGB: saturated turquoise face with cyan glass edges.
+        private static readonly Color TopLow = new Color32(0x39, 0xC6, 0xED, 0xFF);
+        private static readonly Color TopHigh = new Color32(0x56, 0xDC, 0xFA, 0xFF);
+        private static readonly Color RimLight = new Color32(0xBA, 0xF4, 0xFF, 0xFF);
+        private static readonly Color RimShade = new Color32(0x22, 0x91, 0xD3, 0xFF);
+        private static readonly Color WallTop = new Color32(0x3F, 0xD6, 0xEC, 0xFF);
+        private static readonly Color WallBottom = new Color32(0x10, 0x80, 0xB8, 0xFF);
+        private static readonly Color CrackShade = new Color32(0x0A, 0x9A, 0xBD, 0xFF);
+        private static readonly Color ShardColor = new Color32(0x79, 0xE9, 0xF6, 0xFF);
         private static Material material;
         private static Material labelMaterial;
 
@@ -124,8 +124,7 @@ namespace BallsOut
             cells = new HashSet<Vector2Int>(cellList);
             random = new System.Random(StableHash(box.Id));
 
-            // BoxController has already sized its colliders to the box art. Use the
-            // same base so the ice wall ends above the floor instead of sinking into it.
+            // Match the full box height, keeping both the grounded base and lid height.
             BoxCollider boxCollider = box.GetComponent<BoxCollider>();
             bottom = boxCollider.center.y - boxCollider.size.y * 0.5f;
             top = boxCollider.center.y + boxCollider.size.y * 0.5f + size * 0.03f;
@@ -367,45 +366,56 @@ namespace BallsOut
         {
             int width = texture.width;
             int height = texture.height;
-            const float e = 0.01f;
-            float span = Mathf.Max(0.01f, footprintMax.y - footprintMin.y);
+            Vector2 span = footprintMax - footprintMin;
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
                 {
                     var p = new Vector2(bounds.xMin + (x + 0.5f) / width * bounds.width,
                         bounds.yMin + (y + 0.5f) / height * bounds.height);
-                    float d = Distance(p);
+                    // Small chips interrupt the silhouette; all layers read this same
+                    // baked distance, so the edge and side wall cannot drift apart.
+                    float edgeNoise = Mathf.PerlinNoise(p.x * 3f + 17f, p.y * 3f + 31f);
+                    float fineNoise = Mathf.PerlinNoise(p.x * 9f + 4f, p.y * 9f + 13f);
+                    float d = Distance(p) + (edgeNoise - 0.5f) * 0.04f + (fineNoise - 0.5f) * 0.008f;
                     float depth = -d;
 
-                    // Body: cool gradient, lighter toward the top of the screen, with soft frost.
-                    float v = Mathf.Clamp01((p.y - footprintMin.y) / span);
+                    // Reuse the two noise samples for a faint cloudiness under the polish.
+                    float u = Mathf.Clamp01((p.x - footprintMin.x) / span.x);
+                    float v = Mathf.Clamp01((p.y - footprintMin.y) / span.y);
                     Color color = Color.Lerp(TopLow, TopHigh, Mathf.SmoothStep(0f, 1f, v * 0.85f + 0.1f));
-                    float frost = Mathf.PerlinNoise(p.x * 4.3f + 11f, p.y * 4.3f + 7f) * 0.6f +
-                                  Mathf.PerlinNoise(p.x * 11f + 3f, p.y * 11f + 19f) * 0.4f;
-                    color += new Color(1f, 1f, 1f, 0f) * ((frost - 0.5f) * 0.045f);
+                    float frost = edgeNoise * 0.7f + fineNoise * 0.3f;
+                    color += new Color(0.2f, 0.75f, 1f, 0f) * ((frost - 0.5f) * 0.025f);
 
-                    // Polish: short diagonal glints, a wide soft one next to a thin sharp one.
-                    float along = p.x * 0.8f + p.y;
-                    float across = (p.x - p.y * 0.8f) * 2.2f;
-                    float band = Frac(along / 0.95f);
-                    float wide = 1f - Mathf.Clamp01(Mathf.Abs(band - 0.32f) / 0.07f);
-                    float thin = 1f - Mathf.Clamp01(Mathf.Abs(band - 0.45f) / 0.022f);
-                    float segments = Mathf.Clamp01((Mathf.PerlinNoise(across + 5f, Mathf.Floor(along / 0.95f) * 3.1f) - 0.42f) * 5f);
-                    float inner = Mathf.Clamp01((depth - BevelWidth) / 0.06f);
-                    float glint = (wide * wide * 0.35f + thin * 0.45f) * segments * inner;
-                    color = Color.Lerp(color, RimLight, glint);
+                    // Two soft, finite reflections; no extra mesh, material or per-frame work.
+                    float diagonal = u - v * 0.48f;
+                    float broad = Mathf.Clamp01(1f - Mathf.Abs(diagonal - 0.08f) / 0.14f);
+                    float streak = Mathf.Clamp01(1f - Mathf.Abs(diagonal - 0.26f) / 0.022f);
+                    float length = Mathf.Clamp01(1f - Mathf.Abs(v - 0.72f) / 0.3f);
+                    float inner = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(depth / 0.16f));
+                    color = Color.Lerp(color, RimLight,
+                        (broad * broad * 0.3f + streak * 0.4f) * length * length * inner);
 
-                    // Bevel: rim lit from the upper left, shaded toward the lower right.
-                    Vector2 normal = new Vector2(Distance(p + new Vector2(e, 0f)) - Distance(p - new Vector2(e, 0f)),
-                        Distance(p + new Vector2(0f, e)) - Distance(p - new Vector2(0f, e)));
-                    normal = normal.sqrMagnitude > 1e-8f ? normal.normalized : Vector2.up;
-                    float lit = Vector2.Dot(normal, LightDirection);
-                    Color rim = lit >= 0f ? Color.Lerp(color, RimLight, 0.35f + lit * 0.6f) : Color.Lerp(color, RimShade, -lit * 0.7f);
-                    float bevel = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(depth / BevelWidth));
-                    color = Color.Lerp(rim, color, bevel);
-                    // Thin bright seam where the bevel meets the face.
-                    float seam = 1f - Mathf.Clamp01(Mathf.Abs(depth - BevelWidth) / 0.018f);
-                    color = Color.Lerp(color, RimLight, seam * 0.25f);
+                    // Glass bevel: darker outer edge, intermittent icy highlights inside.
+                    float edgeWidth = 0.07f + edgeNoise * 0.045f;
+                    float bevel = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(depth / edgeWidth));
+                    Color edgeColor = Color.Lerp(RimShade, RimLight, 0.12f + (1f - v) * 0.48f);
+                    color = Color.Lerp(color, edgeColor, bevel * 0.8f);
+                    float lip = Mathf.Clamp01(1f - Mathf.Abs(depth - edgeWidth) / 0.022f);
+                    float glint = Mathf.Clamp01((edgeNoise - 0.4f) * 4f);
+                    color = Color.Lerp(color, RimLight, lip * glint * 0.48f);
+                    float border = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(depth / 0.025f));
+                    color = Color.Lerp(color, RimShade, border * 0.65f);
+
+                    // Local corner tint, never a diagonal band crossing the face.
+                    float cornerShade = 0f;
+                    foreach (Arc arc in arcs)
+                    {
+                        if (!arc.convex) continue;
+                        Vector2 tip = arc.center + arc.toward * (CornerRadius * 0.70710678f);
+                        float falloff = Mathf.Clamp01(1f - (p - tip).sqrMagnitude / 0.055f);
+                        cornerShade = Mathf.Max(cornerShade, falloff * falloff);
+                    }
+                    color = Color.Lerp(color, RimShade, cornerShade * 0.72f);
 
                     color.a = Mathf.Clamp01(0.5f - d / (2f * DistanceRange));
                     basePixels[y * width + x] = color;
@@ -482,8 +492,6 @@ namespace BallsOut
             width = Mathf.Lerp(crack.widthA, crack.widthB, t);
         }
 
-        private static float Frac(float value) => value - Mathf.Floor(value);
-
         // ---- Slab mesh: stacked outline layers form soft rounded walls ----
 
         private void BuildBodyMesh()
@@ -492,7 +500,7 @@ namespace BallsOut
             float height = top - bottom;
             int count = Mathf.Max(4, Mathf.CeilToInt(height / (cellSize * LayerStep)));
             float round = Mathf.Min(0.07f, height / cellSize * 0.3f);
-            // Bottom to top: with ZWrite on, each layer covers the one below.
+            // Back to front so the antialiased layer edges blend into solid ice below.
             for (int i = 0; i <= count; i++)
             {
                 float y = Mathf.Lerp(bottom, top, (float)i / count);
@@ -503,6 +511,11 @@ namespace BallsOut
                 if (fromBottom < 0.03f) shrink = Mathf.Max(shrink, 0.03f - fromBottom);
                 bool isTop = i == count;
                 Color color = isTop ? Color.white : Color.Lerp(WallBottom, WallTop, (float)i / count);
+                if (!isTop)
+                {
+                    float reflection = Mathf.Clamp01(1f - Mathf.Abs((float)i / count - 0.85f) / 0.12f);
+                    color = Color.Lerp(color, RimLight, reflection * reflection * 0.22f);
+                }
                 AddLayer(y, isTop ? 1f : 0f, isTop ? 0f : shrink, color);
             }
             for (int i = 0; i < vertices.Count; i++) vertices[i] -= pivot;
@@ -523,7 +536,8 @@ namespace BallsOut
         private void AddVertex(Vector3 position, Color color, Vector2 uv, float kind, float shrink)
         {
             vertices.Add(position);
-            colors.Add(color);
+            // Unlike the sRGB top texture, vertex colors are not decoded by the GPU.
+            colors.Add(QualitySettings.activeColorSpace == ColorSpace.Linear ? color.linear : color);
             uvs.Add(uv);
             layers.Add(new Vector2(kind, shrink));
         }
@@ -678,22 +692,29 @@ namespace BallsOut
             label.isOrthographic = true;
             label.textWrappingMode = TextWrappingModes.NoWrap;
             label.overflowMode = TextOverflowModes.Overflow;
-            label.alignment = TextAlignmentOptions.Center;
-            label.color = new Color32(0x1D, 0x1F, 0x4A, 0xFF);
+            label.alignment = TextAlignmentOptions.Midline;
+            label.color = Color.white;
             if (labelMaterial == null && label.fontSharedMaterial != null)
             {
                 labelMaterial = new Material(label.fontSharedMaterial) { name = "Ice Counter" };
                 if (labelMaterial.HasProperty("_OutlineWidth"))
                 {
                     labelMaterial.EnableKeyword("OUTLINE_ON");
-                    labelMaterial.SetFloat("_OutlineWidth", 0.24f);
-                    labelMaterial.SetColor("_OutlineColor", Color.white);
+                    labelMaterial.SetFloat("_OutlineWidth", 0.3f);
+                    labelMaterial.SetColor("_OutlineColor", new Color32(0x17, 0x38, 0x48, 0xFF));
                 }
+                if (labelMaterial.HasProperty("_FaceColor")) labelMaterial.SetColor("_FaceColor", Color.white);
+                if (labelMaterial.HasProperty("_FaceDilate")) labelMaterial.SetFloat("_FaceDilate", 0.22f);
             }
             if (labelMaterial != null) label.fontSharedMaterial = labelMaterial;
             Vector2 preferred = label.GetPreferredValues("8");
             label.rectTransform.sizeDelta = preferred * 2f;
-            labelScale = preferred.y > 0f ? cellSize * 0.42f / preferred.y : cellSize * 0.01f;
+            label.text = "8";
+            label.ForceMeshUpdate();
+            // Mesh bounds include SDF padding; size the visible digit instead.
+            TMP_CharacterInfo digit = label.textInfo.characterInfo[0];
+            float glyphHeight = digit.textElement.glyph.metrics.height * digit.scale;
+            labelScale = glyphHeight > 0f ? cellSize * 0.46f / glyphHeight : cellSize * 0.01f;
             labelObject.transform.localScale = Vector3.one * labelScale;
         }
 
