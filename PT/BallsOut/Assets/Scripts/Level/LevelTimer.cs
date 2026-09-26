@@ -43,8 +43,8 @@ public sealed class LevelTimer : SingletonMonoBehaviour<LevelTimer>
             return;
         }
 
-        // Popups (e.g. booster shop) pause the clock.
-        if (UIManager.Instance != null && UIManager.Instance.HasActivePopup)
+        // Popups (e.g. booster shop) and the hard-level intro pause the clock.
+        if (UIManager.Instance != null && UIManager.Instance.IsGameplayBlocked)
             return;
 
         if (freezeRemaining > 0f)

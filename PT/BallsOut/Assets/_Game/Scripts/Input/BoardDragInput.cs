@@ -107,7 +107,7 @@ namespace BallsOut
 
         private bool Begin(Vector2 point)
         {
-            if (UIManager.Instance != null && UIManager.Instance.HasActivePopup) return false;
+            if (UIManager.Instance != null && UIManager.Instance.IsGameplayBlocked) return false;
             if (!Project(point, out var world)) return false;
             Ray ray = inputCamera.ScreenPointToRay(point);
             RaycastHit[] hits = Physics.RaycastAll(ray);

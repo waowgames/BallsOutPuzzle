@@ -13,6 +13,9 @@ public sealed class LevelManager : SingletonMonoBehaviour<LevelManager>
     public int DisplayedLevel1Based => Mathf.Max(1, DisplayedLevelNumber);
     public int CurrentAttempt { get; private set; }
     public LevelData CurrentLevelData { get; private set; }
+    public LevelDifficulty CurrentDifficulty => CurrentLevelData != null
+        ? CurrentLevelData.Difficulty
+        : LevelDifficulty.Normal;
     public LevelState State { get; private set; } = LevelState.Uninitialized;
 
     protected override void Awake()

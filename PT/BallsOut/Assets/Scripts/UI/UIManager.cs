@@ -12,8 +12,24 @@ public sealed class UIManager : SingletonMonoBehaviour<UIManager>
     private readonly Dictionary<string, UIScreen> screens =
         new Dictionary<string, UIScreen>();
     private readonly List<UIPopup> popupStack = new List<UIPopup>();
+    private readonly HashSet<Object> gameplayBlockers = new HashSet<Object>();
 
     public bool HasActivePopup => popupStack.Count > 0;
+
+    /// <summary>
+    /// True while a popup or a full-screen presentation (e.g. the hard-level intro)
+    /// should pause the level clock and board input.
+    /// </summary>
+    public bool IsGameplayBlocked => HasActivePopup || gameplayBlockers.Count > 0;
+
+    public void SetGameplayBlocked(Object owner, bool blocked)
+    {
+        if (owner == null)
+            return;
+
+        if (blocked) gameplayBlockers.Add(owner);
+        else gameplayBlockers.Remove(owner);
+    }
 
     protected override void Awake()
     {
