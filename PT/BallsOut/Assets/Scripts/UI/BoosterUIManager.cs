@@ -1,8 +1,30 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+
+/// <summary>What the tutorial needs to know about one booster slot.</summary>
+public readonly struct BoosterInfo
+{
+    public readonly string Id;
+    public readonly int UnlockLevel;
+    public readonly Button Button;
+    public readonly string DisplayName;
+    public readonly string Description;
+    public readonly Sprite Icon;
+
+    public BoosterInfo(string id, int unlockLevel, Button button, string displayName, string description, Sprite icon)
+    {
+        Id = id;
+        UnlockLevel = unlockLevel;
+        Button = button;
+        DisplayName = displayName;
+        Description = description;
+        Icon = icon;
+    }
+}
 
 public sealed class BoosterUIManager : MonoBehaviour
 {
@@ -17,8 +39,46 @@ public sealed class BoosterUIManager : MonoBehaviour
     internal Sprite LockIconSprite => lockIconSprite;
     internal string LockedLabelFormat => lockedLabelFormat;
 
+    private static readonly List<BoosterUIManager> Enabled = new List<BoosterUIManager>();
+
+    /// <summary>Raised with the booster id whenever a booster is actually spent.</summary>
+    public static event Action<string> OnBoosterUsed;
+
+    /// <summary>Every booster slot on the enabled booster bars.</summary>
+    public static List<BoosterInfo> GetBoosters()
+    {
+        var result = new List<BoosterInfo>();
+        foreach (BoosterUIManager manager in Enabled)
+            foreach (BoosterSlot slot in manager.boosterSlots)
+                if (slot != null) result.Add(slot.Info);
+        return result;
+    }
+
+    /// <summary>Adds free uses of a booster (tutorial gift) and refreshes its slot.</summary>
+    public static bool GrantFree(string id, int amount)
+    {
+        foreach (BoosterUIManager manager in Enabled)
+            foreach (BoosterSlot slot in manager.boosterSlots)
+                if (slot != null && slot.Info.Id == id)
+                {
+                    slot.Grant(amount);
+                    return true;
+                }
+        return false;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        Enabled.Clear();
+        OnBoosterUsed = null;
+    }
+
     private void OnEnable()
     {
+        if (!Enabled.Contains(this))
+            Enabled.Add(this);
+
         foreach (BoosterSlot slot in boosterSlots)
             slot?.Setup(this);
 
@@ -32,6 +92,8 @@ public sealed class BoosterUIManager : MonoBehaviour
 
     private void OnDisable()
     {
+        Enabled.Remove(this);
+
         if (CurrencyWallet.Instance != null)
             CurrencyWallet.Instance.BalanceChanged -= HandleBalanceChanged;
 
@@ -104,6 +166,14 @@ public sealed class BoosterUIManager : MonoBehaviour
         private TextMeshProUGUI lockedLabel;
 
         private bool IsLocked => BoosterUIManager.CurrentLevelNumber() < unlockLevel;
+
+        public BoosterInfo Info => new BoosterInfo(ResolveId(), unlockLevel, boosterButton, displayName, description, icon);
+
+        public void Grant(int amount)
+        {
+            if (amount > 0)
+                GrantBooster(amount);
+        }
 
         public void Setup(BoosterUIManager slotOwner)
         {
@@ -214,6 +284,7 @@ public sealed class BoosterUIManager : MonoBehaviour
             Refresh();
             GameHaptics.Medium();
             onBoosterTriggered?.Invoke();
+            OnBoosterUsed?.Invoke(ResolveId());
         }
 
         private void PurchaseBooster()

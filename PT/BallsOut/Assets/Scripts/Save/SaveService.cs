@@ -103,6 +103,30 @@ public sealed class SaveService : SingletonMonoBehaviour<SaveService>
         WriteData(true);
     }
 
+    public bool IsTutorialDone(string id)
+    {
+        return data != null && !string.IsNullOrWhiteSpace(id) && data.tutorials.Contains(id);
+    }
+
+    public void MarkTutorialDone(string id)
+    {
+        if (data == null || string.IsNullOrWhiteSpace(id) || data.tutorials.Contains(id))
+            return;
+
+        data.tutorials.Add(id);
+        WriteData(true);
+    }
+
+    /// <summary>Forgets every finished tutorial so they all play again (debug).</summary>
+    public void ResetTutorials()
+    {
+        if (data == null || data.tutorials.Count == 0)
+            return;
+
+        data.tutorials.Clear();
+        WriteData(true);
+    }
+
     public void Flush()
     {
         PlayerPrefs.Save();

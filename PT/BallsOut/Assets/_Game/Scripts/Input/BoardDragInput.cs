@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -8,6 +9,8 @@ namespace BallsOut
     public sealed class BoardDragInput : MonoBehaviour
     {
         [SerializeField] private Camera inputCamera;
+        // Set by the tutorial: while assigned, only boxes it approves can be picked up.
+        public static Func<BoxController, bool> DragGate;
         private BoardGrid board;
         private BoxMovementSystem movement;
 #if ENABLE_INPUT_SYSTEM
@@ -121,7 +124,8 @@ namespace BallsOut
                 candidate = box;
                 nearest = hit.distance;
             }
-            return candidate != null && movement.Begin(world, candidate);
+            if (candidate == null || DragGate != null && !DragGate(candidate)) return false;
+            return movement.Begin(world, candidate);
         }
         private void Move(Vector2 point) { if (Project(point, out var world)) movement.Drag(world); }
         private void OnDisable()

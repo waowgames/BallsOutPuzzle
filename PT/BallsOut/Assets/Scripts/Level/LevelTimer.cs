@@ -47,6 +47,10 @@ public sealed class LevelTimer : SingletonMonoBehaviour<LevelTimer>
         if (UIManager.Instance != null && UIManager.Instance.IsGameplayBlocked)
             return;
 
+        // A running tutorial holds the clock so the player can learn without pressure.
+        if (TutorialDirector.HoldsClock)
+            return;
+
         if (freezeRemaining > 0f)
         {
             freezeRemaining -= Time.deltaTime;

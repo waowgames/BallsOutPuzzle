@@ -12,6 +12,8 @@ public sealed class GameSaveData
     public bool sfxEnabled = true;
     public bool vibrationEnabled = true;
     public List<BoosterSaveEntry> boosters = new List<BoosterSaveEntry>();
+    // Ids of the tutorials the player has finished (and one-off tutorial gifts already handed out).
+    public List<string> tutorials = new List<string>();
 
     public void Sanitize()
     {
@@ -19,6 +21,8 @@ public sealed class GameSaveData
         currentLevelIndex = Mathf.Max(0, currentLevelIndex);
         softCurrency = Mathf.Max(0, softCurrency);
         boosters ??= new List<BoosterSaveEntry>();
+        tutorials ??= new List<string>();
+        tutorials.RemoveAll(string.IsNullOrWhiteSpace);
 
         for (int i = boosters.Count - 1; i >= 0; i--)
         {
