@@ -14,6 +14,12 @@ public static class SoundSystemSetupUtility
     private const string ButtonClickClipPath = "Assets/SFX/sharpPop.mp3";
     private const string PassengerBoardingClipPath = "Assets/SFX/pop.mp3";
     private const string BarrierImpactClipPath = "Assets/SFX/car crash.mp3";
+    // Trimmed copies of the raw generated clips: leading silence cut so playback is instant.
+    private const string BallIntoBoxClipPrefix = "Assets/SFX/Processed/BallIntoBox_";
+    private const int BallIntoBoxClipCount = 4;
+    private const string BoxPickUpClipPath = "Assets/SFX/Processed/BoxPickUp.wav";
+    private const string BoxDropClipPath = "Assets/SFX/Processed/BoxDrop.wav";
+    private const string BoxCompleteClipPath = "Assets/SFX/Processed/BoxComplete.wav";
 
     private static readonly string[] ChildGroupNames = { "Music", "SFX", "UI", "Ambience" };
 
@@ -185,6 +191,10 @@ public static class SoundSystemSetupUtility
         EnsureDefinition(result, library, CreateMainMusic(), FindGroup(groups, "Music"));
         EnsureDefinition(result, library, CreatePassengerBoarding(), FindGroup(groups, "SFX"));
         EnsureDefinition(result, library, CreateBarrierImpact(), FindGroup(groups, "SFX"));
+        EnsureDefinition(result, library, CreateBallIntoBox(), FindGroup(groups, "SFX"));
+        EnsureDefinition(result, library, CreateBoxPickUp(), FindGroup(groups, "SFX"));
+        EnsureDefinition(result, library, CreateBoxDrop(), FindGroup(groups, "SFX"));
+        EnsureDefinition(result, library, CreateBoxComplete(), FindGroup(groups, "SFX"));
         return result;
     }
 
@@ -406,6 +416,93 @@ public static class SoundSystemSetupUtility
             MaxDistance = 25f,
             MergeSameFrameRequests = true
         };
+    }
+
+    // Frequent and quiet: a short cooldown plus an instance cap keeps rapid intakes from turning to mush.
+    private static SoundDefinition CreateBallIntoBox()
+    {
+        return new SoundDefinition
+        {
+            Id = SoundId.BallIntoBox,
+            Category = SoundCategory.Sfx,
+            Clips = LoadNumberedClips(BallIntoBoxClipPrefix, BallIntoBoxClipCount),
+            Volume = 0.5f,
+            VolumeRange = new Vector2(0.9f, 1f),
+            PitchRange = new Vector2(0.97f, 1.03f),
+            Cooldown = 0.035f,
+            MaxSimultaneousInstances = 4,
+            Priority = SoundPriority.Normal,
+            OverlapMode = SoundOverlapMode.ReplaceOldest,
+            MergeSameFrameRequests = true,
+            BatchVolumeIncrement = 0.05f,
+            MaxBatchVolumeMultiplier = 1.15f
+        };
+    }
+
+    private static SoundDefinition CreateBoxPickUp()
+    {
+        return new SoundDefinition
+        {
+            Id = SoundId.BoxPickUp,
+            Category = SoundCategory.Sfx,
+            Clips = LoadClip(BoxPickUpClipPath),
+            Volume = 0.7f,
+            PitchRange = new Vector2(0.98f, 1.03f),
+            Cooldown = 0.06f,
+            MaxSimultaneousInstances = 1,
+            Priority = SoundPriority.High,
+            OverlapMode = SoundOverlapMode.Restart
+        };
+    }
+
+    private static SoundDefinition CreateBoxDrop()
+    {
+        return new SoundDefinition
+        {
+            Id = SoundId.BoxDrop,
+            Category = SoundCategory.Sfx,
+            Clips = LoadClip(BoxDropClipPath),
+            Volume = 0.7f,
+            PitchRange = new Vector2(0.96f, 1.02f),
+            Cooldown = 0.06f,
+            MaxSimultaneousInstances = 1,
+            Priority = SoundPriority.High,
+            OverlapMode = SoundOverlapMode.Restart
+        };
+    }
+
+    // Ducks only the music: ducking NonCriticalSfx would also duck this High-priority sound itself.
+    private static SoundDefinition CreateBoxComplete()
+    {
+        return new SoundDefinition
+        {
+            Id = SoundId.BoxComplete,
+            Category = SoundCategory.Sfx,
+            Clips = LoadClip(BoxCompleteClipPath),
+            Volume = 0.9f,
+            PitchRange = new Vector2(0.98f, 1.02f),
+            Cooldown = 0.12f,
+            MaxSimultaneousInstances = 2,
+            Priority = SoundPriority.High,
+            OverlapMode = SoundOverlapMode.ReplaceOldest,
+            UseDucking = true,
+            DuckVolume = 0.7f,
+            DuckHoldDuration = 0.35f,
+            DuckTargets = DuckTarget.Music
+        };
+    }
+
+    private static AudioClip[] LoadNumberedClips(string pathPrefix, int count)
+    {
+        List<AudioClip> clips = new List<AudioClip>(count);
+        for (int i = 1; i <= count; i++)
+        {
+            AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(pathPrefix + i + ".wav");
+            if (clip != null)
+                clips.Add(clip);
+        }
+
+        return clips.ToArray();
     }
 
     private static AudioClip[] LoadClip(string assetPath)

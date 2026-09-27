@@ -40,6 +40,9 @@ namespace BallsOut
         // A nested box filled its inner layer; it keeps going in its outer color.
         public event Action<BoxController> OnInnerLayerCompleted;
         public event Action<BoxController> OnBoxRemoved;
+        // Fire when the finish animation actually begins, after the last ball has landed.
+        public event Action<BoxController> OnCompletionAnimationStarted;
+        public event Action<BoxController> OnLayerSwapAnimationStarted;
 
         public BoxCompletionSystem(BoardGrid board, BoxFillSystem fill, int boxCount, float defaultDuration, float startDelay)
         {
@@ -88,6 +91,7 @@ namespace BallsOut
                     entry.duration = box.CompletionAnimation != null ? Mathf.Max(0f, box.CompletionAnimation.duration) : defaultDuration;
                     if (box.CompletionAnimation != null) box.CompletionAnimation.Begin();
                     else entry.effect = new BoxCompletionEffect(box, entry.duration);
+                    OnCompletionAnimationStarted?.Invoke(box);
                 }
                 else entry.elapsed += deltaTime;
                 float t = entry.duration <= 0f ? 1f : Mathf.Clamp01(entry.elapsed / entry.duration);
@@ -117,7 +121,11 @@ namespace BallsOut
                     continue;
                 }
                 if (swap.started) swap.elapsed += deltaTime;
-                else if (box.InnerArt != null) swap.effect = new InnerLayerSwapEffect(box, LayerSwapDuration);
+                else
+                {
+                    if (box.InnerArt != null) swap.effect = new InnerLayerSwapEffect(box, LayerSwapDuration);
+                    OnLayerSwapAnimationStarted?.Invoke(box);
+                }
                 swap.started = true;
                 if (swap.elapsed < LayerSwapDuration) { swaps[i] = swap; continue; }
                 fill.Release(box);

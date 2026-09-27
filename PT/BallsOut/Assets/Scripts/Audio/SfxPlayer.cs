@@ -18,6 +18,7 @@ internal sealed class SfxPlayer
         internal bool HasPosition;
         internal Vector3 Position;
         internal float ListenerDistanceSquared;
+        internal float PitchOffset;
     }
 
     private struct LegacyBurst
@@ -86,14 +87,14 @@ internal sealed class SfxPlayer
         listenerTransform = value;
     }
 
-    internal void Enqueue(SoundId id)
+    internal void Enqueue(SoundId id, float pitchOffset = 0f)
     {
-        RecordRequest(id, false, Vector3.zero);
+        RecordRequest(id, false, Vector3.zero, pitchOffset);
     }
 
     internal void Enqueue(SoundId id, Vector3 worldPosition)
     {
-        RecordRequest(id, true, worldPosition);
+        RecordRequest(id, true, worldPosition, 0f);
     }
 
     internal void FlushPending(int frame, float now)
@@ -136,6 +137,7 @@ internal sealed class SfxPlayer
                 false,
                 null,
                 now,
+                0f,
                 out int slotIndex))
         {
             return default;
@@ -177,6 +179,7 @@ internal sealed class SfxPlayer
                 true,
                 followTarget,
                 now,
+                0f,
                 out int slotIndex))
         {
             return default;
@@ -412,7 +415,7 @@ internal sealed class SfxPlayer
         }
     }
 
-    private void RecordRequest(SoundId id, bool hasPosition, Vector3 position)
+    private void RecordRequest(SoundId id, bool hasPosition, Vector3 position, float pitchOffset)
     {
         if (library == null || !library.TryGetDefinitionIndex(id, out int definitionIndex))
             return;
@@ -427,12 +430,14 @@ internal sealed class SfxPlayer
             request.HasPosition = hasPosition;
             request.Position = position;
             request.ListenerDistanceSquared = GetListenerDistanceSquared(hasPosition, position);
+            request.PitchOffset = pitchOffset;
             pendingRequests[definitionIndex] = request;
             return;
         }
 
         if (request.Count < int.MaxValue)
             request.Count++;
+        request.PitchOffset = Mathf.Max(request.PitchOffset, pitchOffset);
 
         if (hasPosition)
         {
@@ -484,6 +489,7 @@ internal sealed class SfxPlayer
                         false,
                         null,
                         now,
+                        request.PitchOffset,
                         out _))
                 {
                     if (startedThisFrame >= library.MaxSoundsStartedPerFrame)
@@ -505,6 +511,7 @@ internal sealed class SfxPlayer
         bool loop,
         Transform followTarget,
         float now,
+        float pitchOffset,
         out int slotIndex)
     {
         slotIndex = -1;
@@ -586,7 +593,7 @@ internal sealed class SfxPlayer
             : library.GetMixerGroup(definition.Category);
         slot.Source.volume = slot.BaseVolume * settings.GetSourceMultiplier(definition.Category);
         slot.Source.pitch = Mathf.Clamp(
-            Random.Range(definition.PitchRange.x, definition.PitchRange.y) + batchPitch,
+            Random.Range(definition.PitchRange.x, definition.PitchRange.y) + batchPitch + pitchOffset,
             0.1f,
             3f);
         slot.Source.loop = loop;

@@ -19,6 +19,7 @@ namespace BallsOut
         private BallState slidRight;
         private int observedRevision = -1;
         private float elapsed;
+        private float hold;
         private readonly Action<float> advanceBoxSystems;
         private readonly Func<bool> hasPendingBoxWork;
         public float TickInterval { get; }
@@ -45,8 +46,16 @@ namespace BallsOut
             TickInterval = Mathf.Max(0.02f, tickInterval);
         }
 
+        // Freezes ticks and ball motion, e.g. while a booster rearranges the pile.
+        public void Hold(float seconds) => hold = Mathf.Max(hold, seconds);
+
         public void Advance(float deltaTime)
         {
+            if (hold > 0f)
+            {
+                hold -= deltaTime;
+                return;
+            }
             if (grid.Board.Revision != observedRevision)
             {
                 observedRevision = grid.Board.Revision;
@@ -63,6 +72,8 @@ namespace BallsOut
                 moving.Clear();
                 elapsed -= TickInterval;
                 advanceBoxSystems(TickInterval);
+                // A booster may have taken over the pile at this safe point.
+                if (hold > 0f) { elapsed = 0f; return; }
                 Tick();
                 if (IsStable && !hasPendingBoxWork()) { elapsed = 0f; break; }
             }

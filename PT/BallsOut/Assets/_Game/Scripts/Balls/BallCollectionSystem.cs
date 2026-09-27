@@ -35,14 +35,19 @@ namespace BallsOut
         internal bool TryCollect(BallState ball, Vector2Int destination)
         {
             if (!CanEnter(ball, destination)) return false;
-            BoxController box = grid.Board.GetBox(BallMicroGrid.ToMacro(destination));
+            Collect(ball, grid.Board.GetBox(BallMicroGrid.ToMacro(destination)), 0f);
+            return true;
+        }
+
+        // Booster path: the ball flies straight into the box from anywhere in the pile.
+        internal void Collect(BallState ball, BoxController box, float delay)
+        {
             box.RecordCollection();
             grid.Remove(ball);
-            fill.Collect(ball, box);
+            fill.Collect(ball, box, delay);
             completion.Enqueue(box);
             box.NotifyCollection();
             OnBallCollected?.Invoke(ball, box);
-            return true;
         }
     }
 }

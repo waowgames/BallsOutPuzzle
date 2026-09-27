@@ -25,6 +25,9 @@ namespace BallsOut
         private float snapElapsed;
         private bool releaseRequested;
         public bool IsDragging => selected != null;
+        public event Action<BoxController> OnDragBegan;
+        // A drag was refused because the box is padlocked, frozen or otherwise stuck.
+        public event Action<BoxController> OnDragRefused;
         public event Action<BoxController> OnBoxMoved;
         public event Action<BoxController> OnDragEnded;
 
@@ -41,7 +44,12 @@ namespace BallsOut
             // A padlocked box stays put; the padlock shakes to say why.
             if (candidate != null && candidate.IsLocked) candidate.NudgeLock();
             selected = candidate;
-            if (selected == null || !selected.CanMove) { selected = null; return false; }
+            if (selected == null || !selected.CanMove)
+            {
+                if (candidate != null && (candidate.IsLocked || candidate.IsFrozen)) OnDragRefused?.Invoke(candidate);
+                selected = null;
+                return false;
+            }
             grabOffset = board.Root.InverseTransformPoint(worldPoint) - selected.transform.localPosition;
             releaseRequested = false;
             selected.IsInTransit = true;
@@ -52,6 +60,7 @@ namespace BallsOut
                 selected.MarkPlayerInteraction();
                 board.NotifyBoxStateChanged();
             }
+            OnDragBegan?.Invoke(selected);
             return true;
         }
 

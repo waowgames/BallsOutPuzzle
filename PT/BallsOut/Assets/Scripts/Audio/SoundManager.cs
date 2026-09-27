@@ -103,6 +103,12 @@ public sealed class SoundManager : MonoBehaviour
             sfxPlayer.Enqueue(id);
     }
 
+    public void PlaySfx(SoundId id, float pitchOffset)
+    {
+        if (initialized)
+            sfxPlayer.Enqueue(id, pitchOffset);
+    }
+
     public SoundHandle PlayTrackedSfx(SoundId id)
     {
         if (!initialized)
@@ -230,8 +236,7 @@ public sealed class SoundManager : MonoBehaviour
 
     public void Vibrate()
     {
-        if (settings != null && settings.IsVibrationEnabled)
-            Handheld.Vibrate();
+        GameHaptics.Play(Solo.MOST_IN_ONE.MOST_HapticFeedback.HapticTypes.MediumImpact);
     }
 
     [Obsolete("Use PlaySfx(SoundId) instead.")]

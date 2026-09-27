@@ -92,9 +92,10 @@ public sealed class LevelManager : SingletonMonoBehaviour<LevelManager>
         LevelFailPopup.ShowIfAvailable();
     }
 
+    /// <summary>Restarts the current level after a fail, or mid-play from the HUD retry button.</summary>
     public void RetryLevel()
     {
-        if (State != LevelState.Failed)
+        if (State != LevelState.Failed && State != LevelState.Playing)
             return;
 
         int retryLevelIndex = CurrentLevelIndex;

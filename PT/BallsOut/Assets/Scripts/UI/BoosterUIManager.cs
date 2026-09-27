@@ -138,9 +138,20 @@ public sealed class BoosterUIManager : MonoBehaviour
             if (manager != null && manager.State != LevelState.Playing)
                 return;
 
+            // Never spend a booster that would do nothing right now.
+            IBoosterAvailability availability = boosterButton != null
+                ? boosterButton.GetComponent<IBoosterAvailability>()
+                : null;
+            if (availability != null && !availability.CanUseBooster())
+            {
+                GameHaptics.Warning();
+                return;
+            }
+
             ownedCount--;
             SaveOwnedCount();
             Refresh();
+            GameHaptics.Medium();
             onBoosterTriggered?.Invoke();
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,12 +15,19 @@ namespace BallsOut
             public Vector3 startScale;
             public Vector3 endScale;
             public float elapsed;
+            public int slot;
+            public bool contacted;
         }
+
+        // Matches Render: the arc ends and the settle bounce starts at 75% of the flight.
+        private const float ContactFraction = 0.75f;
 
         private readonly List<FillMotion> moving;
         private readonly BallPool pool;
         private readonly float duration;
         public bool IsAnimating => moving.Count != 0;
+        // Fires when the ball touches down in its slot; the int is that slot's fill index.
+        public event Action<BoxController, int> OnBallContact;
 
         public BoxFillSystem(BallPool pool, float duration, int ballCount)
         {
@@ -37,9 +45,10 @@ namespace BallsOut
             return position;
         }
 
-        internal void Collect(BallState ball, BoxController box)
+        internal void Collect(BallState ball, BoxController box, float delay = 0f)
         {
-            Vector3 end = GetSlotPosition(box, box.CurrentFill - 1);
+            int slot = box.CurrentFill - 1;
+            Vector3 end = GetSlotPosition(box, slot);
             Vector3 start = end;
             Vector3 startScale = Vector3.one;
             Vector3 endScale = Vector3.one;
@@ -54,7 +63,8 @@ namespace BallsOut
             }
             box.CollectedBalls.Add(ball);
             box.PendingFillAnimations++;
-            moving.Add(new FillMotion { ball = ball, box = box, start = start, end = end, startScale = startScale, endScale = endScale });
+            // A negative start time holds the ball in place until its turn, staggering booster flights.
+            moving.Add(new FillMotion { ball = ball, box = box, start = start, end = end, startScale = startScale, endScale = endScale, elapsed = -Mathf.Max(0f, delay), slot = slot });
         }
 
         public void Advance(float deltaTime)
@@ -63,6 +73,11 @@ namespace BallsOut
             {
                 FillMotion motion = moving[i];
                 motion.elapsed += deltaTime;
+                if (!motion.contacted && motion.elapsed >= duration * ContactFraction)
+                {
+                    motion.contacted = true;
+                    OnBallContact?.Invoke(motion.box, motion.slot);
+                }
                 if (motion.elapsed < duration) { moving[i] = motion; continue; }
                 if (motion.ball.Visual != null)
                 {

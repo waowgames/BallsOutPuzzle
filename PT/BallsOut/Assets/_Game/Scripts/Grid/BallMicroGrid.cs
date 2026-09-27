@@ -130,6 +130,18 @@ namespace BallsOut
             occupants[destination.y * Width + destination.x] = ball;
         }
 
+        // Moves every listed ball to the matching cell. The cells must be exactly the ones
+        // the balls occupy now, so occupancy and Count are unchanged.
+        internal void Rearrange(System.Collections.Generic.IReadOnlyList<BallState> balls, System.Collections.Generic.IReadOnlyList<Vector2Int> cells)
+        {
+            foreach (BallState ball in balls) occupants[ball.Cell.y * Width + ball.Cell.x] = null;
+            for (int i = 0; i < balls.Count; i++)
+            {
+                balls[i].Cell = cells[i];
+                occupants[cells[i].y * Width + cells[i].x] = balls[i];
+            }
+        }
+
         internal void Remove(BallState ball)
         {
             occupants[ball.Cell.y * Width + ball.Cell.x] = null;

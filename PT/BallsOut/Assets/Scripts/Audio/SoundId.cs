@@ -12,5 +12,9 @@ public enum SoundId
     Ambience = 9,
     MainMusic = 10,
     PassengerBoarding = 11,
-    BarrierImpact = 12
+    BarrierImpact = 12,
+    BallIntoBox = 13,
+    BoxPickUp = 14,
+    BoxDrop = 15,
+    BoxComplete = 16
 }
