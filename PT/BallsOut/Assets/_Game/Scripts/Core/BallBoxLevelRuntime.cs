@@ -151,8 +151,8 @@ namespace BallsOut
             Conveyor = new BallConveyorSystem(Balls, pool, content, height);
             Fill = new BoxFillSystem(pool, prefabs != null ? prefabs.fillDuration : 0.26f,
                 Balls.Count + Feeder.Remaining + Conveyor.Remaining);
-            Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 1.1f,
-                prefabs != null ? prefabs.completionDelay : 0.3f);
+            Completion = new BoxCompletionSystem(Board, Fill, boxes.Count, prefabs != null ? prefabs.completionDuration : 0.75f,
+                prefabs != null ? prefabs.completionDelay : 0.2f);
             Completion.OnBoxCompleted += ForwardBoxCompleted;
             Completion.OnBoxRemoved += ForwardBoxRemoved;
             Completion.OnInnerLayerCompleted += ForwardInnerLayerCompleted;

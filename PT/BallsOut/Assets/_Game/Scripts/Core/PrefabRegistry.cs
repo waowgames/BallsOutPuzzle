@@ -23,8 +23,8 @@ namespace BallsOut
         public float ballHeight = 0.1f;
         public Vector3 fillOffset = new Vector3(0f, 0.085f, 0f);
         [Min(0.02f)] public float fillDuration = 0.26f;
-        [Min(0f)] public float completionDelay = 0.3f;
-        [Min(0f)] public float completionDuration = 1.1f;
+        [Min(0f)] public float completionDelay = 0.2f;
+        [Min(0f)] public float completionDuration = 0.75f;
         public GameObject floorPrefab;
         public Material alternateTileMaterial;
         public GameObject blockedCellPrefab;

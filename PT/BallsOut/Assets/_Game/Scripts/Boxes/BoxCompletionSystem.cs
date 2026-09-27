@@ -91,6 +91,9 @@ namespace BallsOut
                     entry.duration = box.CompletionAnimation != null ? Mathf.Max(0f, box.CompletionAnimation.duration) : defaultDuration;
                     if (box.CompletionAnimation != null) box.CompletionAnimation.Begin();
                     else entry.effect = new BoxCompletionEffect(box, entry.duration);
+                    // Free the footprint now so play flows on: balls can drop in and another box
+                    // can be dragged onto these cells while the finished box lifts away above them.
+                    board.Remove(box);
                     OnCompletionAnimationStarted?.Invoke(box);
                 }
                 else entry.elapsed += deltaTime;
@@ -98,7 +101,6 @@ namespace BallsOut
                 if (t < 1f) { pending[i] = entry; continue; }
                 box.CompletionAnimation?.Finish();
                 entry.effect?.Finish();
-                board.Remove(box);
                 fill.Release(box);
                 box.gameObject.SetActive(false);
                 RemainingBoxes--;

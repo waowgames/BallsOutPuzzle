@@ -116,7 +116,8 @@ namespace BallsOut
             foreach (RaycastHit hit in hits)
             {
                 BoxController box = hit.collider.GetComponentInParent<BoxController>();
-                if (box == null || hit.distance >= nearest) continue;
+                // A finishing box has left the grid; its collider must not hide the box beneath it.
+                if (box == null || box.IsRemoved || hit.distance >= nearest) continue;
                 candidate = box;
                 nearest = hit.distance;
             }

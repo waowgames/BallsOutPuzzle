@@ -14,6 +14,8 @@ namespace BallsOut
         private const float SparkleAt = 0.4f;
         private const float LidTwist = 200f;
         private const float SwingDegrees = 16f;
+        // Rises clear of the board while the lid shuts, so a box dragged into the freed cells never overlaps it.
+        private const float LiftCells = 0.6f;
         private static readonly Color Gold = new Color(1f, 0.84f, 0.3f);
         private static readonly int ShapeId = Shader.PropertyToID("_Shape");
         private static Material sparkMaterial;
@@ -93,7 +95,7 @@ namespace BallsOut
                 SpawnSparkles();
             }
 
-            art.localPosition = pivot + new Vector3(swing * 0.05f * cellSize, pop * pop * 0.2f * cellSize, 0f);
+            art.localPosition = pivot + new Vector3(swing * 0.05f * cellSize, (close * LiftCells + pop * pop * 0.2f) * cellSize, 0f);
             art.localRotation = Quaternion.Euler(0f, swing * SwingDegrees + pop * pop * 170f, -swing * 6f);
             art.localScale = new Vector3(1f, 1f - Mathf.Max(0f, impact) * 0.14f, 1f) * scale;
         }
