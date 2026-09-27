@@ -6902,7 +6902,7 @@ MonoBehaviour:
     ownedContainer: {fileID: 3570196586194416993}
     ownedCountLabel: {fileID: 7199730308673267192}
   - id: ball_shuffle
-    unlockLevel: 50
+    unlockLevel: 49
     boosterButton: {fileID: 1007436819747461850}
     onBoosterTriggered:
       m_PersistentCalls:
