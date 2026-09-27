@@ -144,6 +144,49 @@ namespace BallsOut
             return mesh;
         }
 
+        // Selection outline: the box profile pushed out by a rim width and lifted over the lip,
+        // drawn back faces only so it shows as a band around the box silhouette.
+        private static readonly Dictionary<BoxShapeDefinition, Mesh> OutlineMeshes = new Dictionary<BoxShapeDefinition, Mesh>();
+        private const float OutlineWidth = 0.045f;
+        private static readonly Vector2[] OutlineProfile =
+        {
+            new Vector2(0.049f - OutlineWidth, 0.004f), new Vector2(0.025f - OutlineWidth, 0.024f),
+            new Vector2(0.025f - OutlineWidth, 0.27f), new Vector2(0.049f - OutlineWidth, 0.306f),
+            new Vector2(0.081f + OutlineWidth, 0.306f), new Vector2(0.105f + OutlineWidth, 0.27f),
+            new Vector2(0.105f + OutlineWidth, 0.084f), new Vector2(0.129f + OutlineWidth, 0.048f)
+        };
+        private static Material outlineMaterial;
+
+        // Hidden until the box is picked up; placed exactly like the procedural box art.
+        internal static MeshRenderer CreateOutline(BoxShapeDefinition shape, Transform parent, float cellSize,
+            PrefabRegistry registry)
+        {
+            if (!OutlineMeshes.TryGetValue(shape, out Mesh mesh))
+            {
+                mesh = BuildMesh(shape, OutlineProfile, "Outline ");
+                OutlineMeshes.Add(shape, mesh);
+            }
+            if (outlineMaterial == null)
+            {
+                Shader shader = Shader.Find("Balls Out/Box Outline")
+                    ?? Shader.Find("Universal Render Pipeline/Unlit")
+                    ?? Shader.Find("Unlit/Color");
+                outlineMaterial = new Material(shader) { name = "Box Outline", color = Color.white };
+            }
+            Placement(registry, out float elevation, out float depthScale, out _);
+            var visual = new GameObject("Box Outline", typeof(MeshFilter), typeof(MeshRenderer));
+            visual.transform.SetParent(parent, false);
+            visual.transform.localPosition = Vector3.up * elevation;
+            visual.transform.localScale = new Vector3(cellSize, depthScale, cellSize);
+            visual.GetComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = visual.GetComponent<MeshRenderer>();
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            renderer.sharedMaterial = outlineMaterial;
+            visual.SetActive(false);
+            return renderer;
+        }
+
         private static Mesh BuildMesh(BoxShapeDefinition shape) => BuildMesh(shape, Profile, "Box ");
 
         private static Mesh BuildMesh(BoxShapeDefinition shape, Vector2[] rings, string prefix)

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a4de103af9d4c7c96b2c6a4d10f1a07, type: 3}
   m_Name: LevelRewardConfig
   m_EditorClassIdentifier:
-  baseReward: 3
-  rewardPerLevel: 3
-  maximumReward: 0
+  baseReward: 20
+  rewardPerLevel: 1
+  maximumReward: 50

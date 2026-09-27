@@ -50,6 +50,7 @@ namespace BallsOut
         private BoxKeyVisual key;
         private float lidTop;
         private MeshRenderer shadow;
+        private MeshRenderer outline;
         // Collection pulse: a small damped spring, pivoting on the footprint centre.
         private const float PulseStiffness = 420f;
         private const float PulseDamping = 13f;
@@ -162,6 +163,7 @@ namespace BallsOut
                 InnerArt = BoxShapeVisual.CreateInner(Shape, InnerColor.boxMaterial, transform, cellSize, registry);
             if (MoveAxis != BoxMoveAxis.Free) axisArrow = BoxAxisArrow.Create(this, visual, cellSize);
             if (registry != null && registry.shadowMaterial != null) CreateShadow(registry, cellSize);
+            outline = BoxShapeVisual.CreateOutline(Shape, transform, cellSize, registry);
             IceCount = Mathf.Max(0, spawn.iceCount);
             // Keep the pick volume level with the visible box, including its raised rim.
             MeshFilter boxMesh = visual.GetComponentInChildren<MeshFilter>();
@@ -353,7 +355,13 @@ namespace BallsOut
         private void SetArtVisible(bool visible)
         {
             foreach (Renderer renderer in pulseRoot.GetComponentsInChildren<Renderer>(true))
-                if (renderer != shadow) renderer.enabled = visible;
+                if (renderer != shadow && renderer != outline) renderer.enabled = visible;
+        }
+
+        // White rim while the player holds the box.
+        internal void SetHighlighted(bool highlighted)
+        {
+            if (outline != null) outline.gameObject.SetActive(highlighted && !IsRemoved);
         }
 
         internal void RecordCollection() => CurrentFill++;

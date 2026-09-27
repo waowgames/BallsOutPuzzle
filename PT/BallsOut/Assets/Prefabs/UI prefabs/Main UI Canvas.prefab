@@ -6283,11 +6283,11 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-    price: 150
+    price: 90
     displayName: Freeze Time
     description: Stops the timer for 15 seconds.
     icon: {fileID: 21300000, guid: 0ffb20326abf2074d9d1e5f7226ae5da, type: 3}
-    purchaseAmount: 3
+    purchaseAmount: 1
     purchaseContainer: {fileID: 652503846907438398}
     watchIcon: {fileID: 0}
     purchaseButton: {fileID: 0}
@@ -6299,11 +6299,11 @@ MonoBehaviour:
     onBoosterTriggered:
       m_PersistentCalls:
         m_Calls: []
-    price: 200
+    price: 120
     displayName: Hammer
     description: Smash a block out of your way.
     icon: {fileID: 21300000, guid: 68d9a1087eb29e14d886e12df1ed0705, type: 3}
-    purchaseAmount: 3
+    purchaseAmount: 1
     purchaseContainer: {fileID: 6758765277897985660}
     watchIcon: {fileID: 0}
     purchaseButton: {fileID: 0}
@@ -6327,11 +6327,11 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-    price: 250
+    price: 150
     displayName: Fill Boxes
     description: Fills 2 boxes with matching balls straight from the pile.
     icon: {fileID: 21300000, guid: 1db121833118d7444b8e795b2721b916, type: 3}
-    purchaseAmount: 3
+    purchaseAmount: 1
     purchaseContainer: {fileID: 3461699607532113016}
     watchIcon: {fileID: 0}
     purchaseButton: {fileID: 0}
@@ -6355,11 +6355,11 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-    price: 150
+    price: 90
     displayName: Shuffle
     description: Shuffles the balls so every box gets its own color right above it.
     icon: {fileID: 21300000, guid: 00c3ed9a4352b5a449e858a67fd98a89, type: 3}
-    purchaseAmount: 3
+    purchaseAmount: 1
     purchaseContainer: {fileID: 3414423474449103308}
     watchIcon: {fileID: 0}
     purchaseButton: {fileID: 0}

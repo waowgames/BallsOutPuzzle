@@ -238,7 +238,7 @@ MonoBehaviour:
     startsLocked: 0
     lockId: ''
     keyId: ''
-    iceCount: 10
+    iceCount: 8
     initialFillCount: 0
   balls:
   - color: {fileID: 11400000, guid: 5e241ebf44e653b88e559d520f7e2b20, type: 2}

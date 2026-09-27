@@ -19,6 +19,7 @@ public static class SoundSystemSetupUtility
     private const int BallIntoBoxClipCount = 4;
     private const string BoxPickUpClipPath = "Assets/SFX/Processed/BoxPickUp.wav";
     private const string BoxDropClipPath = "Assets/SFX/Processed/BoxDrop.wav";
+    // Trimmed from Assets/SFX/popai.mp3.
     private const string BoxCompleteClipPath = "Assets/SFX/Processed/BoxComplete.wav";
 
     private static readonly string[] ChildGroupNames = { "Music", "SFX", "UI", "Ambience" };

@@ -60,6 +60,7 @@ namespace BallsOut
                 selected.MarkPlayerInteraction();
                 board.NotifyBoxStateChanged();
             }
+            selected.SetHighlighted(true);
             OnDragBegan?.Invoke(selected);
             return true;
         }
@@ -208,6 +209,7 @@ namespace BallsOut
         {
             if (selected == null || releaseRequested) return;
             releaseRequested = true;
+            selected.SetHighlighted(false);
             snapStart = selected.transform.localPosition;
             if (partnerTowed) partnerSnapStart = partner.transform.localPosition;
             snapElapsed = 0f;
@@ -255,6 +257,7 @@ namespace BallsOut
         public void Cancel()
         {
             if (selected == null) return;
+            selected.SetHighlighted(false);
             selected.transform.localPosition = board.CellToLocal(selected.Origin);
             board.FinishTransit(selected, selected.Origin);
             if (partnerTowed)
