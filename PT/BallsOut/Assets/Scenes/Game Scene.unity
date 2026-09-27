@@ -1018,6 +1018,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5691166887673096516, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
+      propertyPath: m_BlockingMask.m_Bits
+      value: 311
+      objectReference: {fileID: 0}
     - target: {fileID: 6973279006356832166, guid: c24cfdced3077d44faa596b12befb90f, type: 3}
       propertyPath: m_Name
       value: Boosters (1)
@@ -1048,6 +1052,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boosterSlots:
   - id: extra_slot
+    unlockLevel: 1
     boosterButton: {fileID: 568647900}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -1064,6 +1069,7 @@ MonoBehaviour:
     ownedContainer: {fileID: 1726681132}
     ownedCountLabel: {fileID: 803306600}
   - id: shuffle
+    unlockLevel: 1
     boosterButton: {fileID: 1544351250}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -1080,6 +1086,7 @@ MonoBehaviour:
     ownedContainer: {fileID: 1594419160}
     ownedCountLabel: {fileID: 1559239091}
   - id: color_bomb
+    unlockLevel: 1
     boosterButton: {fileID: 1106920722}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -1095,6 +1102,9 @@ MonoBehaviour:
     priceLabel: {fileID: 0}
     ownedContainer: {fileID: 1751666079}
     ownedCountLabel: {fileID: 79014585}
+  lockedFrameSprite: {fileID: 0}
+  lockIconSprite: {fileID: 0}
+  lockedLabelFormat: Lv.{0}
 --- !u!1 &879999999340145088
 GameObject:
   m_ObjectHideFlags: 0

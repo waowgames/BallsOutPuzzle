@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseReward: 3
   rewardPerLevel: 3
-  maximumReward: 0
+  maximumReward: 60
