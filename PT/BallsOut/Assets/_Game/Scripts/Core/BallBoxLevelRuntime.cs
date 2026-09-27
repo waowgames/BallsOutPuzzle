@@ -23,12 +23,15 @@ namespace BallsOut
         private readonly List<BoxController> boxes = new List<BoxController>();
         // Boosters wait for the ball clock's next safe point, when no ball is mid-step.
         private int pendingFillBoxes;
-        private bool pendingShuffle;
-        private readonly List<BallState> shuffleBalls = new List<BallState>();
-        private readonly List<Vector3> shuffleFrom = new List<Vector3>();
-        private float shuffleElapsed = -1f;
-        private const float ShuffleDuration = 0.5f;
+        private BoxController pendingMagnet;
+        private BoxController pendingSmash;
+        // A targeted booster holds the board still while the player picks a box and its effect plays.
+        private bool boosterPaused;
+        private readonly List<PoppingBall> popping = new List<PoppingBall>();
         private const float FillStagger = 0.05f;
+        private const float PopDuration = 0.28f;
+        // Longest a hammer keeps popping the smashed box's balls out of the pile.
+        private const float PopSpread = 0.45f;
         // Longest a booster fill keeps launching balls into one box.
         private const float FillSpread = 0.8f;
         // The runtime of the level being played, if any.
@@ -65,7 +68,15 @@ namespace BallsOut
         public event Action<BoardObstacle> OnObstacleCleared;
         public event Action<LevelDefinition> OnLevelWon;
         public event Action OnBoxesFilledByBooster;
-        public event Action OnBallsShuffled;
+        public event Action<BoxController> OnBoxMagnetized;
+        public event Action<BoxController> OnBoxSmashed;
+
+        private struct PoppingBall
+        {
+            public BallState ball;
+            public float elapsed;
+            public Vector3 scale;
+        }
 
         private void OnEnable()
         {
@@ -188,9 +199,10 @@ namespace BallsOut
         private void Update()
         {
             if (!running || Simulation == null) return;
+            RenderPops(Time.deltaTime);
+            if (boosterPaused) return;
             Movement.Advance(Time.deltaTime);
             Simulation.Advance(Time.deltaTime);
-            RenderShuffle(Time.deltaTime);
             Fill.Render(Simulation.InterpolationTime);
             Completion.Render(Simulation.InterpolationTime);
             if (Balls.Count == 0 && Feeder.Remaining == 0 && Conveyor.Remaining == 0 && Completion.RemainingBoxes == 0 && !Fill.IsAnimating && !Simulation.IsAnimating)
@@ -206,7 +218,7 @@ namespace BallsOut
             }
         }
 
-        private bool HasPendingBoxWork() => Fill.IsAnimating || Completion.IsAnimating;
+        private bool HasPendingBoxWork() => Fill.IsAnimating || Completion.IsAnimating || popping.Count != 0;
         private void AdvanceBoxSystems(float tickInterval)
         {
             RunPendingBoosters();
@@ -235,16 +247,57 @@ namespace BallsOut
             return true;
         }
 
-        public bool CanShuffle() => running && Balls != null && Balls.Count > 1 && !pendingShuffle && shuffleElapsed < 0f;
-
-        // Reshuffles the pile so each open box finds its own colour right above it.
-        public bool ShuffleBalls()
+        // Freezes the board (balls, boxes, dragging) while a targeted booster picks and plays out.
+        public void SetBoosterPaused(bool paused)
         {
-            if (!CanShuffle()) return false;
-            pendingShuffle = true;
+            if (boosterPaused == paused) return;
+            boosterPaused = paused;
+            if (paused) Movement?.Cancel();
+            if (dragInput != null) dragInput.enabled = running && !paused && isActiveAndEnabled;
+        }
+
+        public bool CanMagnetize(BoxController box) =>
+            running && Balls != null && pendingMagnet == null && boxes.Contains(box) && CanBoosterFill(box) &&
+            HasBallOfColor(box.ActiveColor);
+
+        public bool CanMagnetizeAny()
+        {
+            foreach (BoxController box in boxes)
+                if (CanMagnetize(box)) return true;
+            return false;
+        }
+
+        // Pulls the box's colour out of the pile, wherever those balls sit, until the box is full.
+        public bool MagnetizeBox(BoxController box)
+        {
+            if (!CanMagnetize(box)) return false;
+            pendingMagnet = box;
             Board.NotifyBoxStateChanged();
             return true;
         }
+
+        public bool CanSmash(BoxController box) =>
+            running && Balls != null && pendingSmash == null && boxes.Contains(box) && CanBeSmashed(box);
+
+        public bool CanSmashAny()
+        {
+            foreach (BoxController box in boxes)
+                if (CanSmash(box)) return true;
+            return false;
+        }
+
+        // Destroys the box as if it had been completed; the balls it still needed leave the level with it.
+        public bool SmashBox(BoxController box)
+        {
+            if (!CanSmash(box)) return false;
+            pendingSmash = box;
+            Board.NotifyBoxStateChanged();
+            return true;
+        }
+
+        private static bool CanBeSmashed(BoxController box) =>
+            box.IsPlaced && !box.IsFrozen && !box.IsLocked && !box.IsCompleting && !box.IsSwappingLayer &&
+            !box.IsRemoved && !box.IsInTransit;
 
         private static bool CanBoosterFill(BoxController box) =>
             box.IsPlaced && !box.IsFrozen && !box.IsLocked && !box.IsCompleting && !box.IsSwappingLayer &&
@@ -278,10 +331,17 @@ namespace BallsOut
                 pendingFillBoxes = 0;
                 RunFillBoxes(maxBoxes);
             }
-            if (pendingShuffle)
+            if (pendingMagnet != null)
             {
-                pendingShuffle = false;
-                RunShuffle();
+                BoxController box = pendingMagnet;
+                pendingMagnet = null;
+                if (CanBoosterFill(box) && FillBox(box, PileBottomUp())) OnBoxMagnetized?.Invoke(box);
+            }
+            if (pendingSmash != null)
+            {
+                BoxController box = pendingSmash;
+                pendingSmash = null;
+                RunSmash(box);
             }
         }
 
@@ -297,83 +357,82 @@ namespace BallsOut
             foreach (BoxController box in targets)
             {
                 if (filled >= maxBoxes) break;
-                // Boxes fill side by side; a big box streams its balls faster to finish in time.
-                float stagger = Mathf.Min(FillStagger, FillSpread / Mathf.Max(1, box.Capacity - box.CurrentFill));
-                float delay = 0f;
-                bool any = false;
-                for (int i = 0; i < pile.Count && box.CurrentFill < box.Capacity; i++)
-                {
-                    BallState ball = pile[i];
-                    if (ball == null || ball.Color != box.ActiveColor) continue;
-                    pile[i] = null;
-                    Collection.Collect(ball, box, delay);
-                    delay += stagger;
-                    any = true;
-                }
-                if (any) filled++;
+                if (FillBox(box, pile)) filled++;
             }
             if (filled > 0) OnBoxesFilledByBooster?.Invoke();
         }
 
-        private void RunShuffle()
+        // Flies matching pile balls (taken ones are nulled out) into the box. Returns whether any flew.
+        private bool FillBox(BoxController box, List<BallState> pile)
         {
-            List<BallState> pile = PileBottomUp();
-            if (pile.Count < 2) return;
-            var cells = new List<Vector2Int>(pile.Count);
-            foreach (BallState ball in pile) cells.Add(ball.Cell);
-            for (int i = pile.Count - 1; i > 0; i--)
+            // Boxes fill side by side; a big box streams its balls faster to finish in time.
+            float stagger = Mathf.Min(FillStagger, FillSpread / Mathf.Max(1, box.Capacity - box.CurrentFill));
+            float delay = 0f;
+            bool any = false;
+            for (int i = 0; i < pile.Count && box.CurrentFill < box.Capacity; i++)
             {
-                int j = UnityEngine.Random.Range(0, i + 1);
-                (pile[i], pile[j]) = (pile[j], pile[i]);
+                BallState ball = pile[i];
+                if (ball == null || ball.Color != box.ActiveColor) continue;
+                pile[i] = null;
+                Collection.Collect(ball, box, delay);
+                delay += stagger;
+                any = true;
             }
-            // Cells run bottom row first: each one right above an open box takes a ball of that
-            // box's colour while any are left; every other cell gets a random ball.
-            int boxRow = Board.Definition.lowerGridHeight - 1;
-            shuffleBalls.Clear();
-            for (int i = 0; i < cells.Count; i++)
-            {
-                BoxController below = Board.GetBox(new Vector2Int(BallMicroGrid.ToMacro(cells[i]).x, boxRow));
-                BallState pick = null;
-                if (below != null && CanBoosterFill(below))
-                    for (int j = 0; j < pile.Count; j++)
-                        if (pile[j] != null && pile[j].Color == below.ActiveColor) { pick = pile[j]; pile[j] = null; break; }
-                shuffleBalls.Add(pick);
-            }
-            int next = 0;
-            for (int i = 0; i < shuffleBalls.Count; i++)
-            {
-                if (shuffleBalls[i] != null) continue;
-                while (pile[next] == null) next++;
-                shuffleBalls[i] = pile[next++];
-            }
-            shuffleFrom.Clear();
-            foreach (BallState ball in shuffleBalls)
-                shuffleFrom.Add(ball.Visual != null ? ball.Visual.localPosition : Vector3.zero);
-            Balls.Rearrange(shuffleBalls, cells);
-            shuffleElapsed = 0f;
-            Simulation.Hold(ShuffleDuration);
-            OnBallsShuffled?.Invoke();
+            return any;
         }
 
-        private void RenderShuffle(float deltaTime)
+        private void RunSmash(BoxController box)
         {
-            if (shuffleElapsed < 0f) return;
-            shuffleElapsed += deltaTime;
-            float t = Mathf.Clamp01(shuffleElapsed / ShuffleDuration);
-            float eased = t * t * (3f - 2f * t);
-            float height = prefabs != null ? prefabs.ballHeight : Board.CellSize * 0.1f;
-            float hop = Mathf.Sin(t * Mathf.PI) * Board.CellSize * 0.35f;
-            for (int i = 0; i < shuffleBalls.Count; i++)
+            // Balls may have completed the box between the pick and this safe point.
+            if (!CanBeSmashed(box)) return;
+            // Colour counts match box capacity exactly, so every ball the box still needed goes too.
+            if (box.HasInnerLayer)
             {
-                BallState ball = shuffleBalls[i];
-                if (ball.Visual == null) continue;
-                Vector3 end = Balls.CellToLocal(ball.Cell) + Vector3.up * height;
-                ball.Visual.localPosition = Vector3.Lerp(shuffleFrom[i], end, eased) + Vector3.up * hop;
+                RemoveBalls(box.InnerColor, box.Capacity - box.CurrentFill);
+                RemoveBalls(box.Color, box.Capacity);
             }
-            if (t < 1f) return;
-            shuffleElapsed = -1f;
-            shuffleBalls.Clear();
-            shuffleFrom.Clear();
+            else RemoveBalls(box.Color, box.Capacity - box.CurrentFill);
+            Completion.Smash(box);
+            OnBoxSmashed?.Invoke(box);
+        }
+
+        // Pops `count` balls of the colour out of play: lowest in the pile first, then from the tubes and the conveyor.
+        private void RemoveBalls(BallColorDefinition color, int count)
+        {
+            if (count <= 0) return;
+            var taken = new List<BallState>();
+            foreach (BallState ball in PileBottomUp())
+            {
+                if (taken.Count >= count) break;
+                if (ball.Color == color) taken.Add(ball);
+            }
+            float stagger = Mathf.Min(0.02f, PopSpread / Mathf.Max(1, taken.Count));
+            for (int i = 0; i < taken.Count; i++)
+            {
+                Balls.Remove(taken[i]);
+                Vector3 scale = taken[i].Visual != null ? taken[i].Visual.localScale : Vector3.one;
+                popping.Add(new PoppingBall { ball = taken[i], elapsed = -i * stagger, scale = scale });
+            }
+            int left = count - taken.Count;
+            left -= Feeder.TakeQueued(color, left);
+            left -= Conveyor.TakeQueued(color, left);
+            if (left > 0) Debug.LogWarning($"[Balls Out] Hammer: {left} '{color.name}' balls were missing from play.", this);
+        }
+
+        // A smashed box's balls swell a touch and pop out of the pile.
+        private void RenderPops(float deltaTime)
+        {
+            for (int i = popping.Count - 1; i >= 0; i--)
+            {
+                PoppingBall pop = popping[i];
+                pop.elapsed += deltaTime;
+                float t = Mathf.Clamp01(pop.elapsed / PopDuration);
+                if (pop.ball.Visual != null && pop.elapsed > 0f)
+                    pop.ball.Visual.localScale = pop.scale * (t < 0.35f ? 1f + 0.3f * t / 0.35f : 1.3f * (1f - (t - 0.35f) / 0.65f));
+                if (t < 1f) { popping[i] = pop; continue; }
+                pool.Return(pop.ball);
+                popping.RemoveAt(i);
+            }
         }
 
         // Every completed box chips one step off each frozen box.
@@ -445,10 +504,10 @@ namespace BallsOut
             running = false;
             HasWon = false;
             pendingFillBoxes = 0;
-            pendingShuffle = false;
-            shuffleElapsed = -1f;
-            shuffleBalls.Clear();
-            shuffleFrom.Clear();
+            pendingMagnet = null;
+            pendingSmash = null;
+            boosterPaused = false;
+            popping.Clear();
             Movement?.Cancel();
             if (Collection != null) Collection.OnBallCollected -= ForwardBallCollected;
             if (Completion != null)

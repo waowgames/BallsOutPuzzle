@@ -148,6 +148,26 @@ public sealed class BoosterUIManager : MonoBehaviour
                 return;
             }
 
+            // Targeted boosters spend only once the player has picked a target.
+            ITargetedBooster targeted = boosterButton != null
+                ? boosterButton.GetComponent<ITargetedBooster>()
+                : null;
+            if (targeted != null)
+            {
+                GameHaptics.Light();
+                if (!targeted.BeginTargeting(Spend))
+                    GameHaptics.Warning();
+                return;
+            }
+
+            Spend();
+        }
+
+        private void Spend()
+        {
+            if (ownedCount <= 0)
+                return;
+
             ownedCount--;
             SaveOwnedCount();
             Refresh();

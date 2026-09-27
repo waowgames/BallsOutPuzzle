@@ -25,17 +25,26 @@ namespace BallsOut
             public InnerLayerSwapEffect effect;
         }
 
+        private struct Smashing
+        {
+            public BoxController box;
+            public float elapsed;
+            public BoxSmashEffect effect;
+        }
+
         // Time for a finished inner tray to lift, lid up and vanish; quicker than a full completion.
         private const float LayerSwapDuration = 0.7f;
+        private const float SmashDuration = 0.45f;
 
         private readonly BoardGrid board;
         private readonly BoxFillSystem fill;
         private readonly List<Completion> pending;
         private readonly List<LayerSwap> swaps = new List<LayerSwap>();
+        private readonly List<Smashing> smashes = new List<Smashing>();
         private readonly float defaultDuration;
         private readonly float startDelay;
         public int RemainingBoxes { get; private set; }
-        public bool IsAnimating => pending.Count != 0 || swaps.Count != 0;
+        public bool IsAnimating => pending.Count != 0 || swaps.Count != 0 || smashes.Count != 0;
         public event Action<BoxController> OnBoxCompleted;
         // A nested box filled its inner layer; it keeps going in its outer color.
         public event Action<BoxController> OnInnerLayerCompleted;
@@ -70,9 +79,20 @@ namespace BallsOut
             OnBoxCompleted?.Invoke(box);
         }
 
+        // Hammer booster: the box counts as completed at once and breaks apart instead of celebrating.
+        internal void Smash(BoxController box)
+        {
+            if (box.IsCompleting || box.IsRemoved) return;
+            box.IsCompleting = true;
+            board.Remove(box);
+            smashes.Add(new Smashing { box = box, effect = new BoxSmashEffect(box, SmashDuration) });
+            OnBoxCompleted?.Invoke(box);
+        }
+
         public void Advance(float deltaTime)
         {
             AdvanceSwaps(deltaTime);
+            AdvanceSmashes(deltaTime);
             for (int i = pending.Count - 1; i >= 0; i--)
             {
                 Completion entry = pending[i];
@@ -109,6 +129,23 @@ namespace BallsOut
             }
         }
 
+        private void AdvanceSmashes(float deltaTime)
+        {
+            for (int i = smashes.Count - 1; i >= 0; i--)
+            {
+                Smashing smash = smashes[i];
+                smash.elapsed += deltaTime;
+                // Balls still flying in are pooled along with the box once they land.
+                if (smash.elapsed < SmashDuration || smash.box.PendingFillAnimations != 0) { smashes[i] = smash; continue; }
+                smash.effect.Finish();
+                fill.Release(smash.box);
+                smash.box.gameObject.SetActive(false);
+                RemainingBoxes--;
+                smashes.RemoveAt(i);
+                OnBoxRemoved?.Invoke(smash.box);
+            }
+        }
+
         private void AdvanceSwaps(float deltaTime)
         {
             for (int i = swaps.Count - 1; i >= 0; i--)
@@ -140,6 +177,8 @@ namespace BallsOut
 
         public void Render(float interpolationTime)
         {
+            foreach (Smashing smash in smashes)
+                smash.effect.Evaluate((smash.elapsed + interpolationTime) / SmashDuration);
             foreach (LayerSwap swap in swaps)
             {
                 if (!swap.started || swap.effect == null) continue;

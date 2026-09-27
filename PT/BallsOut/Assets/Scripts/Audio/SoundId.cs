@@ -16,5 +16,7 @@ public enum SoundId
     BallIntoBox = 13,
     BoxPickUp = 14,
     BoxDrop = 15,
-    BoxComplete = 16
+    BoxComplete = 16,
+    HammerHit = 17,
+    MagnetPull = 18
 }

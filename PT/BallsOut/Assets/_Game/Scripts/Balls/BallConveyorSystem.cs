@@ -85,6 +85,32 @@ namespace BallsOut
             return true;
         }
 
+        // Hammer booster: drops up to `count` queued balls of the colour, last in line first. Returns how many.
+        internal int TakeQueued(BallColorDefinition color, int count)
+        {
+            int taken = 0;
+            for (int index = queue.Count - 1; index >= next && taken < count; index--)
+            {
+                if (queue[index] != color) continue;
+                int shown = index - next;
+                if (shown < visuals.Count)
+                {
+                    pool.Return(new BallState(color, default) { Visual = visuals[shown] });
+                    visuals.RemoveAt(shown);
+                    scales.RemoveAt(shown);
+                    entering.RemoveAt(shown);
+                }
+                queue.RemoveAt(index);
+                taken++;
+            }
+            if (taken == 0) return 0;
+            // The rest of the belt closes the gaps at once.
+            Load(false);
+            Render(1f);
+            UpdateCounter();
+            return taken;
+        }
+
         internal void Render(float amount)
         {
             if (advance == 0) return;

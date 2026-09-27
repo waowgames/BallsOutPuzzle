@@ -15,6 +15,7 @@ namespace BallsOut
         private static BoxFillSystem fill;
         private static BoxCompletionSystem completion;
         private static BoxMovementSystem movement;
+        private static BallBoxLevelRuntime runtime;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Hook()
@@ -23,20 +24,24 @@ namespace BallsOut
             fill = null;
             completion = null;
             movement = null;
+            runtime = null;
             BallBoxLevelRuntime.OnRuntimeLoaded += Attach;
         }
 
-        private static void Attach(BallBoxLevelRuntime runtime)
+        private static void Attach(BallBoxLevelRuntime loaded)
         {
             Detach();
-            fill = runtime.Fill;
-            completion = runtime.Completion;
-            movement = runtime.Movement;
+            runtime = loaded;
+            fill = loaded.Fill;
+            completion = loaded.Completion;
+            movement = loaded.Movement;
             fill.OnBallContact += BallContact;
             completion.OnCompletionAnimationStarted += CompletionStarted;
             completion.OnLayerSwapAnimationStarted += LayerSwapStarted;
             movement.OnDragBegan += DragBegan;
             movement.OnDragEnded += DragEnded;
+            runtime.OnBoxSmashed += BoxSmashed;
+            runtime.OnBoxMagnetized += BoxMagnetized;
         }
 
         private static void Detach()
@@ -52,9 +57,15 @@ namespace BallsOut
                 movement.OnDragBegan -= DragBegan;
                 movement.OnDragEnded -= DragEnded;
             }
+            if (runtime != null)
+            {
+                runtime.OnBoxSmashed -= BoxSmashed;
+                runtime.OnBoxMagnetized -= BoxMagnetized;
+            }
             fill = null;
             completion = null;
             movement = null;
+            runtime = null;
         }
 
         private static void Play(SoundId id, float pitchOffset = 0f) =>
@@ -69,6 +80,8 @@ namespace BallsOut
         private static void DragBegan(BoxController _) => Play(SoundId.BoxPickUp);
         private static void DragEnded(BoxController _) => Play(SoundId.BoxDrop);
         private static void CompletionStarted(BoxController _) => Play(SoundId.BoxComplete);
+        private static void BoxSmashed(BoxController _) => Play(SoundId.HammerHit);
+        private static void BoxMagnetized(BoxController _) => Play(SoundId.MagnetPull);
         private static void LayerSwapStarted(BoxController _) => Play(SoundId.BoxComplete, InnerLayerPitchOffset);
     }
 }

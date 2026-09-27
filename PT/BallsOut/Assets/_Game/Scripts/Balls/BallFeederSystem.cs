@@ -102,6 +102,36 @@ namespace BallsOut
             return fed;
         }
 
+        // Hammer booster: drops up to `count` queued balls of the colour, last in line first. Returns how many.
+        internal int TakeQueued(BallColorDefinition color, int count)
+        {
+            int taken = 0;
+            foreach (Tube tube in tubes)
+            {
+                bool changed = false;
+                for (int index = tube.queue.Count - 1; index >= tube.next && taken < count; index--)
+                {
+                    if (tube.queue[index] != color) continue;
+                    int shown = index - tube.next;
+                    if (shown < tube.visuals.Count)
+                    {
+                        pool.Return(new BallState(color, default) { Visual = tube.visuals[shown] });
+                        tube.visuals.RemoveAt(shown);
+                        tube.starts.RemoveAt(shown);
+                        tube.targets.RemoveAt(shown);
+                    }
+                    tube.queue.RemoveAt(index);
+                    Remaining--;
+                    taken++;
+                    changed = true;
+                }
+                if (!changed) continue;
+                Restack(tube);
+                UpdateCounter(tube);
+            }
+            return taken;
+        }
+
         internal void Render(float amount)
         {
             // Ease in and out so a stack that drops one row settles instead of snapping.

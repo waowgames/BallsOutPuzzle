@@ -45,6 +45,8 @@ namespace BallsOut
         private BoxFillLabel fillLabel;
         private GameObject axisArrow;
         internal Transform InnerArt { get; private set; }
+        // The box model itself, without fill, labels, shadow or lock/key props.
+        internal GameObject Art => art;
         private IceBoxVisual ice;
         private BoxLockVisual padlock;
         private BoxKeyVisual key;

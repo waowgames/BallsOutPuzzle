@@ -36,7 +36,7 @@ namespace BallsOut
             runtime.OnObstacleCracked += ObstacleCracked;
             runtime.OnObstacleCleared += ObstacleCleared;
             runtime.OnBoxesFilledByBooster += BoosterEffect;
-            runtime.OnBallsShuffled += BoosterEffect;
+            runtime.OnBoxMagnetized += MagnetEffect;
             movement.OnDragBegan += DragBegan;
             movement.OnDragRefused += DragRefused;
             movement.OnBoxMoved += BoxMoved;
@@ -58,7 +58,7 @@ namespace BallsOut
                 current.OnObstacleCracked -= ObstacleCracked;
                 current.OnObstacleCleared -= ObstacleCleared;
                 current.OnBoxesFilledByBooster -= BoosterEffect;
-                current.OnBallsShuffled -= BoosterEffect;
+                current.OnBoxMagnetized -= MagnetEffect;
             }
             if (movement != null)
             {
@@ -87,5 +87,6 @@ namespace BallsOut
         private static void ObstacleCracked(BoardObstacle _) => GameHaptics.Medium();
         private static void ObstacleCleared(BoardObstacle _) => GameHaptics.Heavy();
         private static void BoosterEffect() => GameHaptics.Heavy();
+        private static void MagnetEffect(BoxController _) => GameHaptics.Heavy();
     }
 }
