@@ -6827,6 +6827,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boosterSlots:
   - id: freeze
+    unlockLevel: 5
     boosterButton: {fileID: 4862102862588673015}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -6855,6 +6856,7 @@ MonoBehaviour:
     ownedContainer: {fileID: 8330762890566185841}
     ownedCountLabel: {fileID: 757398292337704358}
   - id: hammer
+    unlockLevel: 12
     boosterButton: {fileID: 4040506926597100806}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -6871,6 +6873,7 @@ MonoBehaviour:
     ownedContainer: {fileID: 978838328268428637}
     ownedCountLabel: {fileID: 6558269791089770239}
   - id: fill_boxes
+    unlockLevel: 20
     boosterButton: {fileID: 3150171353590445726}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -6899,6 +6902,7 @@ MonoBehaviour:
     ownedContainer: {fileID: 3570196586194416993}
     ownedCountLabel: {fileID: 7199730308673267192}
   - id: ball_shuffle
+    unlockLevel: 50
     boosterButton: {fileID: 1007436819747461850}
     onBoosterTriggered:
       m_PersistentCalls:
@@ -6914,6 +6918,9 @@ MonoBehaviour:
     priceLabel: {fileID: 0}
     ownedContainer: {fileID: 1014749443490963302}
     ownedCountLabel: {fileID: 8633486138627331451}
+  lockedFrameSprite: {fileID: 21300000, guid: 271077c26e6a6f8419af9d483941803c, type: 3}
+  lockIconSprite: {fileID: 21300000, guid: b266b52171131f144840f9973087b2a0, type: 3}
+  lockedLabelFormat: Lv.{0}
 --- !u!225 &5471985489105162836
 CanvasGroup:
   m_ObjectHideFlags: 0

@@ -8,6 +8,15 @@ public sealed class BoosterUIManager : MonoBehaviour
 {
     [SerializeField] private BoosterSlot[] boosterSlots = Array.Empty<BoosterSlot>();
 
+    [Header("Locked Visual")]
+    [SerializeField] private Sprite lockedFrameSprite;
+    [SerializeField] private Sprite lockIconSprite;
+    [SerializeField] private string lockedLabelFormat = "Lv.{0}";
+
+    internal Sprite LockedFrameSprite => lockedFrameSprite;
+    internal Sprite LockIconSprite => lockIconSprite;
+    internal string LockedLabelFormat => lockedLabelFormat;
+
     private void OnEnable()
     {
         foreach (BoosterSlot slot in boosterSlots)
@@ -15,6 +24,8 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         if (CurrencyWallet.Instance != null)
             CurrencyWallet.Instance.BalanceChanged += HandleBalanceChanged;
+
+        GameEvents.OnLevelLoaded += HandleLevelLoaded;
 
         RefreshAll();
     }
@@ -24,6 +35,8 @@ public sealed class BoosterUIManager : MonoBehaviour
         if (CurrencyWallet.Instance != null)
             CurrencyWallet.Instance.BalanceChanged -= HandleBalanceChanged;
 
+        GameEvents.OnLevelLoaded -= HandleLevelLoaded;
+
         foreach (BoosterSlot slot in boosterSlots)
             slot?.Teardown();
     }
@@ -31,6 +44,21 @@ public sealed class BoosterUIManager : MonoBehaviour
     private void HandleBalanceChanged(int _)
     {
         RefreshAll();
+    }
+
+    private void HandleLevelLoaded(int _)
+    {
+        RefreshAll();
+    }
+
+    internal static int CurrentLevelNumber()
+    {
+        if (LevelManager.Instance != null)
+            return LevelManager.Instance.DisplayedLevel1Based;
+
+        return SaveService.Instance != null
+            ? SaveService.Instance.CurrentLevelIndex + 1
+            : 1;
     }
 
     private void RefreshAll()
@@ -49,6 +77,7 @@ public sealed class BoosterUIManager : MonoBehaviour
     private sealed class BoosterSlot
     {
         [SerializeField] private string id = string.Empty;
+        [SerializeField, Min(1)] private int unlockLevel = 1;
         [SerializeField] private Button boosterButton;
         [SerializeField] private UnityEvent onBoosterTriggered;
         [SerializeField, Min(0)] private int price = 10;
@@ -71,6 +100,10 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         private BoosterUIManager owner;
         private int ownedCount;
+        private GameObject lockedOverlay;
+        private TextMeshProUGUI lockedLabel;
+
+        private bool IsLocked => BoosterUIManager.CurrentLevelNumber() < unlockLevel;
 
         public void Setup(BoosterUIManager slotOwner)
         {
@@ -107,9 +140,11 @@ public sealed class BoosterUIManager : MonoBehaviour
         {
             ownedCount = LoadOwnedCount();
             bool hasBooster = ownedCount > 0;
+            bool locked = IsLocked;
 
-            if (purchaseContainer != null) purchaseContainer.SetActive(!hasBooster);
-            if (ownedContainer != null) ownedContainer.SetActive(hasBooster);
+            if (purchaseContainer != null) purchaseContainer.SetActive(!locked && !hasBooster);
+            if (ownedContainer != null) ownedContainer.SetActive(!locked && hasBooster);
+            RefreshLockedOverlay(locked);
             if (watchIcon != null) watchIcon.SetActive(false);
 
             if (ownedCountLabel != null)
@@ -128,6 +163,12 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         private void UseBooster()
         {
+            if (IsLocked)
+            {
+                GameHaptics.Warning();
+                return;
+            }
+
             if (ownedCount <= 0)
             {
                 OpenPurchasePopup();
@@ -177,7 +218,79 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         private void PurchaseBooster()
         {
+            if (IsLocked)
+                return;
+
             TryPurchase();
+        }
+
+        private void RefreshLockedOverlay(bool locked)
+        {
+            if (!locked)
+            {
+                if (lockedOverlay != null)
+                    lockedOverlay.SetActive(false);
+                return;
+            }
+
+            EnsureLockedOverlay();
+            if (lockedOverlay == null)
+                return;
+
+            lockedOverlay.SetActive(true);
+            lockedOverlay.transform.SetAsLastSibling();
+
+            if (lockedLabel != null)
+                lockedLabel.SetText(string.Format(owner.LockedLabelFormat, unlockLevel));
+        }
+
+        // Built at runtime over the booster button so every slot shares the same locked look.
+        private void EnsureLockedOverlay()
+        {
+            if (lockedOverlay != null || boosterButton == null || owner == null)
+                return;
+
+            RectTransform root = CreateUIChild("Locked", boosterButton.transform, Vector2.zero, Vector2.one);
+            Image frame = root.gameObject.AddComponent<Image>();
+            frame.sprite = owner.LockedFrameSprite;
+            frame.raycastTarget = false;
+            frame.enabled = frame.sprite != null;
+
+            RectTransform iconRect = CreateUIChild("Lock Icon", root, new Vector2(0.22f, 0.3f), new Vector2(0.78f, 0.88f));
+            Image lockIcon = iconRect.gameObject.AddComponent<Image>();
+            lockIcon.sprite = owner.LockIconSprite;
+            lockIcon.preserveAspect = true;
+            lockIcon.raycastTarget = false;
+            lockIcon.enabled = lockIcon.sprite != null;
+
+            RectTransform labelRect = CreateUIChild("Level Txt", root, new Vector2(0.05f, 0.04f), new Vector2(0.95f, 0.32f));
+            lockedLabel = labelRect.gameObject.AddComponent<TextMeshProUGUI>();
+            if (ownedCountLabel != null)
+            {
+                lockedLabel.font = ownedCountLabel.font;
+                lockedLabel.fontSharedMaterial = ownedCountLabel.fontSharedMaterial;
+            }
+            lockedLabel.alignment = TextAlignmentOptions.Center;
+            lockedLabel.enableAutoSizing = true;
+            lockedLabel.fontSizeMin = 10f;
+            lockedLabel.fontSizeMax = 60f;
+            lockedLabel.color = Color.white;
+            lockedLabel.raycastTarget = false;
+
+            lockedOverlay = root.gameObject;
+        }
+
+        private static RectTransform CreateUIChild(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            var rect = (RectTransform)go.transform;
+            rect.SetParent(parent, false);
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            go.layer = parent.gameObject.layer;
+            return rect;
         }
 
         private void OpenPurchasePopup()
