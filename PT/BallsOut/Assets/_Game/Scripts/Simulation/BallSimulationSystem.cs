@@ -124,6 +124,8 @@ namespace BallsOut
             // Tubes and the conveyor's gate top up the row the pile has just left.
             if (feeder != null && feeder.Feed(launch)) changed = true;
             if (conveyor != null && conveyor.Feed(launch)) changed = true;
+            // Only once nothing could fall: a box's last few balls stuck nearby fly in.
+            if (!changed && collection.PullStragglers()) changed = true;
             SetStable(!changed);
         }
 

@@ -14,6 +14,12 @@ namespace BallsOut
         [Tooltip("Lowest ball rows above a box from which a matching ball flies straight in, past the balls under it. " +
             "Other balls never move for it. 0 = off.")]
         [SerializeField, Range(0, 3)] private int sinkReachRows = 2;
+        [Tooltip("A box needing this many balls or fewer pulls in its matching balls stuck close to it once the pile settles. 0 = off.")]
+        [SerializeField, Range(0, 10)] private int stragglerMagnetMaxRemaining = 5;
+        [Tooltip("How many ball rows above the box the straggler magnet reaches.")]
+        [SerializeField, Range(0, 12)] private int stragglerMagnetReachRows = 5;
+        [Tooltip("How many ball columns past the box's left and right edges the straggler magnet reaches.")]
+        [SerializeField, Range(0, 8)] private int stragglerMagnetReachColumns = 3;
         [SerializeField] private bool waitForLevelStart;
         [SerializeField] private bool drawDebugGizmos = true;
         private Transform content;
@@ -171,7 +177,8 @@ namespace BallsOut
             Completion.OnBoxCompleted += SendKey;
             Completion.OnBoxCompleted += BreakChain;
             Completion.OnBoxCompleted += ChipObstacles;
-            Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows);
+            Collection = new BallCollectionSystem(Balls, Fill, Completion, sinkReachRows, stragglerMagnetMaxRemaining,
+                stragglerMagnetReachRows, stragglerMagnetReachColumns);
             Collection.OnBallCollected += ForwardBallCollected;
             Simulation = new BallSimulationSystem(Balls, Collection, simulationTick, height, AdvanceBoxSystems, HasPendingBoxWork, sinkReachRows, Feeder,
                 Conveyor);
