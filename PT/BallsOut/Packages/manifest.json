@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "appsflyer-unity-plugin": "https://github.com/AppsFlyerSDK/appsflyer-unity-plugin.git#071edaadf588269e673ecf9913fe573f1e125e58",
+    "com.gameanalytics.sdk": "https://github.com/GameAnalytics/GA-SDK-UNITY.git#7f661deab09d5224fbd32af5c24f7259c11b238f",
     "com.unity.ai.navigation": "2.0.10",
     "com.unity.collab-proxy": "2.11.3",
     "com.unity.ide.rider": "3.0.39",

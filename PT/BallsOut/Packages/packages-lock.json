@@ -1,5 +1,19 @@
 {
   "dependencies": {
+    "appsflyer-unity-plugin": {
+      "version": "https://github.com/AppsFlyerSDK/appsflyer-unity-plugin.git#071edaadf588269e673ecf9913fe573f1e125e58",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "071edaadf588269e673ecf9913fe573f1e125e58"
+    },
+    "com.gameanalytics.sdk": {
+      "version": "https://github.com/GameAnalytics/GA-SDK-UNITY.git#7f661deab09d5224fbd32af5c24f7259c11b238f",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "7f661deab09d5224fbd32af5c24f7259c11b238f"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.10",
       "depth": 0,
