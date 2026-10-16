@@ -14,7 +14,7 @@ namespace BallsOut
         [Tooltip("Lowest ball rows above a box from which a matching ball flies straight in, past the balls under it. " +
             "Other balls never move for it. 0 = off.")]
         [SerializeField, Range(0, 3)] private int sinkReachRows = 2;
-        [Tooltip("A box needing this many balls or fewer pulls in its matching balls stuck close to it once the pile settles. 0 = off.")]
+        [Tooltip("A box needing this many balls or fewer pulls matching balls from nearby above it while dragged or once the pile settles. 0 = off.")]
         [SerializeField, Range(0, 10)] private int stragglerMagnetMaxRemaining = 5;
         [Tooltip("How many ball rows above the box the straggler magnet reaches.")]
         [SerializeField, Range(0, 12)] private int stragglerMagnetReachRows = 5;

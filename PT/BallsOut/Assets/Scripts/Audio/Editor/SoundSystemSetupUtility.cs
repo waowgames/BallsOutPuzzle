@@ -196,7 +196,28 @@ public static class SoundSystemSetupUtility
         EnsureDefinition(result, library, CreateBoxPickUp(), FindGroup(groups, "SFX"));
         EnsureDefinition(result, library, CreateBoxDrop(), FindGroup(groups, "SFX"));
         EnsureDefinition(result, library, CreateBoxComplete(), FindGroup(groups, "SFX"));
+        AudioMixerGroup uiGroup = FindGroup(groups, "UI");
+        EnsureDefinition(result, library, CreateRewardSound(SoundId.ConfettiPop, 0.7f, 0.08f, 3), uiGroup);
+        EnsureDefinition(result, library, CreateRewardSound(SoundId.StarAppear, 0.65f, 0.04f, 3), uiGroup);
+        EnsureDefinition(result, library, CreateRewardSound(SoundId.CoinSpawn, 0.45f, 0.06f, 2), uiGroup);
+        EnsureDefinition(result, library, CreateRewardSound(SoundId.CoinFly, 0.45f, 0.1f, 1), uiGroup);
         return result;
+    }
+
+    private static SoundDefinition CreateRewardSound(SoundId id, float volume, float cooldown, int maxInstances)
+    {
+        return new SoundDefinition
+        {
+            Id = id,
+            Clips = LoadClip("Assets/SFX/Processed/" + id + ".wav"),
+            Category = SoundCategory.Ui,
+            Volume = volume,
+            PitchRange = Vector2.one,
+            Cooldown = cooldown,
+            MaxSimultaneousInstances = maxInstances,
+            Priority = SoundPriority.High,
+            OverlapMode = SoundOverlapMode.ReplaceOldest
+        };
     }
 
     private static void EnsureDefinition(
@@ -232,6 +253,7 @@ public static class SoundSystemSetupUtility
         return new SoundDefinition
         {
             Id = SoundId.CoinCollect,
+            Clips = LoadClip("Assets/SFX/Processed/CoinCollect.wav"),
             Category = SoundCategory.Sfx,
             Cooldown = 0.04f,
             MaxSimultaneousInstances = 3,

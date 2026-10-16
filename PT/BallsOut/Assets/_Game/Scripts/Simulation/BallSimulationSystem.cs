@@ -82,7 +82,8 @@ namespace BallsOut
 
         private void Tick()
         {
-            bool changed = false;
+            // At this safe point no ball is mid-step, so pulled balls cannot remain in the moving list.
+            bool changed = collection.PullStragglers(inTransitOnly: true);
             TickCount++;
             slidRight = null;
             // Bottom-up in-place traversal: destinations are in rows already visited,

@@ -139,6 +139,7 @@ public sealed class LevelUpPopup : UIPopup
             if (star != null)
             {
                 star.DOKill();
+                SoundManager.Instance?.PlaySfx(SoundId.StarAppear, Mathf.Min(i, 6) * 0.09f);
                 Tween pop = star.DOScale(starScales[i], 0.25f).SetEase(Ease.OutBack, 2.2f).SetUpdate(true);
                 if (i == stars.Length - 1)
                     pop.OnComplete(UnlockGetButton);
@@ -180,6 +181,7 @@ public sealed class LevelUpPopup : UIPopup
         Vector3 position = cam.ViewportToWorldPoint(new Vector3(viewportSpot.x, viewportSpot.y, confettiDistance));
         GameObject confetti = Instantiate(confettiPrefab, position, confettiPrefab.transform.rotation);
         confetti.transform.localScale *= confettiScale;
+        SoundManager.Instance?.PlaySfx(SoundId.ConfettiPop);
 
         foreach (ParticleSystem system in confetti.GetComponentsInChildren<ParticleSystem>())
         {

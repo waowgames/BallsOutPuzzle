@@ -30,9 +30,9 @@ namespace BallsOut
             this.magnetReachColumns = Mathf.Max(0, magnetReachColumns);
         }
 
-        // Called once the pile has settled: a box that needs only its last few balls pulls in the
-        // matching ones stuck close above it (a few rows up, or a few columns off to the side).
-        internal bool PullStragglers()
+        // A box needing its last few balls pulls matching ones from close above it.
+        // Dragged boxes can do this before gravity advances; standing boxes wait for the pile to settle.
+        internal bool PullStragglers(bool inTransitOnly = false)
         {
             if (magnetMaxRemaining <= 0 || magnetReachRows <= 0) return false;
             int mouthRow = firstBallRow - 1;
@@ -44,7 +44,8 @@ namespace BallsOut
                 // Each run of mouth columns under one box is handled once, from its left end.
                 if (box == null || box == previous) { previous = box; continue; }
                 previous = box;
-                if (box.IsInTransit || !box.CanCollect(box.ActiveColor) || box.Capacity - box.CurrentFill > magnetMaxRemaining)
+                if (inTransitOnly && !box.IsInTransit || !box.CanCollect(box.ActiveColor) ||
+                    box.Capacity - box.CurrentFill > magnetMaxRemaining)
                     continue;
                 int right = x;
                 while (right + 1 < grid.Width && MouthBox(right + 1, mouthRow) == box) right++;

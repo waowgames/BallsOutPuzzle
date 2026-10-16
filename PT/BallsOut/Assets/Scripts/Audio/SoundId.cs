@@ -18,5 +18,9 @@ public enum SoundId
     BoxDrop = 15,
     BoxComplete = 16,
     HammerHit = 17,
-    MagnetPull = 18
+    MagnetPull = 18,
+    ConfettiPop = 19,
+    StarAppear = 20,
+    CoinSpawn = 21,
+    CoinFly = 22
 }

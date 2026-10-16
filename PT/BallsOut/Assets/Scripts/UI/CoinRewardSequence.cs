@@ -22,6 +22,7 @@ public sealed class CoinRewardSequence : MonoBehaviour
     private int visualCoinCount;
     private int arrivedCoinCount;
     private int burstCount;
+    private SoundHandle flightSound;
 
     private void Awake()
     {
@@ -96,6 +97,8 @@ public sealed class CoinRewardSequence : MonoBehaviour
 
         particleImage.onParticleFinish.AddListener(HandleCoinArrived);
         particleImage.Play();
+        if (SoundManager.Instance != null)
+            flightSound = SoundManager.Instance.PlayTrackedSfx(SoundId.CoinFly);
     }
 
     private void HandleCoinArrived()
@@ -104,6 +107,7 @@ public sealed class CoinRewardSequence : MonoBehaviour
             return;
 
         arrivedCoinCount++;
+        SoundManager.Instance?.PlaySfx(SoundId.CoinCollect, (arrivedCoinCount - 1) * 0.05f);
         int displayedBalance = startBalance +
             (int)((long)creditedReward * arrivedCoinCount / visualCoinCount);
         currencyDisplay?.ShowRewardProgress(displayedBalance);
@@ -111,7 +115,17 @@ public sealed class CoinRewardSequence : MonoBehaviour
 
     private IEnumerator CompleteAfterCoins()
     {
-        yield return new WaitForSecondsRealtime(MinimumSequenceTime);
+        float startedAt = Time.realtimeSinceStartup;
+        for (int i = 0; i < visualCoinCount; i++)
+        {
+            SoundManager.Instance?.PlaySfx(SoundId.CoinSpawn, i * 0.035f);
+            if (i + 1 < visualCoinCount)
+                yield return new WaitForSecondsRealtime(CoinInterval);
+        }
+
+        float remainingMinimumTime = MinimumSequenceTime - (Time.realtimeSinceStartup - startedAt);
+        if (remainingMinimumTime > 0f)
+            yield return new WaitForSecondsRealtime(remainingMinimumTime);
 
         float timeout = Time.realtimeSinceStartup + CoinArrivalTimeout;
         while (arrivedCoinCount < visualCoinCount && Time.realtimeSinceStartup < timeout)
@@ -129,6 +143,8 @@ public sealed class CoinRewardSequence : MonoBehaviour
 
     private void FinishVisuals()
     {
+        SoundManager.Instance?.Stop(flightSound, 0.06f);
+        flightSound = default;
         currencyDisplay?.EndRewardAnimation();
         if (particleImage == null)
             return;

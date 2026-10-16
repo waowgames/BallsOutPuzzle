@@ -31,7 +31,8 @@ MonoBehaviour:
   debugLogging: 0
   sounds:
   - Id: 1
-    Clips: []
+    Clips:
+    - {fileID: 8300000, guid: 424b09fd82434c040bf2ea9af3cad442, type: 3}
     Category: 0
     Volume: 1
     VolumeRange: {x: 0.96, y: 1}
@@ -485,3 +486,119 @@ MonoBehaviour:
     DuckHoldDuration: 0.35
     DuckFadeOutDuration: 0.25
     DuckTargets: 1
+  - Id: 19
+    Clips:
+    - {fileID: 8300000, guid: 3e763b007bbe0bb46bda590fa348fa5a, type: 3}
+    Category: 1
+    Volume: 0.7
+    VolumeRange: {x: 1, y: 1}
+    PitchRange: {x: 1, y: 1}
+    Cooldown: 0.08
+    MaxSimultaneousInstances: 3
+    Priority: 2
+    OverlapMode: 4
+    MixerGroup: {fileID: 3659195447439612031, guid: 423b229ecf834084c88ec5f778916903, type: 2}
+    MergeSameFrameRequests: 1
+    BatchVolumeIncrement: 0
+    MaxBatchVolumeMultiplier: 1
+    BatchPitchIncrement: 0
+    MaxBatchPitchOffset: 0
+    Is3D: 0
+    SpatialBlend: 0
+    MinDistance: 1
+    MaxDistance: 25
+    RolloffMode: 0
+    Loop: 0
+    UseDucking: 0
+    DuckVolume: 0.45
+    DuckFadeInDuration: 0.08
+    DuckHoldDuration: 0.35
+    DuckFadeOutDuration: 0.25
+    DuckTargets: 3
+  - Id: 20
+    Clips:
+    - {fileID: 8300000, guid: b4447004f59fb6d4789678b8b8557ddd, type: 3}
+    Category: 1
+    Volume: 0.65
+    VolumeRange: {x: 1, y: 1}
+    PitchRange: {x: 1, y: 1}
+    Cooldown: 0.04
+    MaxSimultaneousInstances: 3
+    Priority: 2
+    OverlapMode: 4
+    MixerGroup: {fileID: 3659195447439612031, guid: 423b229ecf834084c88ec5f778916903, type: 2}
+    MergeSameFrameRequests: 1
+    BatchVolumeIncrement: 0
+    MaxBatchVolumeMultiplier: 1
+    BatchPitchIncrement: 0
+    MaxBatchPitchOffset: 0
+    Is3D: 0
+    SpatialBlend: 0
+    MinDistance: 1
+    MaxDistance: 25
+    RolloffMode: 0
+    Loop: 0
+    UseDucking: 0
+    DuckVolume: 0.45
+    DuckFadeInDuration: 0.08
+    DuckHoldDuration: 0.35
+    DuckFadeOutDuration: 0.25
+    DuckTargets: 3
+  - Id: 21
+    Clips:
+    - {fileID: 8300000, guid: 9a7eb31036efa344d9b5184c4686ad43, type: 3}
+    Category: 1
+    Volume: 0.45
+    VolumeRange: {x: 1, y: 1}
+    PitchRange: {x: 1, y: 1}
+    Cooldown: 0.06
+    MaxSimultaneousInstances: 2
+    Priority: 2
+    OverlapMode: 4
+    MixerGroup: {fileID: 3659195447439612031, guid: 423b229ecf834084c88ec5f778916903, type: 2}
+    MergeSameFrameRequests: 1
+    BatchVolumeIncrement: 0
+    MaxBatchVolumeMultiplier: 1
+    BatchPitchIncrement: 0
+    MaxBatchPitchOffset: 0
+    Is3D: 0
+    SpatialBlend: 0
+    MinDistance: 1
+    MaxDistance: 25
+    RolloffMode: 0
+    Loop: 0
+    UseDucking: 0
+    DuckVolume: 0.45
+    DuckFadeInDuration: 0.08
+    DuckHoldDuration: 0.35
+    DuckFadeOutDuration: 0.25
+    DuckTargets: 3
+  - Id: 22
+    Clips:
+    - {fileID: 8300000, guid: e8fa50335065fb141877e09f835bc4bb, type: 3}
+    Category: 1
+    Volume: 0.45
+    VolumeRange: {x: 1, y: 1}
+    PitchRange: {x: 1, y: 1}
+    Cooldown: 0.1
+    MaxSimultaneousInstances: 1
+    Priority: 2
+    OverlapMode: 4
+    MixerGroup: {fileID: 3659195447439612031, guid: 423b229ecf834084c88ec5f778916903, type: 2}
+    MergeSameFrameRequests: 1
+    BatchVolumeIncrement: 0
+    MaxBatchVolumeMultiplier: 1
+    BatchPitchIncrement: 0
+    MaxBatchPitchOffset: 0
+    Is3D: 0
+    SpatialBlend: 0
+    MinDistance: 1
+    MaxDistance: 25
+    RolloffMode: 0
+    Loop: 0
+    UseDucking: 0
+    DuckVolume: 0.45
+    DuckFadeInDuration: 0.08
+    DuckHoldDuration: 0.35
+    DuckFadeOutDuration: 0.25
+    DuckTargets: 3
