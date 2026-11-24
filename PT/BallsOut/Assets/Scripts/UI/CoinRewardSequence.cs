@@ -65,7 +65,11 @@ public sealed class CoinRewardSequence : MonoBehaviour
         {
             currencyDisplay?.BeginRewardAnimation(startBalance);
             if (wallet.Add(reward))
+            {
                 creditedReward = wallet.Balance - startBalance;
+                if (creditedReward > 0)
+                    LionEconomyAnalytics.LevelReward(creditedReward);
+            }
         }
 
         if (creditedReward > 0 && particleImage != null)

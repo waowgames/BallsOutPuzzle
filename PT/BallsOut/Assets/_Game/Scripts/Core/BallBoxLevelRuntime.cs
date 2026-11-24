@@ -501,7 +501,12 @@ namespace BallsOut
         private void ForwardFillChanged(BoxController box) => OnBoxFillChanged?.Invoke(box);
         private void ForwardBallCollected(BallState ball, BoxController box) => OnBallCollected?.Invoke(ball, box);
         private void ForwardBoxCompleted(BoxController box) => OnBoxCompleted?.Invoke(box);
-        private void ForwardBoxRemoved(BoxController box) => OnBoxRemoved?.Invoke(box);
+        private void ForwardBoxRemoved(BoxController box)
+        {
+            if (Active == this)
+                LionMissionAnalytics.BoxRemoved(boxes.Count, Completion.RemainingBoxes);
+            OnBoxRemoved?.Invoke(box);
+        }
         private void ForwardInnerLayerCompleted(BoxController box) => OnInnerLayerCompleted?.Invoke(box);
         private void ForwardObstacleCracked(BoardObstacle obstacle) => OnObstacleCracked?.Invoke(obstacle);
         private void ForwardObstacleCleared(BoardObstacle obstacle) => OnObstacleCleared?.Invoke(obstacle);

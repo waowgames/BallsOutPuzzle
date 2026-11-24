@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1000)]
@@ -11,6 +12,7 @@ public sealed class SaveService : SingletonMonoBehaviour<SaveService>
 
     public int CurrentLevelIndex => data != null ? data.currentLevelIndex : 0;
     public int SoftCurrency => data != null ? data.softCurrency : 0;
+    public IReadOnlyList<BoosterSaveEntry> SavedBoosters => data.boosters;
     public bool MusicEnabled => data == null || data.musicEnabled;
     public bool SfxEnabled => data == null || data.sfxEnabled;
     public bool VibrationEnabled => data == null || data.vibrationEnabled;

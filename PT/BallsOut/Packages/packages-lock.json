@@ -1,18 +1,105 @@
 {
   "dependencies": {
-    "appsflyer-unity-plugin": {
-      "version": "https://github.com/AppsFlyerSDK/appsflyer-unity-plugin.git#071edaadf588269e673ecf9913fe573f1e125e58",
+    "com.adjust.sdk": {
+      "version": "https://github.com/adjust/unity_sdk.git?path=Assets/Adjust#v5.6.0",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "071edaadf588269e673ecf9913fe573f1e125e58"
+      "hash": "8154f650168d9afd971806cd382ffc691f145300"
     },
-    "com.gameanalytics.sdk": {
-      "version": "https://github.com/GameAnalytics/GA-SDK-UNITY.git#7f661deab09d5224fbd32af5c24f7259c11b238f",
+    "com.applovin.mediation.ads": {
+      "version": "8.6.3",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
+      "dependencies": {
+        "com.google.external-dependency-manager": "1.2.182"
+      },
+      "url": "https://unity.packages.applovin.com"
+    },
+    "com.google.external-dependency-manager": {
+      "version": "1.2.182",
+      "depth": 1,
+      "source": "registry",
       "dependencies": {},
-      "hash": "7f661deab09d5224fbd32af5c24f7259c11b238f"
+      "url": "https://package.openupm.com"
+    },
+    "com.lionstudios.release.bundle": {
+      "version": "2.4.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.lionstudios.release.lionkitcore": "4.3.0",
+        "com.lionstudios.release.lionsdkservice": "4.3.0",
+        "com.lionstudios.release.lionanalytics": "4.3.0",
+        "com.lionstudios.release.iap": "2.3.0",
+        "com.lionstudios.release.lionads": "4.4.0",
+        "com.lionstudios.release.splash": "2.1.0"
+      },
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.facebook.unity-sdk": {
+      "version": "18.1.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.iap": {
+      "version": "2.3.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.lionstudios.release.lionanalytics": "4.3.0"
+      },
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.lionads": {
+      "version": "4.4.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.lionstudios.release.lionkitcore": "4.3.0",
+        "com.lionstudios.release.lionanalytics": "4.3.0"
+      },
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.lionanalytics": {
+      "version": "4.3.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.lionstudios.release.lionkitcore": "4.3.0"
+      },
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.lionkitcore": {
+      "version": "4.3.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.audio": "1.0.0",
+        "com.unity.modules.androidjni": "1.0.0",
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.lionsdkservice": {
+      "version": "4.3.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.lionstudios.release.lionkitcore": "4.3.0",
+        "com.unity.nuget.newtonsoft-json": "3.0.2",
+        "com.lionstudios.release.lionanalytics": "4.3.0"
+      },
+      "url": "http://packages.lionstudios.cc:4873"
+    },
+    "com.lionstudios.release.splash": {
+      "version": "2.1.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "http://packages.lionstudios.cc:4873"
     },
     "com.unity.ai.navigation": {
       "version": "2.0.10",

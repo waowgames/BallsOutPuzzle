@@ -62,7 +62,7 @@ public sealed class LevelTimer : SingletonMonoBehaviour<LevelTimer>
             return;
 
         running = false;
-        manager.FailLevel();
+        manager.FailLevel("out_of_time");
     }
 
     /// <summary>Pauses the countdown for the given duration (time-freeze booster).</summary>

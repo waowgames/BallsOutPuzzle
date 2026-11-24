@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29eefae49e0d545d0bc69afc8198bd3a, type: 3}
+  m_Name: LionSettingsRegistry
+  m_EditorClassIdentifier: 
+  _entries:
+  - {fileID: 11400000, guid: 424862ff88c8f074496f134a6ae10fd5, type: 2}
+  - {fileID: 11400000, guid: aeb15b197a7fbd44b9f852fc34ed1ef7, type: 2}
+  - {fileID: 11400000, guid: 55a15a2c99dd2f34791fd9e44dceb781, type: 2}
+  - {fileID: 11400000, guid: 246a93f636a83ec40b97d12c47aef1d2, type: 2}
+  - {fileID: 11400000, guid: 323710b316720174181e72d7f6d77191, type: 2}
+  - {fileID: 11400000, guid: cba30ecaa173df6449a6a0bb7b4e883b, type: 2}
+  - {fileID: 11400000, guid: 5825dfbc7a1db9242b399f832b3792e2, type: 2}
+  - {fileID: 11400000, guid: 1f35b6c066115a842a7ce134fea988b8, type: 2}
+  - {fileID: 11400000, guid: 5e1afa7e4edda164db8684d0279bcb2b, type: 2}
+  - {fileID: 11400000, guid: 54160f02f460f3e43be658c728df0e8f, type: 2}
+  - {fileID: 11400000, guid: e202fed7cb2efe149bbb936a9d4965cd, type: 2}

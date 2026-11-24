@@ -152,6 +152,7 @@ public sealed class TutorialDirector : MonoBehaviour
 
         if (placed != null)
         {
+            LionMissionAnalytics.TutorialStep();
             yield return FillStep(placed);
         }
         else
@@ -160,8 +161,10 @@ public sealed class TutorialDirector : MonoBehaviour
             yield return InfoStep(config.dragText, null);
         }
 
+        LionMissionAnalytics.TutorialStep();
         yield return InfoStep(config.winText, null, RemainingBoxHoles());
         MarkDone(FirstLevelId);
+        LionMissionAnalytics.TutorialStep();
         EndTutorial();
     }
 
@@ -325,6 +328,7 @@ public sealed class TutorialDirector : MonoBehaviour
         {
             yield return InfoStep(intro.text, null, intro.holes);
             MarkDone(intro.id);
+            LionMissionAnalytics.TutorialStep();
         }
         EndTutorial();
     }
@@ -413,6 +417,7 @@ public sealed class TutorialDirector : MonoBehaviour
         }
 
         MarkDone(BoosterPrefix + booster.Id);
+        LionMissionAnalytics.TutorialStep();
         overlay.Hand.Stop();
         overlay.SetText(null);
         yield return Wait(0.35f);

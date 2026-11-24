@@ -62,6 +62,8 @@ public sealed class BoosterUIManager : MonoBehaviour
                 if (slot != null && slot.Info.Id == id)
                 {
                     slot.Grant(amount);
+                    if (amount > 0)
+                        LionEconomyAnalytics.Gifted(id, amount);
                     return true;
                 }
         return false;
@@ -164,6 +166,7 @@ public sealed class BoosterUIManager : MonoBehaviour
         private int ownedCount;
         private GameObject lockedOverlay;
         private TextMeshProUGUI lockedLabel;
+        private bool directOfferVisible;
 
         private bool IsLocked => BoosterUIManager.CurrentLevelNumber() < unlockLevel;
 
@@ -197,6 +200,7 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         public void Teardown()
         {
+            directOfferVisible = false;
             if (boosterButton != null)
                 boosterButton.onClick.RemoveListener(UseBooster);
 
@@ -224,7 +228,13 @@ public sealed class BoosterUIManager : MonoBehaviour
                 priceLabel.SetText("{0}", price);
 
             if (purchaseButton != null)
+            {
                 purchaseButton.interactable = CanAffordBooster();
+                bool visible = !locked && !hasBooster && purchaseButton.gameObject.activeInHierarchy;
+                if (visible && !directOfferVisible)
+                    LionEconomyAnalytics.OfferShown(ResolveId(), LionEconomyAnalytics.BoosterBar);
+                directOfferVisible = visible;
+            }
 
             // An empty booster stays clickable: it opens the purchase popup.
             if (boosterButton != null)
@@ -281,6 +291,7 @@ public sealed class BoosterUIManager : MonoBehaviour
 
             ownedCount--;
             SaveOwnedCount();
+            LionMissionAnalytics.PowerUpUsed(LionEconomyAnalytics.BoosterName(ResolveId()));
             Refresh();
             GameHaptics.Medium();
             onBoosterTriggered?.Invoke();
@@ -292,7 +303,7 @@ public sealed class BoosterUIManager : MonoBehaviour
             if (IsLocked)
                 return;
 
-            TryPurchase();
+            TryPurchase(LionEconomyAnalytics.BoosterBar);
         }
 
         private void RefreshLockedOverlay(bool locked)
@@ -366,15 +377,17 @@ public sealed class BoosterUIManager : MonoBehaviour
 
         private void OpenPurchasePopup()
         {
-            var offer = new BoosterOffer(displayName, description, icon, purchaseAmount, price);
-            BoosterPurchasePopup.ShowIfAvailable(offer, TryPurchase);
+            var offer = new BoosterOffer(displayName, description, icon, purchaseAmount, price, ResolveId());
+            BoosterPurchasePopup.ShowIfAvailable(offer, () => TryPurchase(LionEconomyAnalytics.BoosterPopup));
         }
 
-        private bool TryPurchase()
+        private bool TryPurchase(string placement)
         {
+            LionEconomyAnalytics.OfferClicked(ResolveId(), placement);
             if (owner != null && owner.TrySpend(price))
             {
                 GrantBooster(purchaseAmount);
+                LionEconomyAnalytics.Purchased(ResolveId(), price, purchaseAmount, placement);
                 return true;
             }
 

@@ -44,6 +44,8 @@ public sealed class LevelManager : SingletonMonoBehaviour<LevelManager>
 
     private void LoadLevel(int index, bool resetAttempt)
     {
+        if (State == LevelState.Playing)
+            LionMissionAnalytics.Abandon();
         CurrentLevelIndex = Mathf.Max(0, index);
         if (resetAttempt)
             CurrentAttempt = 0;
@@ -64,6 +66,7 @@ public sealed class LevelManager : SingletonMonoBehaviour<LevelManager>
 
         CurrentAttempt++;
         State = LevelState.Playing;
+        LionMissionAnalytics.Begin(DisplayedLevel1Based);
         GameEvents.RaiseLevelStarted(CurrentLevelIndex);
     }
 
@@ -74,19 +77,23 @@ public sealed class LevelManager : SingletonMonoBehaviour<LevelManager>
 
         int completedLevelIndex = CurrentLevelIndex;
         State = LevelState.Completed;
+        LionMissionAnalytics.Complete();
         CurrentLevelIndex++;
 
         SaveProgress();
         GameEvents.RaiseLevelCompleted(completedLevelIndex);
     }
 
-    public void FailLevel()
+    public void FailLevel() => FailLevel("unknown");
+
+    public void FailLevel(string reason)
     {
         if (State != LevelState.Playing)
             return;
 
         int failedLevelIndex = CurrentLevelIndex;
         State = LevelState.Failed;
+        LionMissionAnalytics.Fail(reason);
 
         GameEvents.RaiseLevelFailed(failedLevelIndex);
         LevelFailPopup.ShowIfAvailable();
@@ -111,5 +118,16 @@ public sealed class LevelManager : SingletonMonoBehaviour<LevelManager>
     private void SaveProgress()
     {
         SaveService.Instance?.SetCurrentLevelIndex(CurrentLevelIndex);
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (Instance == this) LionMissionAnalytics.Abandon();
+    }
+
+    protected override void OnDestroy()
+    {
+        if (Instance == this) LionMissionAnalytics.Abandon();
+        base.OnDestroy();
     }
 }

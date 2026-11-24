@@ -12,14 +12,16 @@ public readonly struct BoosterOffer
     public readonly Sprite Icon;
     public readonly int Amount;
     public readonly int Price;
+    public readonly string BoosterId;
 
-    public BoosterOffer(string title, string description, Sprite icon, int amount, int price)
+    public BoosterOffer(string title, string description, Sprite icon, int amount, int price, string boosterId = null)
     {
         Title = title;
         Description = description;
         Icon = icon;
         Amount = amount;
         Price = price;
+        BoosterId = boosterId;
     }
 }
 
@@ -80,6 +82,7 @@ public sealed class BoosterPurchasePopup : UIPopup
 
     public void Open(BoosterOffer boosterOffer, Func<bool> purchaseCallback)
     {
+        bool newImpression = !IsShowing || offer.BoosterId != boosterOffer.BoosterId;
         offer = boosterOffer;
         purchase = purchaseCallback;
 
@@ -91,6 +94,8 @@ public sealed class BoosterPurchasePopup : UIPopup
 
         RefreshAffordability();
         Show();
+        if (newImpression && !string.IsNullOrEmpty(offer.BoosterId))
+            LionEconomyAnalytics.OfferShown(offer.BoosterId, LionEconomyAnalytics.BoosterPopup);
     }
 
     protected override void OnShow()

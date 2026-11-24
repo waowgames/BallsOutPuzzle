@@ -755,7 +755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c341cbd60abb802418f16805b949cbe6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetSceneIndex: 1
+  targetSceneIndex: 2
   waitBeforeLoading: 2
   levelText: {fileID: 0}
   loadingBar: {fileID: 0}
